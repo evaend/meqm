@@ -1,0 +1,150 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.phxl.ysy.dao.OrderDetailMapper">
+
+	<resultMap id="BaseResultMap" type="com.phxl.ysy.entity.OrderDetail">
+		<id column="ORDER_DETAIL_GUID" property="orderDetailGuid" jdbcType="VARCHAR" />
+		<result column="ORDER_ID" property="orderId" jdbcType="VARCHAR" />
+		<result column="FITEMID" property="fitemid" jdbcType="DECIMAL" />
+		<result column="MATERIAL_NAME" property="materialName" jdbcType="VARCHAR" />
+		<result column="FMODEL" property="fmodel" jdbcType="VARCHAR" />
+		<result column="SPEC" property="spec" jdbcType="VARCHAR" />
+		<result column="REF" property="ref" jdbcType="VARCHAR" />
+		<result column="AMOUNT" property="amount" jdbcType="DECIMAL" />
+		<result column="TENDER_PRICE" property="tenderPrice" jdbcType="DECIMAL" />
+		<result column="FLOT" property="flot" jdbcType="VARCHAR" />
+		<result column="PROD_DATE" property="prodDate" jdbcType="TIMESTAMP" />
+		<result column="USEFUL_DATE" property="usefulDate" jdbcType="TIMESTAMP" />
+		<result column="FBARCODE" property="fbarcode" jdbcType="VARCHAR" />
+		<result column="TENDER_UNIT" property="tenderUnit" jdbcType="VARCHAR" />
+		<result column="FSORT" property="fsort" jdbcType="DECIMAL" />
+		<result column="CONVERSION" property="conversion" jdbcType="DECIMAL" />
+		<result column="TENDER_DETAIL_GUID" property="tenderDetailGuid" jdbcType="VARCHAR" />
+		<result column="CERT_GUID" property="certGuid" jdbcType="VARCHAR" />
+		<result column="TF_BRAND" property="tfBrand" jdbcType="VARCHAR" />
+		<result column="TF_TEXTURE" property="tfTexture" jdbcType="VARCHAR" />
+		<result column="PACKING_TEXTURE" property="packingTexture" jdbcType="VARCHAR" />
+		<result column="TF_PACKING" property="tfPacking" jdbcType="VARCHAR" />
+		<result column="GE_NAME" property="geName" jdbcType="VARCHAR" />
+	</resultMap>
+	
+	<sql id="Base_Column_List_With_Prefix">
+		odd.ORDER_DETAIL_GUID, odd.ORDER_ID, odd.FITEMID, odd.MATERIAL_NAME, odd.FMODEL, odd.SPEC, odd.REF, odd.AMOUNT, odd.TENDER_PRICE, odd.FLOT, 
+		odd.PROD_DATE, odd.USEFUL_DATE, odd.FBARCODE, odd.TENDER_UNIT, odd.FSORT, odd.CONVERSION, odd.TENDER_DETAIL_GUID, odd.CERT_GUID,
+		odd.TF_BRAND, odd.TF_TEXTURE, odd.PACKING_TEXTURE, odd.TF_PACKING, odd.GE_NAME
+	</sql>
+	
+	<resultMap id="BaseResultExtMap" type="com.phxl.ysy.entity.OrderDetail" extends="BaseResultMap">
+		<result column="SUM_PRICE" property="sumPrice" jdbcType="DECIMAL" />
+		<result column="SENTOUT_AMOUNT" property="sentoutAmount" jdbcType="DECIMAL" />
+		<result column="ALLOW_AMOUNT" property="allowAmount" jdbcType="DECIMAL" />
+		<result column="F_ORG_NAME" property="fOrgName" jdbcType="VARCHAR" />
+	</resultMap>
+	
+	<!-- 查询指定订单的产品明细列表 -->
+	<select id="findDetailListByOrderId" resultMap="BaseResultExtMap" parameterType="com.phxl.core.base.entity.Pager">
+		select 
+			<include refid="Base_Column_List_With_Prefix" />,
+			odd.TENDER_PRICE*odd.AMOUNT sum_price,
+			odd.f_org_name, 
+			odd.sentout_amount, 
+			odd.amount-odd.sentout_amount as allow_amount
+		from (
+			SELECT <include refid="Base_Column_List_With_Prefix"></include>,
+					nvl((SELECT sum(AMOUNT)
+							from tb_delivery dl
+							LEFT JOIN tb_delivery_detail dd on dd.SEND_ID=dl.SEND_ID
+							WHERE dd.ORDER_DETAIL_GUID=odd.ORDER_DETAIL_GUID and dl.FSTATE!='90'
+					), 0) sentout_amount,
+					od.f_org_name
+			from tb_order_detail odd
+			left join tb_order od on od.order_id=odd.order_id
+			where odd.order_id = #{conditiions.orderId, jdbcType=VARCHAR}
+		) odd
+		order by odd.FSORT asc
+	</select>
+	
+	<!-- 批量按供应商拆分订单明细 -->
+	<insert id="insertBatchByFOrgids">
+		insert into TB_ORDER_DETAIL(ORDER_DETAIL_GUID, ORDER_ID, FITEMID, MATERIAL_NAME, FMODEL, SPEC, REF, FSORT, AMOUNT, TENDER_PRICE,
+			FLOT, PROD_DATE, USEFUL_DATE, FBARCODE, TENDER_UNIT, CONVERSION, TENDER_DETAIL_GUID, CERT_GUID,
+			TF_BRAND, TF_TEXTURE, PACKING_TEXTURE, TF_PACKING, GE_NAME)
+	
+		SELECT 
+			sys_guid(), so.order_id, tti.FITEMID, m.MATERIAL_NAME, m.FMODEL, m.SPEC, m.REF, 
+		  	row_number() OVER( PARTITION BY so.ORDER_ID ORDER BY ttd.ROWID asc) rn, 
+		  	pp.amount, ttd.TENDER_PRICE, pp.FLOT, pp.PROD_DATE, pp.USEFUL_DATE, tti.FBARCODE,
+		  	ttd.TENDER_UNIT, ttd.CONVERSION, ttd.TENDER_DETAIL_GUID, ttd.CERT_GUID,
+		  	brand2.TF_CLO_NAME, tti.TF_TEXTURE, tti.PACKING_TEXTURE, tti.TF_PACKING, tti.GE_NAME
+		FROM (
+		  	<foreach collection="products" item="item" index="index" separator="union all">
+		  		SELECT #{item.tenderDetailGuid, jdbcType=VARCHAR} TENDER_DETAIL_GUID, #{item.amount, jdbcType=DECIMAL} amount, 
+		  		null FLOT, null PROD_DATE, null USEFUL_DATE FROM dual
+		  	</foreach>
+		  ) pp
+		JOIN TD_TENDER_DETAIL ttd on ttd.TENDER_DETAIL_GUID=pp.TENDER_DETAIL_GUID
+		LEFT JOIN TD_TENDER_INFO tti on ttd.TENDER_GUID=tti.TENDER_GUID
+		LEFT JOIN TB_SOURCE_INFO si on ttd.SOURCE_GUID=si.SOURCE_GUID
+		LEFT JOIN TD_MATERIAL m on tti.FITEMID=m.FITEMID
+		left join TD_REGISTER r on ttd.cert_guid=r.CERT_GUID
+		left join td_static_info brand on brand.TF_CLO='TF_BRAND'
+		left join td_static_data brand2 on brand.STATIC_ID=brand2.STATIC_ID and brand2.TF_CLO_CODE=r.TF_BRAND
+		<!-- 虚表:供应商订单对应 -->
+		JOIN (
+			<foreach collection="orderList" item="item" index="index" separator="union all">
+		  		SELECT #{item.fOrgId, jdbcType=DECIMAL} f_org_id, #{item.orderId, jdbcType=VARCHAR} order_id, #{item.orderNo, jdbcType=VARCHAR} order_no FROM dual 
+		  	</foreach>
+		) so on si.F_ORG_ID=so.f_org_id
+	</insert>
+	
+	<!-- 批量插入草稿产品明细列表 -->
+	<insert id="insertDraftDetailList">
+		insert into TB_ORDER_DETAIL(ORDER_DETAIL_GUID, ORDER_ID, FITEMID, MATERIAL_NAME, FMODEL, SPEC, REF, FSORT, AMOUNT, TENDER_PRICE,
+			FBARCODE, TENDER_UNIT, CONVERSION, TENDER_DETAIL_GUID, CERT_GUID,
+			TF_BRAND, TF_TEXTURE, PACKING_TEXTURE, TF_PACKING, GE_NAME)
+	
+		SELECT 
+			sys_guid(), #{orderId, jdbcType=VARCHAR}, tti.FITEMID, m.MATERIAL_NAME, m.FMODEL, m.SPEC, m.REF, 
+		  	row_number() OVER(ORDER BY ttd.ROWID asc) rn, 
+		  	pp.amount, ttd.TENDER_PRICE, tti.FBARCODE,
+		  	ttd.TENDER_UNIT, ttd.CONVERSION, ttd.TENDER_DETAIL_GUID, ttd.CERT_GUID,
+		  	brand2.TF_CLO_NAME, tti.TF_TEXTURE, tti.PACKING_TEXTURE, tti.TF_PACKING, tti.GE_NAME
+		FROM (
+		  	<foreach collection="products" item="item" index="index" separator="union all">
+		  		SELECT #{item.tenderDetailGuid, jdbcType=VARCHAR} TENDER_DETAIL_GUID, #{item.amount, jdbcType=DECIMAL} amount FROM dual
+		  	</foreach>
+		  ) pp
+		JOIN TD_TENDER_DETAIL ttd on ttd.TENDER_DETAIL_GUID=pp.TENDER_DETAIL_GUID
+		LEFT JOIN TD_TENDER_INFO tti on ttd.TENDER_GUID=tti.TENDER_GUID
+		LEFT JOIN TB_SOURCE_INFO si on ttd.SOURCE_GUID=si.SOURCE_GUID
+		LEFT JOIN TD_MATERIAL m on tti.FITEMID=m.FITEMID
+		left join TD_REGISTER r on ttd.cert_guid=r.CERT_GUID
+		left join td_static_info brand on brand.TF_CLO='TF_BRAND'
+		left join td_static_data brand2 on brand.STATIC_ID=brand2.STATIC_ID and brand2.TF_CLO_CODE=r.TF_BRAND
+	</insert>
+	
+	<!-- 计算指定订单的产品总金额 -->
+	<select id="evalTotalPriceByOrderId" parameterType="string" resultType="java.math.BigDecimal">
+		SELECT sum(odd.AMOUNT * odd.TENDER_PRICE) from TB_ORDER_DETAIL odd WHERE odd.ORDER_ID=#{orderId, jdbcType=VARCHAR}
+	</select>
+
+	<!-- 统计汇总:产品列表各产品属性分布 -->
+	<select id="subtotalOfAttributeIds" resultType="java.util.LinkedHashMap">
+		select
+		<foreach collection="gkAttributes" item="attr" index="index" separator=",">
+			(	SELECT 
+					nvl(sum(tdd.AMOUNT), 0)
+				from (
+					<foreach collection="materialList" item="m" separator="union all">
+						select #{m.tenderDetailGuid,jdbcType=VARCHAR} tender_detail_guid, #{m.amount,jdbcType=VARCHAR} amount from dual
+					</foreach>
+				) tdd
+				LEFT JOIN TD_TENDER_DETAIL ttd on TDD.TENDER_DETAIL_GUID=TTD.TENDER_DETAIL_GUID
+				LEFT JOIN TD_TENDER_INFO tti on ttd.tender_guid=tti.tender_guid 
+				WHERE tti.ATTRIBUTE_ID=#{attr.TF_CLO_CODE,jdbcType=VARCHAR}
+			) as "${attr.TF_CLO_CODE}"
+		</foreach>
+		from dual
+	</select>
+	
+</mapper>

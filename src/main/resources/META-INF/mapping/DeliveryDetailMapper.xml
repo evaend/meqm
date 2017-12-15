@@ -1,0 +1,415 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.phxl.ysy.dao.DeliveryDetailMapper">
+
+	<resultMap id="BaseResultMap" type="com.phxl.ysy.entity.DeliveryDetail">
+		<id column="SEND_DETAIL_GUID" property="sendDetailGuid" jdbcType="VARCHAR" />
+		<result column="SEND_ID" property="sendId" jdbcType="VARCHAR" />
+		<result column="FSORT" property="fsort" jdbcType="DECIMAL" />
+		<result column="FITEMID" property="fitemid" jdbcType="DECIMAL" />
+		<result column="AMOUNT" property="amount" jdbcType="DECIMAL" />
+		<result column="TENDER_PRICE" property="tenderPrice" jdbcType="DECIMAL" />
+		<result column="FLOT" property="flot" jdbcType="VARCHAR" />
+		<result column="PROD_DATE" property="prodDate" jdbcType="TIMESTAMP" />
+		<result column="USEFUL_DATE" property="usefulDate" jdbcType="TIMESTAMP" />
+		<result column="FBARCODE" property="fbarcode" jdbcType="VARCHAR" />
+		<result column="ORDER_DETAIL_GUID" property="orderDetailGuid" jdbcType="VARCHAR" />
+		<result column="TENDER_UNIT" property="tenderUnit" jdbcType="VARCHAR" />
+		<result column="TENDER_DETAIL_GUID" property="tenderDetailGuid" jdbcType="VARCHAR" />
+		<result column="MATERIAL_NAME" property="materialName" jdbcType="VARCHAR" />
+		<result column="FMODEL" property="fmodel" jdbcType="VARCHAR" />
+		<result column="SPEC" property="spec" jdbcType="VARCHAR" />
+		<result column="REF" property="ref" jdbcType="VARCHAR" />
+		<result column="TF_BRAND" property="tfBrand" jdbcType="VARCHAR" />
+		<result column="TF_TEXTURE" property="tfTexture" jdbcType="VARCHAR" />
+		<result column="PACKING_TEXTURE" property="packingTexture" jdbcType="VARCHAR" />
+		<result column="TF_PACKING" property="tfPacking" jdbcType="VARCHAR" />
+		<result column="GE_NAME" property="geName" jdbcType="VARCHAR" />
+		<result column="SAVE_FLAG" property="saveFlag" jdbcType="VARCHAR" />
+		<result column="CONVERSION" property="conversion" jdbcType="VARCHAR" />
+		<result column="CERT_GUID" property="certGuid" jdbcType="VARCHAR" />
+
+	</resultMap>
+	
+	<sql id="Base_Column_List_With_Prefix">
+		dd.SEND_DETAIL_GUID, dd.SEND_ID, dd.FSORT, dd.FITEMID, dd.AMOUNT, dd.TENDER_PRICE, dd.FLOT,
+		dd.PROD_DATE, dd.USEFUL_DATE, dd.FBARCODE, dd.ORDER_DETAIL_GUID, dd.TENDER_UNIT, dd.TENDER_DETAIL_GUID,
+		dd.MATERIAL_NAME, dd.FMODEL, dd.SPEC, dd.REF, dd.TF_BRAND, dd.TF_TEXTURE, dd.PACKING_TEXTURE, dd.TF_PACKING, 
+		dd.GE_NAME, dd.SAVE_FLAG,dd.CONVERSION,dd.CERT_GUID
+	</sql>
+	<sql id="DD_RETURN_LIST">
+		dd.SEND_DETAIL_GUID "sendDetailGuid", dd.SEND_ID "sendId", dd.FSORT "fsort", dd.FITEMID "fitemid",
+		dd.AMOUNT "amount", dd.TENDER_PRICE "tenderPrice", dd.AMOUNT*dd.TENDER_PRICE "amountMoney",dd.FLOT "flot",
+		to_char(dd.PROD_DATE,'yyyy-MM-dd') "prodDate", to_char(dd.USEFUL_DATE,'yyyy-MM-dd') "usefulDate", dd.TENDER_UNIT "tenderUnit",
+		dd.MATERIAL_NAME "materialName", dd.FMODEL "fmodel", dd.SPEC "spec", dd.REF, dd.TF_BRAND "tfBrand", dd.TF_PACKING "tfPacking",
+		dd.GE_NAME "geName", tti.ATTRIBUTE_ID "attributeId", tsd.TF_CLO_NAME "attributeName"
+	</sql>
+	
+	<!-- 根据送货单ID查询送货单明细列表 -->
+	<select id="selectdeliveryDetails" resultType="HashMap" parameterType="com.phxl.core.base.entity.Pager">
+		select <include refid="DD_RETURN_LIST"></include>
+		from tb_delivery_detail dd
+		LEFT JOIN TD_TENDER_DETAIL ttd on dd.TENDER_DETAIL_GUID=ttd.TENDER_DETAIL_GUID
+		LEFT JOIN TD_TENDER_INFO tti on ttd.TENDER_GUID=tti.TENDER_GUID
+		LEFT JOIN TD_STATIC_INFO tsi on tsi.ORG_ID=tti.R_ORG_ID and tsi.TF_CLO='GKATTRIBUTE'
+		LEFT join TD_STATIC_DATA tsd on tsd.STATIC_ID=tsi.STATIC_ID AND tsd.TF_CLO_CODE=tti.ATTRIBUTE_ID
+		<where>
+			<if test="conditiions.sendId != null and conditiions.sendId != ''" >
+				and dd.SEND_ID = #{conditiions.sendId}
+			</if>
+		</where>
+		order by dd.FSORT
+	</select>
+	
+	<resultMap id="OperDeliveryDetailResultMap" type="com.phxl.ysy.entity.DeliveryDetail" extends="BaseResultMap">
+		<result column="amountMoney" property="amountMoney" jdbcType="DECIMAL" />
+		<result column="attributeId" property="attributeId" jdbcType="VARCHAR" />
+		<result column="attributeName" property="attributeName" jdbcType="VARCHAR" />
+	</resultMap>
+
+	<!-- 根据手术送货单id查询产品明细列表（手术订单专用） -->
+	<select id="findDetailList4OperBySendId" resultMap="OperDeliveryDetailResultMap" parameterType="com.phxl.core.base.entity.Pager">
+		select
+			dd.SEND_DETAIL_GUID, dd.SEND_ID, dd.FSORT, dd.FITEMID, dd.TENDER_PRICE,
+			dd.FBARCODE, dd.ORDER_DETAIL_GUID, dd.TENDER_UNIT, dd.TENDER_DETAIL_GUID,
+			dd.MATERIAL_NAME, dd.FMODEL, dd.SPEC, dd.REF, dd.TF_BRAND, dd.TF_TEXTURE, dd.PACKING_TEXTURE, dd.TF_PACKING,
+			dd.GE_NAME, dd.SAVE_FLAG,
+			<if test='conditiions.submitFlag!=null and conditiions.submitFlag=="S"' >
+				dd.AMOUNT,
+				dd.FLOT,
+				dd.PROD_DATE,
+				dd.USEFUL_DATE,
+			</if>
+			<if test='conditiions.submitFlag!=null and conditiions.submitFlag=="D"' >
+				nvl(dd.DRAFT_AMOUNT,dd.AMOUNT) AMOUNT,
+				nvl(dd.DRAFT_FLOT,dd.FLOT) FLOT,
+				nvl(dd.DRAFT_PROD_DATE,dd.PROD_DATE) PROD_DATE,
+				nvl(dd.DRAFT_USEFUL_DATE,dd.USEFUL_DATE) USEFUL_DATE,
+			</if>
+			tti.ATTRIBUTE_ID "attributeId", tsd.TF_CLO_NAME "attributeName",
+			dd.AMOUNT*dd.TENDER_PRICE "amountMoney"
+		from tb_delivery_detail dd
+		LEFT JOIN TD_TENDER_DETAIL ttd on dd.TENDER_DETAIL_GUID=ttd.TENDER_DETAIL_GUID
+		LEFT JOIN TD_TENDER_INFO tti on ttd.TENDER_GUID=tti.TENDER_GUID
+		LEFT JOIN TD_MATERIAL m on tti.FITEMID=m.FITEMID
+		LEFT JOIN TD_REGISTER r on ttd.cert_guid=r.CERT_GUID
+		LEFT JOIN TD_STATIC_INFO tsi on tsi.ORG_ID=tti.R_ORG_ID and tsi.TF_CLO='GKATTRIBUTE'
+		LEFT join TD_STATIC_DATA tsd on tsd.STATIC_ID=tsi.STATIC_ID AND tsd.TF_CLO_CODE=tti.ATTRIBUTE_ID
+		where 1=1
+			<include refid="sendIdAndSubmitFlagScope"/>
+			<if test="conditiions!=null">
+				<!--产品类型-->
+				<if test="conditiions.attributeId!=null and conditiions.attributeId!=''">
+					AND tti.ATTRIBUTE_ID=#{conditiions.attributeId,jdbcType=VARCHAR}
+				</if>
+				<!--品牌-->
+				<if test="conditiions.tfBrand!=null and conditiions.tfBrand!=''">
+					AND r.TF_BRAND=#{conditiions.tfBrand,jdbcType=VARCHAR}
+				</if>
+				<!-- 模糊搜索关键字（产品名称/通用名称/规格/型号） -->
+				<if test="conditiions.searchName!=null and conditiions.searchName!=''">
+					and (
+						regexp_like(m.MATERIAL_NAME, #{conditiions.searchName,jdbcType=VARCHAR})
+						or regexp_like(tti.GE_NAME, #{conditiions.searchName,jdbcType=VARCHAR})
+						or regexp_like(m.FMODEL, #{conditiions.searchName,jdbcType=VARCHAR})
+						or regexp_like(m.SPEC, #{conditiions.searchName,jdbcType=VARCHAR})
+					)
+				</if>
+			</if>
+		order by dd.FSORT
+	</select>
+
+	<sql id="sendIdAndSubmitFlagScope">
+		and dd.SEND_ID = #{conditiions.sendId,jdbcType=VARCHAR}
+		<choose>
+			<!-- 已提交备货数据 -->
+			<when test='conditiions.submitFlag!=null and conditiions.submitFlag=="S"' > and dd.SAVE_FLAG in ('01','02','03') </when>
+			<!--临时备货数据-->
+			<when test='conditiions.submitFlag!=null and conditiions.submitFlag=="D"' > and dd.SAVE_FLAG in ('00', '01','02') </when>
+			<otherwise>and 1=2</otherwise>
+		</choose>
+	</sql>
+
+	<!-- 普耗、高值、结算备货: 批量插入送货单明细列表 -->
+	<insert id="insertDetailListBatch">
+		insert into TB_DELIVERY_DETAIL( SEND_DETAIL_GUID, SEND_ID, FITEMID, TENDER_PRICE, 
+			FBARCODE, ORDER_DETAIL_GUID, TENDER_UNIT, CONVERSION, TENDER_DETAIL_GUID,
+			MATERIAL_NAME, FMODEL, SPEC, REF, TF_BRAND, TF_TEXTURE, PACKING_TEXTURE, TF_PACKING, GE_NAME,
+			FSORT, AMOUNT, FLOT, PROD_DATE, USEFUL_DATE, CERT_GUID)
+		
+		SELECT 
+			sys_guid(), #{sendId, jdbcType=VARCHAR}, odd.FITEMID, odd.TENDER_PRICE, 
+			odd.FBARCODE, odd.ORDER_DETAIL_GUID, odd.TENDER_UNIT, odd.CONVERSION, odd.TENDER_DETAIL_GUID,
+			odd.MATERIAL_NAME, odd.FMODEL, odd.SPEC, odd.REF, odd.TF_BRAND, odd.TF_TEXTURE, odd.PACKING_TEXTURE, odd.TF_PACKING, odd.GE_NAME,
+			temp.fsort, temp.amount, temp.flot, temp.prod_date, temp.useful_date, odd.CERT_GUID
+		FROM TB_ORDER_DETAIL odd
+		INNER JOIN (
+			<foreach collection="details" item="item" index="index" separator="union all">
+				SELECT
+					#{item.orderDetailGuid, jdbcType=VARCHAR} order_detail_guid,
+					#{item.fsort, jdbcType=DECIMAL} fsort,
+					#{item.amount, jdbcType=DECIMAL} amount,
+					#{item.flot, jdbcType=VARCHAR} flot,
+					#{item.prodDate, jdbcType=DATE} prod_date,
+					#{item.usefulDate, jdbcType=DATE} useful_date
+				from dual
+			</foreach>
+		) temp on odd.ORDER_DETAIL_GUID=temp.ORDER_DETAIL_GUID
+	</insert>
+
+	<!-- 手术备货: 批量插入送货单明细列表 -->
+	<insert id="insertDetailList4Oper">
+		insert into TB_DELIVERY_DETAIL( SEND_DETAIL_GUID, SEND_ID, FITEMID, MATERIAL_NAME, FMODEL, SPEC, REF,
+		FSORT, AMOUNT, TENDER_PRICE,	FBARCODE, TENDER_UNIT, CONVERSION, TENDER_DETAIL_GUID,
+		TF_BRAND, TF_TEXTURE, PACKING_TEXTURE, TF_PACKING, GE_NAME,
+		FLOT, PROD_DATE, USEFUL_DATE, CERT_GUID)
+
+		SELECT
+			sys_guid(), #{sendId, jdbcType=VARCHAR}, tti.FITEMID, m.MATERIAL_NAME, m.FMODEL, m.SPEC, m.REF,
+			row_number() OVER(ORDER BY ttd.ROWID asc) FSORT,
+			pp.amount, ttd.TENDER_PRICE, tti.FBARCODE,
+			ttd.TENDER_UNIT, ttd.CONVERSION, ttd.TENDER_DETAIL_GUID,
+			brand2.TF_CLO_NAME, tti.TF_TEXTURE, tti.PACKING_TEXTURE, tti.TF_PACKING, tti.GE_NAME,
+			pp.flot, pp.prod_date, pp.useful_date, ttd.CERT_GUID
+		FROM (
+			<foreach collection="materials" item="item" index="index" separator="union all">
+				SELECT
+					#{item.tenderDetailGuid, jdbcType=VARCHAR} TENDER_DETAIL_GUID,
+					#{item.amount, jdbcType=DECIMAL} amount,
+					#{item.flot, jdbcType=VARCHAR} flot,
+					#{item.prodDate, jdbcType=DATE} prod_date,
+					#{item.usefulDate, jdbcType=DATE} useful_date
+				FROM dual
+			</foreach>
+		) pp
+		JOIN TD_TENDER_DETAIL ttd on ttd.TENDER_DETAIL_GUID=pp.TENDER_DETAIL_GUID
+		LEFT JOIN TD_TENDER_INFO tti on ttd.TENDER_GUID=tti.TENDER_GUID
+		LEFT JOIN TB_SOURCE_INFO si on ttd.SOURCE_GUID=si.SOURCE_GUID
+		LEFT JOIN TD_MATERIAL m on tti.FITEMID=m.FITEMID
+		left join TD_REGISTER r on ttd.cert_guid=r.CERT_GUID
+		left join td_static_info brand on brand.TF_CLO='TF_BRAND'
+		left join td_static_data brand2 on brand.STATIC_ID=brand2.STATIC_ID and brand2.TF_CLO_CODE=r.TF_BRAND
+	</insert>
+
+	<!-- 手术备货: 批量插入送货单明细列表 -->
+	<insert id="mergeDetailList4Oper">
+		begin
+			<!-- 添加或更新产品信息 -->
+			<if test="materialList!=null and materialList.size()>0">
+				MERGE INTO TB_DELIVERY_DETAIL h
+				USING (
+						SELECT
+							SEND_DETAIL_GUID, #{sendId, jdbcType=VARCHAR} SEND_ID,
+							tti.FITEMID, m.MATERIAL_NAME, m.FMODEL, m.SPEC, m.REF,
+							row_number() OVER(ORDER BY ttd.ROWID asc) FSORT,
+							pp.amount, ttd.TENDER_PRICE, tti.FBARCODE,
+							ttd.TENDER_UNIT, ttd.CONVERSION, ttd.TENDER_DETAIL_GUID, ttd.CERT_GUID,
+							brand2.TF_CLO_NAME TF_BRAND, tti.TF_TEXTURE, tti.PACKING_TEXTURE, tti.TF_PACKING, tti.GE_NAME,
+							pp.flot, pp.prod_date, pp.useful_date
+						FROM (
+							<foreach collection="materialList" item="item" index="index" separator="union all">
+								SELECT
+									#{materialList[${index}].sendDetailGuid, jdbcType=VARCHAR} SEND_DETAIL_GUID,
+									#{materialList[${index}].tenderDetailGuid, jdbcType=VARCHAR} TENDER_DETAIL_GUID,
+									#{materialList[${index}].amount, jdbcType=DECIMAL} amount,
+									#{materialList[${index}].flot, jdbcType=VARCHAR} flot,
+									#{materialList[${index}].prodDate, jdbcType=DATE} prod_date,
+									#{materialList[${index}].usefulDate, jdbcType=DATE} useful_date
+								FROM dual
+							</foreach>
+						) pp
+						JOIN TD_TENDER_DETAIL ttd on ttd.TENDER_DETAIL_GUID=pp.TENDER_DETAIL_GUID
+						LEFT JOIN TD_TENDER_INFO tti on ttd.TENDER_GUID=tti.TENDER_GUID
+						LEFT JOIN TB_SOURCE_INFO si on ttd.SOURCE_GUID=si.SOURCE_GUID
+						LEFT JOIN TD_MATERIAL m on tti.FITEMID=m.FITEMID
+						left join TD_REGISTER r on ttd.cert_guid=r.CERT_GUID
+						left join td_static_info brand on brand.TF_CLO='TF_BRAND'
+						left join td_static_data brand2 on brand.STATIC_ID=brand2.STATIC_ID and brand2.TF_CLO_CODE=r.TF_BRAND
+				  ) hp ON (h.SEND_DETAIL_GUID=hp.SEND_DETAIL_GUID)
+				WHEN MATCHED THEN UPDATE
+				SET
+				  h.TENDER_DETAIL_GUID = hp.TENDER_DETAIL_GUID,
+				  h.DRAFT_AMOUNT = hp.AMOUNT,
+				  h.DRAFT_FLOT = hp.FLOT,
+				  h.DRAFT_PROD_DATE = hp.PROD_DATE,
+				  h.DRAFT_USEFUL_DATE = hp.USEFUL_DATE,
+				  h.AMOUNT = DECODE(h.SAVE_FLAG, '00', hp.AMOUNT, h.AMOUNT),
+				  h.SAVE_FLAG = DECODE(h.SAVE_FLAG, '01', '02', '02', '02', '03', '03', '00')
+				WHEN NOT MATCHED THEN INSERT(SEND_DETAIL_GUID, SEND_ID, FITEMID, MATERIAL_NAME, FMODEL, SPEC, REF,
+						FSORT, AMOUNT, TENDER_PRICE, FBARCODE, TENDER_UNIT, CONVERSION, TENDER_DETAIL_GUID,
+						TF_BRAND, TF_TEXTURE, PACKING_TEXTURE, TF_PACKING, GE_NAME,
+						FLOT, PROD_DATE, USEFUL_DATE, CERT_GUID, SAVE_FLAG)
+				VALUES (nvl(hp.SEND_DETAIL_GUID,sys_guid()), hp.SEND_ID, hp.FITEMID, hp.MATERIAL_NAME, hp.FMODEL, hp.SPEC, hp.REF,
+						hp.FSORT, hp.AMOUNT, hp.TENDER_PRICE, hp.FBARCODE, hp.TENDER_UNIT, hp.CONVERSION, hp.TENDER_DETAIL_GUID,
+						hp.TF_BRAND, hp.TF_TEXTURE, hp.PACKING_TEXTURE, hp.TF_PACKING, hp.GE_NAME,
+						hp.FLOT, hp.PROD_DATE, hp.USEFUL_DATE, hp.CERT_GUID, '00');
+			</if>
+
+			<!-- 删除标识: 前端已经删除的产品 -->
+			UPDATE TB_DELIVERY_DETAIL tdd
+			SET
+				tdd.DRAFT_AMOUNT = NULL,
+				tdd.DRAFT_FLOT = NULL,
+				tdd.DRAFT_PROD_DATE = NULL,
+				tdd.DRAFT_USEFUL_DATE = NULL,
+				tdd.SAVE_FLAG='03'
+			WHERE tdd.SEND_ID = #{sendId, jdbcType=VARCHAR} AND tdd.SAVE_FLAG in ('01','02')
+			<if test="materialScope!=null and !materialScope.isEmpty()">
+				and EXISTS(
+					SELECT 1
+					FROM TD_TENDER_DETAIL ttd
+					LEFT JOIN TD_TENDER_INFO tti on ttd.TENDER_GUID=tti.TENDER_GUID
+					LEFT JOIN TD_MATERIAL m on tti.FITEMID=m.FITEMID
+					left join TD_REGISTER r on ttd.cert_guid=r.CERT_GUID
+					WHERE ttd.TENDER_DETAIL_GUID=tdd.TENDER_DETAIL_GUID
+					<!--产品类型-->
+					<if test="materialScope.attributeId!=null and materialScope.attributeId!=''">
+						AND tti.ATTRIBUTE_ID=#{materialScope.attributeId,jdbcType=VARCHAR}
+					</if>
+					<!--品牌-->
+					<if test="materialScope.tfBrand!=null and materialScope.tfBrand!=''">
+						AND r.TF_BRAND=#{materialScope.tfBrand,jdbcType=VARCHAR}
+					</if>
+					<!-- 模糊搜索关键字（产品名称/通用名称/规格/型号） -->
+					<if test="materialScope.searchName!=null and materialScope.searchName!=''">
+						and (
+							regexp_like(m.MATERIAL_NAME, #{materialScope.searchName,jdbcType=VARCHAR})
+							or regexp_like(tti.GE_NAME, #{materialScope.searchName,jdbcType=VARCHAR})
+							or regexp_like(m.FMODEL, #{materialScope.searchName,jdbcType=VARCHAR})
+							or regexp_like(m.SPEC, #{materialScope.searchName,jdbcType=VARCHAR})
+						)
+					</if>
+				)
+			</if>
+			<if test="materialList!=null and materialList.size()>0">
+				AND tdd.SEND_DETAIL_GUID not in (
+					<foreach collection="materialList" item="item" index="index" separator="union">
+						SELECT #{materialList[${index}].sendDetailGuid, jdbcType=VARCHAR} SEND_DETAIL_GUID FROM dual
+					</foreach>
+				)
+			</if>;
+
+			<!-- 物理删除: 前端已经删除的产品 -->
+			DELETE FROM TB_DELIVERY_DETAIL tdd
+			WHERE tdd.SEND_ID = #{sendId, jdbcType=VARCHAR} AND tdd.SAVE_FLAG='00'
+			<if test="materialScope!=null and !materialScope.isEmpty()">
+				and EXISTS(
+					SELECT 1
+					FROM TD_TENDER_DETAIL ttd
+					LEFT JOIN TD_TENDER_INFO tti on ttd.TENDER_GUID=tti.TENDER_GUID
+					LEFT JOIN TD_MATERIAL m on tti.FITEMID=m.FITEMID
+					left join TD_REGISTER r on ttd.cert_guid=r.CERT_GUID
+					WHERE ttd.TENDER_DETAIL_GUID=tdd.TENDER_DETAIL_GUID
+					<!--产品类型-->
+					<if test="materialScope.attributeId!=null and materialScope.attributeId!=''">
+						AND tti.ATTRIBUTE_ID=#{materialScope.attributeId,jdbcType=VARCHAR}
+					</if>
+					<!--品牌-->
+					<if test="materialScope.tfBrand!=null and materialScope.tfBrand!=''">
+						AND r.TF_BRAND=#{materialScope.tfBrand,jdbcType=VARCHAR}
+					</if>
+					<!-- 模糊搜索关键字（产品名称/通用名称/规格/型号） -->
+					<if test="materialScope.searchName!=null and materialScope.searchName!=''">
+						and (
+							regexp_like(m.MATERIAL_NAME, #{materialScope.searchName,jdbcType=VARCHAR})
+							or regexp_like(tti.GE_NAME, #{materialScope.searchName,jdbcType=VARCHAR})
+							or regexp_like(m.FMODEL, #{materialScope.searchName,jdbcType=VARCHAR})
+							or regexp_like(m.SPEC, #{materialScope.searchName,jdbcType=VARCHAR})
+						)
+					</if>
+				)
+			</if>
+			<if test="materialList!=null and materialList.size()>0">
+				AND tdd.SEND_DETAIL_GUID not in (
+					<foreach collection="materialList" item="item" index="index" separator="union">
+						SELECT #{materialList[${index}].sendDetailGuid, jdbcType=VARCHAR} SEND_DETAIL_GUID FROM dual
+					</foreach>
+				)
+			</if>;
+		end;
+	</insert>
+	
+	<!-- 计算指定送货单的产品总金额 -->
+	<select id="evalTotalPriceBySendId" parameterType="string" resultType="java.math.BigDecimal">
+		SELECT sum(dd.AMOUNT * dd.TENDER_PRICE) from TB_DELIVERY_DETAIL dd WHERE dd.SEND_ID=#{sendId, jdbcType=VARCHAR}
+	</select>
+
+	<!-- 查询指定手术送货单的产品列表 -->
+	<select id="findMaterials4OperBySendId" resultType="java.util.LinkedHashMap" parameterType="string">
+		SELECT
+			dd.TENDER_DETAIL_GUID,
+			ti.ATTRIBUTE_ID,
+			nvl(dd.DRAFT_AMOUNT,dd.AMOUNT) AMOUNT,
+			nvl(dd.DRAFT_FLOT,dd.FLOT) FLOT,
+			nvl(dd.DRAFT_PROD_DATE,dd.PROD_DATE) PROD_DATE,
+			nvl(dd.DRAFT_USEFUL_DATE,dd.USEFUL_DATE) USEFUL_DATE
+		from TB_DELIVERY_DETAIL dd
+		left join TD_TENDER_DETAIL td on dd.TENDER_DETAIL_GUID=td.TENDER_DETAIL_GUID
+		left join TD_TENDER_INFO ti on td.TENDER_GUID=ti.TENDER_GUID
+		WHERE SEND_ID=#{sendId, jdbcType=VARCHAR} AND SAVE_FLAG in ('00','01','02')
+		ORDER BY ti.ATTRIBUTE_ID asc
+	</select>
+
+	<!-- 新增一物一码信息 -->
+	<insert id="insertQrcodes">
+			INSERT INTO TB_QRCODE(  QRCODE, FITEMID, TENDER_DETAIL_GUID, FBARCODE, TENDER_PRICE, TENDER_UNIT, CONVERSION,
+	    FLOT, PROD_DATE, USEFUL_DATE, R_ORG_ID, R_STORAGE_GUID, F_ORG_ID, F_STORAGE_GUID,
+	    TF_BRAND, FSTATE, OPER_RECORD_GUID, TREATMENT_RECORD_GUID, CREATE_TIME,
+	    MODIFY_TIME, SEND_ID, SEND_DETAIL_GUID,MATERIAL_NAME,GE_NAME,PACKING_TEXTURE,TF_PACKING,
+	    TF_TEXTURE,FMODEL,SPEC,REF)
+
+		SELECT
+			qrinfo.qrcode, tdd.FITEMID, tdd.TENDER_DETAIL_GUID, tdd.FBARCODE, tdd.TENDER_PRICE, tdd.TENDER_UNIT, tdd.CONVERSION,
+		    tdd.FLOT, tdd.PROD_DATE, tdd.USEFUL_DATE, td.R_ORG_ID, td.R_STORAGE_GUID, td.F_ORG_ID, td.F_STORAGE_GUID,
+		    tdd.TF_BRAND, '00', ap.OPER_RECORD_GUID, ap.TREATMENT_RECORD_GUID, sysdate,
+		    sysdate, td.SEND_ID,
+			qrinfo.send_detail_guid,tdd.MATERIAL_NAME,tdd.GE_NAME,tdd.PACKING_TEXTURE,tdd.TF_PACKING,
+	    	tdd.TF_TEXTURE,tdd.FMODEL,tdd.SPEC,tdd.REF
+		FROM (
+			<foreach collection="qrs" item="qr" index="index" separator="union all">
+				SELECT
+					#{qr.qrcode, jdbcType=VARCHAR} qrcode,
+					#{qr.sendDetailGuid, jdbcType=VARCHAR} send_detail_guid
+				FROM dual
+			</foreach>
+		) qrinfo
+		JOIN TB_DELIVERY_DETAIL tdd on tdd.SEND_DETAIL_GUID = qrinfo.send_detail_guid
+		LEFT JOIN TB_DELIVERY td on tdd.SEND_ID = td.SEND_ID
+		LEFT JOIN TB_ORDER o on td.order_id = o.order_id
+		LEFT JOIN TB_APPLY ap on ap.apply_id = o.apply_id
+	</insert>
+	
+	<!-- 查询送货单明细的二维码列表 -->
+	<select id="searchQrCodesBySendDetail" resultType="HashMap" parameterType="com.phxl.core.base.entity.Pager">
+		select
+		qr.QRCODE "qrcode", 
+	    qr.FLOT "flot", to_char(qr.PROD_DATE,'yyyy-MM-dd') "prodDate", to_char(qr.USEFUL_DATE,'yyyy-MM-dd') "usefulDate", 
+	    r.REGISTER_NO "registerNo",
+	    qr.MATERIAL_NAME "materialName",qr.GE_NAME "geName",
+	    qr.FMODEL "fmodel",qr.SPEC "spec",qr.REF "ref",
+	    ro.ORG_NAME "rOrgName",fo.ORG_NAME "fOrgName"
+		from TB_QRCODE qr		
+		LEFT JOIN TD_TENDER_DETAIL ttd on qr.TENDER_DETAIL_GUID = ttd.TENDER_DETAIL_GUID
+		LEFT JOIN TD_REGISTER r on ttd.cert_guid=r.CERT_GUID
+		left join td_org_info ro on qr.R_ORG_ID = ro.ORG_ID
+		left join td_org_info fo on qr.F_ORG_ID = fo.ORG_ID
+		<where>
+		<if test="conditiions.sendDetailGuid != null and conditiions.sendDetailGuid != ''">
+			and qr.SEND_DETAIL_GUID = #{conditiions.sendDetailGuid,jdbcType=VARCHAR}
+		</if>
+		<if test="conditiions.sendId != null and conditiions.sendId != ''">
+			and qr.SEND_ID = #{conditiions.sendId,jdbcType=VARCHAR}
+		</if>
+		<if test="conditiions.qrcodes != null">
+			and qr.QRCODE  in 
+			<foreach collection="conditiions.qrcodes" item="qrcode" index="index" separator="," open="(" close=")">
+				#{qrcode}
+			</foreach>
+		</if>
+		<if test="conditiions.searchParams != null and conditiions.searchParams != ''">
+			and ( <![CDATA[ regexp_like(qr.QRCODE, #{conditiions.searchParams,jdbcType=VARCHAR}) ]]> )
+		</if>
+		</where>
+		order by QRCODE asc
+	</select>
+</mapper>

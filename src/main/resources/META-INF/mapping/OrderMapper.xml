@@ -1,0 +1,402 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.phxl.ysy.dao.OrderMapper">
+
+	<resultMap id="BaseResultMap" type="com.phxl.ysy.entity.Order">
+		<id column="ORDER_ID" property="orderId" jdbcType="VARCHAR" />
+		<result column="ORDER_NO" property="orderNo" jdbcType="VARCHAR" />
+		<result column="R_ORG_ID" property="rOrgId" jdbcType="DECIMAL" />
+		<result column="STORAGE_GUID" property="storageGuid" jdbcType="VARCHAR" />
+		<result column="B_STORAGE_GUID" property="bStorageGuid" jdbcType="VARCHAR" />
+		<result column="F_ORG_ID" property="fOrgId" jdbcType="DECIMAL" />
+		<result column="ORDER_DATE" property="orderDate" jdbcType="TIMESTAMP" />
+		<result column="SEND_DATE" property="sendDate" jdbcType="TIMESTAMP" />
+		<result column="ORDER_USERID" property="orderUserid" jdbcType="VARCHAR" />
+		<result column="FSTATE" property="fstate" jdbcType="VARCHAR" />
+		<result column="LXR" property="lxr" jdbcType="VARCHAR" />
+		<result column="LXDH" property="lxdh" jdbcType="VARCHAR" />
+		<result column="DEPT_GUID" property="deptGuid" jdbcType="VARCHAR" />
+		<result column="DEPT_NAME" property="deptName" jdbcType="VARCHAR" />
+		<result column="EXPECT_DATE" property="expectDate" jdbcType="TIMESTAMP" />
+		<result column="SEND_USERID" property="sendUserid" jdbcType="VARCHAR" />
+		<result column="ORDER_TYPE" property="orderType" jdbcType="VARCHAR" />
+		<result column="ADDR_GUID" property="addrGuid" jdbcType="VARCHAR" />
+		<result column="TF_ADDRESS" property="tfAddress" jdbcType="VARCHAR" />
+		<result column="TOTAL_PRICE" property="totalPrice" jdbcType="DECIMAL" />
+		<result column="ORDER_USERNAME" property="orderUsername" jdbcType="VARCHAR" />
+		<result column="F_ORG_NAME" property="fOrgName" jdbcType="VARCHAR" />
+		<result column="APPLY_ID" property="applyId" jdbcType="VARCHAR" />
+		<result column="PLAN_ID" property="planId" jdbcType="VARCHAR" />
+		<result column="FSOURCE" property="fsource" jdbcType="VARCHAR" />
+		<result column="CANCLE_REASON" property="cancleReason" jdbcType="VARCHAR" />
+	</resultMap>
+
+	<resultMap id="BaseResultExtMap" type="com.phxl.ysy.entity.Order" extends="BaseResultMap">
+		<result column="rOrgName" property="rOrgName" jdbcType="VARCHAR" />
+		<result column="tfBrand" property="tfBrand" jdbcType="VARCHAR" />
+		<result column="rOrgAlias" property="rOrgAlias" jdbcType="VARCHAR" />
+		<result column="orderTypeName" property="orderTypeName" jdbcType="VARCHAR" />
+		<result column="fstateName" property="fstateName" jdbcType="VARCHAR" />
+		<result column="rOrgAlias" property="rOrgAlias" jdbcType="VARCHAR" />
+		<result column="fOrgName" property="fOrgName" jdbcType="VARCHAR" />
+		<result column="fOrgAlias" property="fOrgAlias" jdbcType="VARCHAR" />
+		<result column="deliveryCount" property="deliveryCount" jdbcType="DECIMAL" />
+		<result column="sendoutDeliveryCount" property="sendoutDeliveryCount" jdbcType="DECIMAL" />
+		<result column="allowCancleOrder" property="allowCancleOrder" jdbcType="DECIMAL" />
+		<result column="CANCLE_TIME" property="cancleTime" jdbcType="TIMESTAMP" />
+		<result column="CANCLE_USER_NAME" property="cancleUserName" jdbcType="VARCHAR" />
+		<result column="ALLOW_SETTLE_GOODS" property="allowSettleGoods" jdbcType="DECIMAL" javaType="boolean" />
+	</resultMap>
+
+	<sql id="Base_Column_List_With_Prefix">
+		od.ORDER_ID, od.ORDER_NO, od.R_ORG_ID, od.STORAGE_GUID, od.F_ORG_ID, od.ORDER_DATE, od.SEND_DATE,
+		od.ORDER_USERID, od.FSTATE, od.LXR, od.LXDH, od.DEPT_GUID, od.DEPT_NAME, od.EXPECT_DATE, od.SEND_USERID,
+		od.ORDER_TYPE, od.ADDR_GUID, od.TF_ADDRESS, od.TOTAL_PRICE, od.ORDER_USERNAME, od.F_ORG_NAME,
+		od.APPLY_ID, od.PLAN_ID, od.FSOURCE, od.B_STORAGE_GUID, od.CANCLE_REASON
+	</sql>
+
+	<!-- 查询订单列表 -->
+	<select id="findOrderList" resultMap="BaseResultExtMap" parameterType="com.phxl.core.base.entity.Pager">
+		select <include refid="Base_Column_List_With_Prefix" />,
+				<!-- 医疗机构名称 -->
+				ro.ORG_NAME "rOrgName", ro.ORG_ALIAS "rOrgAlias",
+				<!-- 需求库房名称 -->
+				sg.STORAGE_NAME "rStorageName",
+				<!-- 供应商名称 -->
+				fo.ORG_NAME "fOrgName", fo.ORG_ALIAS "fOrgAlias",
+				<!-- 订单状态 -->
+				cd.TF_CLO_NAME "fstateName",
+				<!-- 订单状态 -->
+				cd2.TF_CLO_NAME "orderTypeName",
+				<!-- 送货单总数量 -->
+				( SELECT count(*) FROM TB_DELIVERY dl WHERE dl.ORDER_ID=od.ORDER_ID ) "deliveryCount",
+				<!-- 已发货送货单数量 -->
+				( SELECT count(*) FROM TB_DELIVERY dl WHERE dl.ORDER_ID=od.ORDER_ID and dl.FSTATE!='40' ) "sendoutDeliveryCount",
+				<!-- 明确供需双方的强势一方 si.KING_ORG_ID, 强势方才有权撤回（取消）订单 -->
+				<choose>
+					<when test='conditiions==null or conditiions.empty or conditiions.sessionOrgType==null or conditiions.sessionOrgType!="09"'>
+						case when (
+							SELECT
+								si.KING_ORG_ID
+							from tb_source_info si
+							where
+								si.f_org_id=od.F_ORG_ID
+								and si.r_storage_guid = (
+									  select
+									  	nvl(psg.storage_guid, sg.storage_guid) r_storage_guid
+									  FROM td_storage_info sg
+									  LEFT JOIN v_storageconfig sgc on sg.storage_guid=sgc.storage_guid
+									  LEFT JOIN td_storage_info psg on sgc."sourceStorageGuid"=psg.STORAGE_GUID
+									  WHERE sg.storage_guid = (
+										  	select
+												decode(sgc."storageLevelCode", '02', sgc."parentStorageGuid", sg.STORAGE_GUID) top_storage_guid
+											FROM td_storage_info sg
+											LEFT JOIN v_storageconfig sgc on sg.storage_guid=sgc.storage_guid
+											WHERE sg.storage_guid = od.STORAGE_GUID
+									  )
+								)
+						) = #{conditiions.sessionOrgId, jdbcType=DECIMAL} then 1 else 0 end
+					</when>
+					<otherwise>
+						0
+					</otherwise>
+				</choose> "allowCancleOrder",
+				<!-- 是否允许备货操作 -->
+				decode(od.ORDER_TYPE, 'OPER_ORDER',
+					CASE WHEN (SELECT count(*) from TB_DELIVERY WHERE ORDER_ID=od.ORDER_ID)=0 or (SELECT count(*) from TB_DELIVERY WHERE ORDER_ID=od.ORDER_ID and FSTATE='40')=1 THEN 1 ELSE 0 END,
+					CASE WHEN sub.SENTED_TOTAL_AMOUNT &lt; sub.TOTAL_AMOUNT THEN 1 ELSE 0 END
+				) as allow_settle_goods,
+				<!-- 取消时间、取消人姓名 -->
+				tcf.CANCLE_TIME, tcf.CANCLE_USER_NAME,
+				<!-- 手术订单: 需求品牌列表 -->
+				decode(od.ORDER_TYPE, 'OPER_ORDER', (SELECT wm_concat(ood.BRAND_NAME) FROM TB_ORDER_OPER_DETAIL ood WHERE ood.ORDER_ID=od.ORDER_ID), null) "tfBrand"
+		from tb_order od
+		left join td_org_info ro on od.R_ORG_ID=ro.ORG_ID
+		left join td_org_info fo on od.F_ORG_ID=fo.ORG_ID
+		left join td_storage_info sg on od.STORAGE_GUID = sg.STORAGE_GUID
+		left join td_static_info cn on cn.TF_CLO = 'ORDER_FSTATE'
+		left join td_static_data cd ON cn.STATIC_ID=cd.STATIC_ID and cd.TF_CLO_CODE = od.FSTATE
+		left join td_static_info cn2 on cn2.TF_CLO = 'ORDER_TYPE'
+		left join td_static_data cd2 ON cn2.STATIC_ID=cd2.STATIC_ID and cd2.TF_CLO_CODE = od.ORDER_TYPE
+		<!-- 订单已发货数量汇总 -->
+		left join (
+			SELECT sub1.ORDER_ID, sub1.TOTAL_AMOUNT, nvl(sub2.SENTED_TOTAL_AMOUNT, 0) sented_total_amount
+			FROM (
+				SELECT od.ORDER_ID, sum(AMOUNT) total_AMOUNT
+				FROM TB_ORDER od
+				LEFT JOIN TB_ORDER_DETAIL odd on od.ORDER_ID=odd.ORDER_ID
+				GROUP BY od.ORDER_ID
+			) sub1
+			LEFT JOIN (
+				SELECT dl.ORDER_ID, sum(AMOUNT) sented_total_AMOUNT
+				from TB_DELIVERY dl
+				LEFT JOIN TB_DELIVERY_DETAIL dd on dd.SEND_ID=dl.SEND_ID
+				WHERE dl.FSTATE!='90'
+			GROUP BY dl.ORDER_ID
+			) sub2 on sub1.ORDER_ID=sub2.ORDER_ID
+		) sub on sub.ORDER_ID=od.ORDER_ID
+		<!-- 订单最后取消或撤消的时间 -->
+		left join (
+			select distinct c.tb_id, c.after_fstate, max(c.modify_time) CANCLE_TIME, wm_concat(c.modify_username) CANCLE_USER_NAME from tb_change_fstate c
+			where c.type='订单' and c.after_fstate in ('90', '29')
+			group by c.tb_id, c.after_fstate
+		) tcf on od.order_id=tcf.tb_id
+		where 1=1
+			<if test='conditiions==null or conditiions.empty or conditiions.sessionOrgType==null or conditiions.sessionOrgType!="09"'>
+				and (od.R_ORG_ID = #{conditiions.sessionOrgId, jdbcType=DECIMAL} or od.F_ORG_ID = #{conditiions.sessionOrgId, jdbcType=DECIMAL})
+			</if>
+			<if test='conditiions.buyerOrSeller!=null and conditiions.buyerOrSeller=="B"'>
+				and od.STORAGE_GUID in (
+					SELECT su.STORAGE_GUID from TD_STORAGE_USER su WHERE su.USER_ID = #{conditiions.sessionUserId, jdbcType=VARCHAR}
+				)
+			</if>
+			<choose>
+				<when test="conditiions!=null and !conditiions.empty">
+					<if test="conditiions.rOrgNameLike!=null and conditiions.rOrgNameLike!=''">
+						and regexp_like(ro.ORG_NAME, #{conditiions.rOrgNameLike, jdbcType=VARCHAR})
+					</if>
+					<if test="conditiions.fOrgNameLike!=null and conditiions.fOrgNameLike!=''">
+						and regexp_like(fo.ORG_NAME, #{conditiions.fOrgNameLike, jdbcType=VARCHAR})
+					</if>
+					<if test="conditiions.orderNo!=null and conditiions.orderNo!=''">
+						and regexp_like(od.ORDER_NO, #{conditiions.orderNo, jdbcType=VARCHAR})
+					</if>
+					<if test="conditiions.rOrgId!=null">
+						and od.R_ORG_ID = #{conditiions.rOrgId, jdbcType=DECIMAL}
+					</if>
+					<if test="conditiions.fOrgId!=null">
+						and od.F_ORG_ID = #{conditiions.fOrgId, jdbcType=DECIMAL}
+					</if>
+					<if test="conditiions.storageGuid!=null and conditiions.storageGuid!=''">
+						and od.STORAGE_GUID = #{conditiions.storageGuid, jdbcType=VARCHAR}
+					</if>
+					<if test="conditiions.orderType!=null and conditiions.orderType!=''">
+						and od.ORDER_TYPE = #{conditiions.orderType, jdbcType=VARCHAR}
+					</if>
+					<if test="conditiions.orderTypes!=null and conditiions.orderTypes.length>0">
+						and od.ORDER_TYPE in
+						<foreach collection="conditiions.orderTypes" index="index" open="(" close=")" separator=",">
+							#{conditiions.orderTypes[${index}], jdbcType=VARCHAR}
+						</foreach>
+					</if>
+					<if test="conditiions.fstate!=null and conditiions.fstate!=''">
+						and od.FSTATE = #{conditiions.fstate, jdbcType=VARCHAR}
+					</if>
+					<if test="conditiions.excludeCancledOrder!=null and conditiions.excludeCancledOrder==true">
+						and (od.FSTATE != '29' and od.FSTATE != '90')
+					</if>
+					<if test="conditiions.fstates!=null and conditiions.fstates.length>0">
+						and od.FSTATE in
+						<foreach collection="conditiions.fstates" index="index" open="(" close=")" separator=",">
+							#{conditiions.fstates[${index}], jdbcType=VARCHAR}
+						</foreach>
+					</if>
+					<if test="conditiions.excludeFstates!=null and conditiions.excludeFstates.length>0">
+						and od.FSTATE not in
+						<foreach collection="conditiions.excludeFstates" index="index" open="(" close=")" separator=",">
+							#{conditiions.excludeFstates[${index}], jdbcType=VARCHAR}
+						</foreach>
+					</if>
+					<if test="conditiions.amountStart!=null">
+						and od.TOTAL_PRICE &gt;= #{conditiions.amountStart, jdbcType=DECIMAL}
+					</if>
+					<if test="conditiions.amountEnd!=null">
+						and od.TOTAL_PRICE &lt;= #{conditiions.amountEnd, jdbcType=DECIMAL}
+					</if>
+					<if test="conditiions.orderDateStart!=null">
+						and od.ORDER_DATE &gt;= #{conditiions.orderDateStart, jdbcType=DATE}
+					</if>
+					<if test="conditiions.orderDateEnd!=null">
+						and trunc(od.ORDER_DATE) &lt;= #{conditiions.orderDateEnd, jdbcType=DATE}
+					</if>
+					<if test="conditiions.cancleDateStart!=null">
+						and tcf.CANCLE_TIME &gt;= #{conditiions.cancleDateStart, jdbcType=DATE}
+					</if>
+					<if test="conditiions.cancleDateEnd!=null">
+						and trunc(tcf.CANCLE_TIME) &lt;= #{conditiions.cancleDateEnd, jdbcType=DATE}
+					</if>
+					<!-- planNo		计划单号（预留） -->
+					<!-- applyNo	申请单号（预留） -->
+					<if test="conditiions.orderId!=null and conditiions.orderId!=''">
+						and od.ORDER_ID = #{conditiions.orderId, jdbcType=VARCHAR}
+					</if>
+				</when>
+			</choose>
+		<!-- 排序 -->
+		<choose>
+			<when test="conditiions != null and conditiions.orderMark != null and conditiions.orderField != null and conditiions.orderField!=''">
+				order by [orderField] ${conditiions.orderMark}
+			</when>
+			<otherwise>
+				order by od.ORDER_DATE desc
+			</otherwise>
+		</choose>
+	</select>
+
+	<!-- 根据需方库房，明确强势方 -->
+	<select id="findKingOrgIdByStorageGuid" resultType="java.lang.Long">
+		SELECT 
+			si.KING_ORG_ID 
+		from tb_source_info si 
+		where 
+			si.f_org_id=#{fOrgId, jdbcType=DECIMAL} 
+			and si.r_storage_guid = (
+			  select 
+			  	nvl(psg.storage_guid, sg.storage_guid) r_storage_guid
+			  FROM td_storage_info sg
+			  LEFT JOIN v_storageconfig sgc on sg.storage_guid=sgc.storage_guid
+			  LEFT JOIN td_storage_info psg on sgc."sourceStorageGuid"=psg.STORAGE_GUID
+			  WHERE sg.storage_guid = (
+				  	select
+						decode(sgc."storageLevelCode", '02', sgc."parentStorageGuid", sg.STORAGE_GUID) top_storage_guid
+					FROM td_storage_info sg
+					LEFT JOIN v_storageconfig sgc on sg.storage_guid=sgc.storage_guid
+					WHERE sg.storage_guid = #{storageGuid, jdbcType=VARCHAR}
+			  )
+			)
+	</select>
+
+	<!-- 批量插入订单信息  -->
+	<insert id="insertOrderBatch">
+		insert into TB_ORDER(ORDER_ID, ORDER_NO, R_ORG_ID, STORAGE_GUID, F_ORG_ID, F_ORG_NAME, ORDER_DATE, SEND_DATE,
+		ORDER_USERID, FSTATE, LXR, LXDH, DEPT_GUID, DEPT_NAME, EXPECT_DATE, SEND_USERID,
+		ORDER_TYPE, ADDR_GUID, TF_ADDRESS, ORDER_USERNAME, TOTAL_PRICE)
+
+		<foreach collection="orderList" item="item" index="index" separator="union all">
+			select
+				#{item.orderId, jdbcType=VARCHAR}, #{item.orderNo, jdbcType=VARCHAR}, #{item.rOrgId, jdbcType=DECIMAL},
+				#{item.storageGuid, jdbcType=VARCHAR}, #{item.fOrgId, jdbcType=DECIMAL},
+				(SELECT ORG_NAME from TD_ORG_INFO WHERE ORG_ID = #{item.fOrgId, jdbcType=DECIMAL}) F_ORG_NAME,
+				#{item.orderDate, jdbcType=TIMESTAMP},
+				#{item.sendDate, jdbcType=TIMESTAMP}, #{item.orderUserid, jdbcType=VARCHAR},
+				#{item.fstate, jdbcType=VARCHAR}, #{item.lxr, jdbcType=VARCHAR}, #{item.lxdh, jdbcType=VARCHAR}, #{item.deptGuid, jdbcType=VARCHAR},
+				#{item.deptName, jdbcType=VARCHAR}, #{item.expectDate, jdbcType=TIMESTAMP}, #{item.sendUserid, jdbcType=VARCHAR}, #{item.orderType, jdbcType=VARCHAR},
+				#{item.addrGuid, jdbcType=VARCHAR}, #{item.tfAddress, jdbcType=VARCHAR}, #{item.orderUsername, jdbcType=VARCHAR},
+				(SELECT sum(odd.AMOUNT*odd.TENDER_PRICE) from TB_ORDER_DETAIL odd WHERE odd.ORDER_ID = #{item.orderId, jdbcType=VARCHAR})
+			from dual
+		</foreach>
+	</insert>
+
+	<!-- 确定产品列表由哪几个供应商供货 -->
+	<select id="findSuppliersByDetails" resultType="java.lang.Long">
+		SELECT DISTINCT si.F_ORG_ID
+		  FROM (
+		  	<foreach collection="products" item="item" index="index" separator="union all">
+		  		SELECT #{item.tenderDetailGuid, jdbcType=VARCHAR} TENDER_DETAIL_GUID, #{item.amount, jdbcType=DECIMAL} amount FROM dual
+		  	</foreach>
+		  ) pp
+		INNER JOIN TD_TENDER_DETAIL tdd on tdd.TENDER_DETAIL_GUID=pp.TENDER_DETAIL_GUID
+		LEFT JOIN TD_TENDER_INFO tm on tdd.TENDER_GUID=tm.TENDER_GUID
+		LEFT JOIN TB_SOURCE_INFO si on tdd.SOURCE_GUID=si.SOURCE_GUID
+		LEFT JOIN TD_MATERIAL m on tm.FITEMID=m.FITEMID
+	</select>
+
+	<!-- 判断指定订单是否已经备货完成 -->
+	<select id="judgeFullReceiveToBuyer" parameterType="string" resultType="java.lang.Integer">
+		SELECT  
+			(
+				SELECT sum(AMOUNT) total_AMOUNT
+				FROM TB_ORDER od
+				LEFT JOIN TB_ORDER_DETAIL odd on od.ORDER_ID=odd.ORDER_ID
+				WHERE od.ORDER_ID = #{orderId, jdbcType=VARCHAR}
+			) 
+			-
+			nvl((
+				SELECT sum(AMOUNT) sentout_amount
+				from TB_DELIVERY dl
+				LEFT JOIN TB_DELIVERY_DETAIL dd on dd.SEND_ID=dl.SEND_ID
+				WHERE dl.ORDER_ID=#{orderId, jdbcType=VARCHAR}
+				AND dl.FSTATE!='90'
+			), 0) as difference 
+		from dual
+	</select>
+
+	<!-- 指定订单:过滤出非法备货的备货产品 -->
+	<select id="filterSettleGoods" resultType="java.util.LinkedHashMap">
+		SELECT
+				t0.ORDER_DETAIL_GUID, t0.MATERIAL_NAME, t0.FMODEL, t0.SPEC, t0.tender_unit,
+				t2.ORDER_DETAIL_GUID request_order_detail_guid,
+				<!-- 采购数量 -->
+				t0.total_amount,
+				<!-- 已发货数量 -->
+				nvl(t1.sendout_amount, 0) sendout_amount,
+				<!-- 可货数量 -->
+				t0.total_amount-nvl(t1.sendout_amount, 0) allow_amount,
+				<!-- 请求备货数量 -->
+				t2.request_amount,
+				<!-- 是否可以备货 -->
+				t0.total_amount-nvl(t1.sendout_amount, 0)-t2.request_amount difference
+		FROM
+		<!-- 明确每个订单产品的总数量 -->
+		(
+			SELECT
+				<!-- 订单明细guid -->
+				odd.ORDER_DETAIL_GUID,
+				<!-- 产品名称/型号/规格 -->
+				nvl(odd.GE_NAME, odd.MATERIAL_NAME) material_name, odd.FMODEL, odd.SPEC, odd.tender_unit,
+				<!-- 采购数量 -->
+				SUM(ODD.AMOUNT) total_amount
+			from TB_ORDER_DETAIL odd
+			LEFT JOIN TB_ORDER od ON odd.ORDER_ID=od.ORDER_ID
+			WHERE odd.ORDER_ID = #{orderId, jdbcType=VARCHAR}
+			GROUP BY odd.ORDER_DETAIL_GUID, nvl(odd.GE_NAME, odd.MATERIAL_NAME), odd.FMODEL, odd.SPEC, odd.tender_unit
+		) t0
+		<!-- 明确每个订单产品的已备货数量 -->
+		left join (
+			SELECT
+				dd.ORDER_DETAIL_GUID,
+				<!-- 已发货数量 -->
+				sum(dd.AMOUNT) sendout_amount
+			from TB_DELIVERY_DETAIL dd
+			LEFT JOIN TB_DELIVERY dl on dd.SEND_ID=dl.SEND_ID
+			WHERE
+				dl.ORDER_ID = #{orderId, jdbcType=VARCHAR}
+				and dl.FSTATE!='90'
+			GROUP BY dd.ORDER_DETAIL_GUID
+		) t1 on t0.ORDER_DETAIL_GUID=t1.ORDER_DETAIL_GUID
+		<!-- 用户请求订单产品备货数量 -->
+		right join (
+			SELECT
+				temp.ORDER_DETAIL_GUID,
+				<!-- 请求备货数量 -->
+				sum(temp.AMOUNT) request_amount
+			FROM
+			(
+			<foreach collection="details" item="item" index="index" open="(" close=")" separator="union all">
+		    SELECT
+			    #{item.orderDetailGuid, jdbcType=VARCHAR} order_detail_guid,
+			    #{item.amount, jdbcType=DECIMAL} amount,
+			    #{item.flot, jdbcType=VARCHAR} flot,
+			    #{item.prodDate, jdbcType=DATE} prod_date,
+			    #{item.usefulDate, jdbcType=DATE} useful_date
+		    from dual
+		    </foreach>
+		  ) temp
+		  GROUP BY temp.ORDER_DETAIL_GUID
+		) t2 on t0.ORDER_DETAIL_GUID=t2.ORDER_DETAIL_GUID
+		WHERE
+		<![CDATA[
+			t0.total_amount-nvl(t1.sendout_amount, 0)-t2.request_amount < 0 
+			or t0.total_amount IS NULL
+			or t2.request_amount IS NULL
+		]]>
+	</select>
+
+	<!-- 某一个订单备货之前，清理临时包工具数据 -->
+	<delete id="clearByOrderId" parameterType="string">
+		begin
+			<!-- 清理:送货单产品列表 -->
+			delete from tb_delivery_detail where send_id=#{orderId,jdbcType=VARCHAR} and SAVE_FLAG='00';
+			update tb_delivery_detail SET save_flag='01', DRAFT_AMOUNT=null, DRAFT_FLOT=null, DRAFT_PROD_DATE=null, DRAFT_USEFUL_DATE=null WHERE send_id=#{sendId,jdbcType=VARCHAR} and SAVE_FLAG in('02','03');
+			<!-- 清理:送货单手术包列表 -->
+			delete from tb_delivery_package where send_id=#{orderId,jdbcType=VARCHAR} and SAVE_FLAG='00';
+			update tb_delivery_package SET save_flag='01', DRAFT_AMOUNT=null WHERE send_id=#{sendId,jdbcType=VARCHAR} and save_flag in('02','03');
+			<!-- 清理:送货单包工具列表 -->
+			delete from tb_delivery_package_tool where send_id=#{orderId,jdbcType=VARCHAR} and SAVE_FLAG='00';
+			update tb_delivery_package_tool SET save_flag='01', DRAFT_AMOUNT=null WHERE send_id=#{sendId,jdbcType=VARCHAR} and save_flag in('02','03');
+			<!--清理意料之外的垃圾数据-->
+			delete from tb_delivery_package_tool pt where send_id=#{sendId,jdbcType=VARCHAR} and not exists (select PACKAGE_ID from TB_DELIVERY_PACKAGE dp where send_id=#{sendId,jdbcType=VARCHAR} and dp.PACKAGE_ID=pt.PACKAGE_ID);
+		end;
+	</delete>
+	
+</mapper>

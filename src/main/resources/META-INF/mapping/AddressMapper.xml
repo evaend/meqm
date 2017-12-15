@@ -1,0 +1,106 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.phxl.ysy.dao.AddressMapper">
+
+	<resultMap id="BaseResultMap" type="com.phxl.ysy.entity.Address">
+		<id column="ADDR_GUID" property="addrGuid" jdbcType="VARCHAR" />
+		<result column="TF_PROVINCE" property="tfProvince" jdbcType="VARCHAR" />
+		<result column="TF_CITY" property="tfCity" jdbcType="VARCHAR" />
+		<result column="TF_DISTRICT" property="tfDistrict" jdbcType="VARCHAR" />
+		<result column="TF_STREET" property="tfStreet" jdbcType="VARCHAR" />
+		<result column="TF_ADDRESS" property="tfAddress" jdbcType="VARCHAR" />
+		<result column="ADDR_TABLE" property="addrTable" jdbcType="VARCHAR" />
+		<result column="TF_CLO_GUID" property="tfCloGuid" jdbcType="VARCHAR" />
+		<result column="IS_DEFAULT" property="isDefault" jdbcType="VARCHAR" />
+		<result column="LINKMAN" property="linkman" jdbcType="VARCHAR" />
+		<result column="LINKTEL" property="linktel" jdbcType="VARCHAR" />
+	</resultMap>
+	
+	<sql id="Base_Column_List">
+		ADDR_GUID, TF_PROVINCE, TF_CITY, TF_DISTRICT, TF_STREET, TF_ADDRESS, ADDR_TABLE,
+		TF_CLO_GUID, IS_DEFAULT, LINKMAN, LINKTEL
+	</sql>
+	
+	<!-- 根据库房guid删除库房地址 -->
+	<delete id="deleteAddrsByAddresses" parameterType="string">
+		delete TD_ADDRESSES 
+		where TF_CLO_GUID = #{storageGuid, jdbcType=VARCHAR}
+			<if test="addresses!=null and !addresses.empty">
+				and ADDR_GUID in 
+				<foreach collection="addresses" item="item" open="(" close=")" separator=", ">
+					#{item.addrGuid, jdbcType=VARCHAR}
+				</foreach>
+			</if>
+	</delete>
+	
+	<!-- 批量添加: 库房地址 -->
+	<insert id="insertAddrsByStorageGuid">
+		insert into TD_ADDRESSES(ADDR_GUID, TF_CLO_GUID, TF_ADDRESS, ADDR_TABLE, LINKMAN, LINKTEL, IS_DEFAULT)
+		
+		<foreach collection="addresses" index="index" separator=" union ">
+			select 
+				sys_guid() ADDR_GUID, 
+				#{storageGuid, jdbcType=VARCHAR} TF_CLO_GUID, 
+				#{addresses[${index}].tfAddress, jdbcType=VARCHAR} TF_ADDRESS,
+				#{addresses[${index}].addrTable, jdbcType=VARCHAR} ADDR_TABLE,
+				#{addresses[${index}].linkman, jdbcType=VARCHAR} LINKMAN,
+				#{addresses[${index}].linktel, jdbcType=VARCHAR} LINKTEL,
+				#{addresses[${index}].isDefault, jdbcType=VARCHAR} IS_DEFAULT
+			from dual 
+		</foreach>
+	</insert>
+	
+	<!-- 批量修改: 库房地址 -->
+	<update id="updateAddrsByStorageGuid">
+		<foreach collection="addresses" item="item" open="begin" close="end;" >
+			update TD_ADDRESSES
+			set
+				TF_CLO_GUID = #{storageGuid, jdbcType=VARCHAR}, 
+				TF_ADDRESS = #{item.tfAddress, jdbcType=VARCHAR},
+				ADDR_TABLE = #{item.addrTable, jdbcType=VARCHAR},
+				LINKMAN = #{item.linkman, jdbcType=VARCHAR},
+				LINKTEL = #{item.linktel, jdbcType=VARCHAR},
+				IS_DEFAULT = #{item.isDefault, jdbcType=VARCHAR}
+			where ADDR_GUID = #{item.addrGuid, jdbcType=VARCHAR}; 
+		</foreach>
+	</update>
+	
+	<resultMap id="CustomResultMap" type="java.util.LinkedHashMap">
+		<id column="ADDR_GUID" property="addrGuid" jdbcType="VARCHAR" />
+		<result column="TF_ADDRESS" property="tfAddress" jdbcType="VARCHAR" />
+		<result column="ADDR_TABLE" property="addrTable" jdbcType="VARCHAR" />
+		<result column="TF_CLO_GUID" property="tfCloGuid" jdbcType="VARCHAR" />
+		<result column="IS_DEFAULT" property="isDefault" jdbcType="VARCHAR" />
+		<result column="LINKMAN" property="linkman" jdbcType="VARCHAR" />
+		<result column="LINKTEL" property="linktel" jdbcType="VARCHAR" />
+	</resultMap>
+	
+	<!-- 查询指定库房的地址列表 -->
+	<select id="queryAddrsByStorageGuid" parameterType="string" resultMap="CustomResultMap">
+		SELECT 
+			ADDR_GUID, TF_CLO_GUID, ADDR_TABLE, TF_ADDRESS, LINKMAN, LINKTEL, 
+			CASE WHEN IS_DEFAULT = '01' THEN 1 ELSE 0 END as IS_DEFAULT 
+		FROM TD_ADDRESSES a WHERE a.TF_CLO_GUID=#{storageGuid, jdbcType=VARCHAR}
+		order by IS_DEFAULT desc, TF_ADDRESS 
+	</select>
+	
+	<!-- 查询指定库房的地址列表（下拉列表：联想搜索） -->
+	<select id="searchAddrsByStorageGuid" resultType="map">
+		SELECT 
+			ADDR_GUID "value", 
+			TF_ADDRESS || ' | ' || LINKMAN || ' | ' || LINKTEL "text", 
+			CASE WHEN IS_DEFAULT = '01' THEN 1 ELSE 0 END as "isDefault" 
+		FROM TD_ADDRESSES a 
+		WHERE a.TF_CLO_GUID=#{storageGuid, jdbcType=VARCHAR}
+		<if test="searchName!=null and searchName!=''">
+			and regexp_like(a.TF_ADDRESS, #{searchName, jdbcType=VARCHAR})
+		</if>
+		order by IS_DEFAULT desc, TF_ADDRESS 
+	</select>
+	
+	<!-- 更新某某的地址为非默认 -->
+	<update id="updateUndefaultBySpecGuid" parameterType="string">
+		update TD_ADDRESSES set IS_DEFAULT = '00' where TF_CLO_GUID = #{tfGuid, jdbcType=VARCHAR}
+	</update>
+	
+</mapper>

@@ -1,0 +1,235 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.phxl.ysy.dao.GkTemplatePackageMapper" >
+  <resultMap id="BaseResultMap" type="com.phxl.ysy.entity.GkTemplatePackage" >
+    <id column="GK_TEMPLATE_PACKAGE_GUID" property="gkTemplatePackageGuid" jdbcType="VARCHAR" />
+    <result column="ATTRIBUTE_ID" property="attributeId" jdbcType="VARCHAR" />
+    <result column="GK_TEMPLATE_GUID" property="gkTemplateGuid" jdbcType="VARCHAR" />
+    <result column="TF_AMOUNT" property="tfAmount" jdbcType="DECIMAL" />
+    <result column="IS_IMPLANT_FLAG" property="isImplantFlag" jdbcType="VARCHAR" />
+    <result column="IS_TOOL_FLAG" property="isToolFlag" jdbcType="VARCHAR" />
+    <result column="SAVE_FLAG" property="saveFlag" jdbcType="VARCHAR" />
+    <result column="PACKAGE_ID" property="packageId" jdbcType="VARCHAR" />
+  </resultMap>
+  <sql id="Base_Column_List" >
+    GK_TEMPLATE_PACKAGE_GUID, ATTRIBUTE_ID, GK_TEMPLATE_GUID, TF_AMOUNT, IS_IMPLANT_FLAG, 
+    IS_TOOL_FLAG, SAVE_FLAG
+  </sql>
+  <!-- 查询指定送货单的手术包统计信息 -->
+	<select id="subtotalPackageByBillId" parameterType="string" resultType="hashMap">
+		select
+			<!-- packageAmount		手术包总数量 -->
+			(select count(distinct GK_TEMPLATE_GUID||PACKAGE_ID)  from tb_gk_template_package where GK_TEMPLATE_GUID<include refid="billIdScope" />) as "packageAmount",
+			<!-- materailAmount		产品总数量 -->
+			(select nvl(sum(tf_amount),0) from TB_GK_TEMPLATE_DETAIL where GK_TEMPLATE_GUID<include refid="billIdScope"/>) as "materailAmount",
+			<!-- outerImpAmount		外来植入物总数量 -->
+			(select nvl(sum(tf_amount),0) from tb_gk_template_package where GK_TEMPLATE_GUID<include refid="billIdScope"/> and ATTRIBUTE_ID not in ('operTool','12')) as "outerImpAmount",
+			<!-- sterilizeAmount	灭菌总数量 -->
+			(select nvl(sum(tf_amount),0) from tb_gk_template_package where GK_TEMPLATE_GUID<include refid="billIdScope"/> and ATTRIBUTE_ID = '12') as "sterilizeAmount",
+			<!-- toolAmount			外来工具总数量 -->
+			(select nvl(sum(tf_amount),0) from tb_gk_template_package where GK_TEMPLATE_GUID<include refid="billIdScope"/> and ATTRIBUTE_ID = 'operTool') as "toolAmount"
+		from dual
+	</select>
+  <!-- 查找模板的的手术包的编号列表 -->
+	<select id="findPackageIdsByTemplateId" resultType="string">
+		SELECT DISTINCT gtp.GK_TEMPLATE_GUID||gtp.PACKAGE_ID from tb_gk_template_package gtp WHERE gtp.GK_TEMPLATE_GUID<include refid="billIdScope" />
+	</select>
+	
+	<!-- 查询指定模板的各个手术包的各类产品属性的数量汇总，并转换成横表输出 -->
+	<select id="findPackageListByTemplateId" resultType="java.util.LinkedHashMap">
+		select
+		    0 as "packageId",
+			'添加工具' as "isToolFlag",
+			'包含植入物' as "isImplantFlag",
+			<foreach collection="gkAttributes" item="attr" index="index" separator=",">
+				#{attr.TF_CLO_NAME}
+					||'('||(
+						SELECT
+							nvl(sum(gtd.TF_AMOUNT), 0)
+						from TB_GK_TEMPLATE_DETAIL gtd
+						LEFT JOIN TD_TENDER_DETAIL ttd on gtd.TENDER_DETAIL_GUID = ttd.TENDER_DETAIL_GUID
+						LEFT JOIN TD_TENDER_INFO tti on ttd.tender_guid=tti.tender_guid
+						WHERE gtd.GK_TEMPLATE_GUID<include refid="billIdScope" /> and tti.ATTRIBUTE_ID=#{attr.TF_CLO_CODE,jdbcType=VARCHAR}
+					)||')'  as "${attr.TF_CLO_CODE}"
+			</foreach>,
+			'手术器械' as "operTool"
+		from dual
+		<if test='packageIds != null and packageIds !="" '>
+		  	union all
+			<foreach collection="packageIds" item="packageId" separator="union all">
+				select
+					   (select distinct PACKAGE_ID from tb_gk_template_package
+						where GK_TEMPLATE_GUID||PACKAGE_ID=#{packageId,jdbcType=VARCHAR})  as "packageId",
+				  	  (select distinct IS_TOOL_FLAG from tb_gk_template_package
+						where GK_TEMPLATE_GUID <include refid="billIdScope"/> and GK_TEMPLATE_GUID||PACKAGE_ID=#{packageId,jdbcType=VARCHAR}) as "isToolFlag",
+					   (select distinct IS_IMPLANT_FLAG from tb_gk_template_package
+						where GK_TEMPLATE_GUID <include refid="billIdScope"/> and GK_TEMPLATE_GUID||PACKAGE_ID=#{packageId,jdbcType=VARCHAR}) as "isImplantFlag",
+					<foreach collection="gkAttributes" item="attr" index="index" separator=",">
+						(
+							SELECT
+								nvl(sum(gtp.TF_AMOUNT), 0)
+							from tb_gk_template_package gtp
+							WHERE gtp.GK_TEMPLATE_GUID<include refid="billIdScope" /> and gtp.GK_TEMPLATE_GUID||gtp.PACKAGE_ID=#{packageId,jdbcType=VARCHAR} and gtp.ATTRIBUTE_ID=#{attr.TF_CLO_CODE,jdbcType=VARCHAR}
+						)||'' as "${attr.TF_CLO_CODE}"
+					</foreach>,
+					(SELECT
+							nvl(sum(gtp.TF_AMOUNT), 0)
+						from tb_gk_template_package gtp
+						WHERE gtp.GK_TEMPLATE_GUID<include refid="billIdScope" /> and gtp.GK_TEMPLATE_GUID||gtp.PACKAGE_ID=#{packageId,jdbcType=VARCHAR} and gtp.ATTRIBUTE_ID='operTool')||'' as "operTool"
+				from dual
+			</foreach>
+		</if>
+		union all
+		select
+			-1 as "packageId",'' as "isToolFlag",'' as "isImplantFlag",
+			<foreach collection="gkAttributes" item="attr" index="index" separator=",">
+				(
+					SELECT
+						nvl(sum(gtp.TF_AMOUNT), 0)
+					from tb_gk_template_package gtp
+					WHERE gtp.GK_TEMPLATE_GUID<include refid="billIdScope" /> and gtp.ATTRIBUTE_ID=#{attr.TF_CLO_CODE,jdbcType=VARCHAR}
+				)||'' as "${attr.TF_CLO_CODE}"
+			</foreach>,
+			(SELECT
+				nvl(sum(gtp.TF_AMOUNT), 0)
+			from tb_gk_template_package gtp
+			WHERE gtp.GK_TEMPLATE_GUID<include refid="billIdScope" /> and gtp.ATTRIBUTE_ID='operTool')||'' as "operTool"
+		 from dual
+	</select>
+	
+	<!-- 定位单号条件 -->
+	<sql id="billIdScope">
+		<choose>
+			<when test='gkTemplateGuid!=null and gkTemplateGuid!=""'>
+						=#{gkTemplateGuid,jdbcType=VARCHAR}
+			</when>
+			<when test='gkTemplateGuids!=null and gkTemplateGuids!=""'> 
+						in 
+						<foreach collection="gkTemplateGuids" item="gkTemplateItem" index="index" separator="," open="(" close=")">
+					  		#{gkTemplateItem}
+					  	</foreach> and save_flag = '01'
+			</when>
+			<otherwise>=null</otherwise>
+		</choose>
+	</sql>
+
+ <!-- 批量添加手术包 -->
+	<insert id="insertPackagesBatch">
+		INSERT INTO TB_GK_TEMPLATE_PACKAGE(GK_TEMPLATE_PACKAGE_GUID, GK_TEMPLATE_GUID, PACKAGE_ID, ATTRIBUTE_ID, TF_AMOUNT, IS_IMPLANT_FLAG, IS_TOOL_FLAG,SAVE_FLAG)		
+		<foreach collection="packageAttrList" item="e" separator="union all">
+	    	SELECT 
+		      sys_guid() GK_TEMPLATE_PACKAGE_GUID, 
+		      #{e.gkTemplateGuid, jdbcType=VARCHAR} gk_template_guid,  
+		      #{e.packageId, jdbcType=DECIMAL} PACKAGE_ID, 
+		      #{e.attributeId, jdbcType=VARCHAR} ATTRIBUTE_ID, 
+		      #{e.tfAmount, jdbcType=DECIMAL} TF_AMOUNT, 
+		      #{e.isImplantFlag, jdbcType=VARCHAR} IS_IMPLANT_FLAG, 
+		      #{e.isToolFlag, jdbcType=VARCHAR} IS_TOOL_FLAG,
+		      '00' 
+	    	from dual
+	    </foreach>
+	</insert>
+	
+	<insert id="updateGkTemplatePacs">
+		MERGE INTO TB_GK_TEMPLATE_PACKAGE gtp
+		  USING (
+			SELECT gk_template_guid, PACKAGE_ID, ATTRIBUTE_ID, 
+				   TF_AMOUNT,IS_IMPLANT_FLAG,IS_TOOL_FLAG		
+			FROM (
+			    <foreach collection="packageAttrList" item="e" separator="union all">
+			      select
+				     #{e.gkTemplateGuid, jdbcType=VARCHAR} gk_template_guid, 
+				     #{e.packageId, jdbcType=DECIMAL} PACKAGE_ID, 
+				     #{e.attributeId, jdbcType=VARCHAR} ATTRIBUTE_ID, 
+				     #{e.tfAmount, jdbcType=DECIMAL} TF_AMOUNT, 
+				     #{e.isImplantFlag, jdbcType=VARCHAR} IS_IMPLANT_FLAG, 
+				     #{e.isToolFlag, jdbcType=VARCHAR} IS_TOOL_FLAG
+			      from dual
+			    </foreach>
+			) GROUP BY gk_template_guid, PACKAGE_ID, ATTRIBUTE_ID
+		  ) gtpt ON (gtp.gk_template_guid=gtpt.gk_template_guid and gtp.PACKAGE_ID=gtpt.PACKAGE_ID and gtp.ATTRIBUTE_ID=gtpt.ATTRIBUTE_ID)
+		WHEN MATCHED THEN UPDATE
+		SET
+		  gtp.TF_AMOUNT=gtpt.TF_AMOUNT
+		WHEN NOT MATCHED THEN INSERT(GK_TEMPLATE_PACKAGE_GUID, GK_TEMPLATE_GUID, PACKAGE_ID, ATTRIBUTE_ID, TF_AMOUNT, IS_IMPLANT_FLAG, IS_TOOL_FLAG,SAVE_FLAG)
+		VALUES (sys_guid(), gtpt.gk_template_guid, gtpt.PACKAGE_ID, gtpt.ATTRIBUTE_ID, 
+				   gtpt.TF_AMOUNT,gtpt.IS_IMPLANT_FLAG,gtpt.IS_TOOL_FLAG,'00')
+	</insert>
+	
+	<delete id="deleteGkTemplatePacs">
+		delete from TB_GK_TEMPLATE_PACKAGE gtp
+		where exists (
+			select 0 from(
+				SELECT gk_template_guid, PACKAGE_ID, ATTRIBUTE_ID
+				FROM (
+					<foreach collection="orgGkTemplatePackages" item="e" separator="union all">
+					      select
+						     #{e.gkTemplateGuid, jdbcType=VARCHAR} gk_template_guid, 
+						     #{e.packageId, jdbcType=DECIMAL} PACKAGE_ID, 
+						     #{e.attributeId, jdbcType=VARCHAR} ATTRIBUTE_ID
+					      from dual
+					</foreach>
+				) 
+			) pp
+		  where pp.gk_template_guid = gtp.gk_template_guid and pp.PACKAGE_ID = gtp.PACKAGE_ID and pp.ATTRIBUTE_ID = gtp.ATTRIBUTE_ID
+		) 
+	</delete>
+	
+	<delete id="deleteGkPacsByTemplateId">
+		 delete from TB_GK_TEMPLATE_PACKAGE 
+         where gk_template_guid = #{gkTemplateGuid}
+	</delete>
+	
+	<resultMap id="compareMaterialAmounMap" type="hashMap">
+		<result column="attribute_id" property="attributeId" jdbcType="VARCHAR" javaType="String"/>
+		<result column="diff" property="diff" jdbcType="DECIMAL" javaType="Integer"/>
+	</resultMap>
+	
+	<!-- 检查各手术包工具数量与产品明细数量是否相等 -->
+	<select id="checkMaterialAmountsWithAttributeId" resultMap="compareMaterialAmounMap">
+		SELECT nvl(pp.attribute_id, pt.attribute_id) attribute_id, nvl(pp.amount, 0) - nvl(pt.amount,0) diff
+		FROM
+		  (
+		  	select tdi.ATTRIBUTE_ID,nvl(sum(tf_amount),0) amount
+		  	from TB_GK_TEMPLATE_DETAIL tpd
+		  	left join td_tender_detail tdd on tpd.TENDER_DETAIL_GUID = tdd.TENDER_DETAIL_GUID
+			left join td_tender_info tdi on tdd.TENDER_GUID = tdi.TENDER_GUID
+		  	where GK_TEMPLATE_GUID = #{gkTemplateGuid}
+		  	group by tdi.ATTRIBUTE_ID
+		  ) pp
+		FULL JOIN (
+		  SELECT attribute_id, nvl(sum(TF_AMOUNT),0) amount
+		  FROM TB_GK_TEMPLATE_PACKAGE
+		  WHERE gk_template_guid = #{gkTemplateGuid}
+		  GROUP BY attribute_id
+		) pt on pp.attribute_id=pt.attribute_id
+		where pt.attribute_id != 'operTool'
+		ORDER by attribute_id asc
+	</select>
+	
+	<update id="updatePacsToFormal">
+	    update TB_GK_TEMPLATE_PACKAGE
+	    set save_flag = '01'
+	    where gk_template_guid = #{gkTemplateGuid}
+    </update>
+    
+     <!-- 查询手术包头 -->
+    <select id="queryPacColumns" resultType="hashMap" parameterType="com.phxl.core.base.entity.Pager">
+	    SELECT tsd.TF_CLO_CODE, 
+	    tsd.TF_CLO_NAME ||'('||nvl(sum(gtd.TF_AMOUNT), 0)||')' TF_CLO_NAME
+		FROM TD_STATIC_INFO tsi
+		JOIN TD_STATIC_DATA tsd on tsi.STATIC_ID=tsd.STATIC_ID
+		left join TD_TENDER_INFO tti on tti.ATTRIBUTE_ID = tsd.TF_CLO_CODE
+		left join TD_TENDER_DETAIL ttd on ttd.tender_guid=tti.tender_guid
+		left join TB_GK_TEMPLATE_DETAIL gtd on gtd.TENDER_DETAIL_GUID = ttd.TENDER_DETAIL_GUID and gtd.GK_TEMPLATE_GUID=#{conditiions.gkTemplateGuid}
+		WHERE 1=1
+		<if test="conditiions.orgId!=null">
+			and tsi.ORG_ID=#{conditiions.orgId,jdbcType=DECIMAL}
+		</if>
+		<if test="conditiions.tfClo!=null and conditiions.tfClo!=''">
+			and tsi.TF_CLO=#{conditiions.tfClo,jdbcType=VARCHAR}
+		</if>
+		group by tsd.TF_CLO_CODE,tsd.TF_CLO_NAME
+		ORDER BY to_number(tsd.TF_CLO_CODE) asc
+    </select>
+</mapper>

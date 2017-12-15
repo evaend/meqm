@@ -1,0 +1,344 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.phxl.ysy.dao.InvoiceMapper">
+
+	<resultMap id="BaseResultMap" type="com.phxl.ysy.entity.Invoice">
+		<id column="INVOICE_ID" property="invoiceId" jdbcType="VARCHAR" />
+		<result column="INVOICE_NO" property="invoiceNo" jdbcType="VARCHAR" />
+		<result column="R_ORG_ID" property="rOrgId" jdbcType="DECIMAL" />
+		<result column="R_STORAGE_GUID" property="rStorageGuid" jdbcType="VARCHAR" />
+		<result column="F_ORG_ID" property="fOrgId" jdbcType="DECIMAL" />
+		<result column="F_STORAGE_GUID" property="fStorageGuid" jdbcType="VARCHAR" />
+		<result column="INVOICE_DATE" property="invoiceDate" jdbcType="TIMESTAMP" />
+		<result column="ACCOUNT_PAYED" property="accountPayed" jdbcType="DECIMAL" />
+		<result column="ACCT_FLAG" property="acctFlag" jdbcType="VARCHAR" />
+		<result column="FSTATE" property="fstate" jdbcType="VARCHAR" />
+		<result column="ACCT_USERID" property="acctUserid" jdbcType="VARCHAR" />
+		<result column="ACCT_DATE" property="acctDate" jdbcType="TIMESTAMP" />
+		<result column="CREATE_USERID" property="createUserid" jdbcType="VARCHAR" />
+		<result column="CREATE_TIME" property="createTime" jdbcType="TIMESTAMP" />
+		<result column="MODIFY_TIME" property="modifyTime" jdbcType="TIMESTAMP" />
+		<result column="INVOICE_QRCODE" property="invoiceQrcode" jdbcType="VARCHAR" />
+		<result column="INVOICE_CODE" property="invoiceCode" jdbcType="VARCHAR" />
+		<result column="CWNO" property="cwno" jdbcType="VARCHAR" />
+		<result column="YSR" property="ysr" jdbcType="VARCHAR" />
+		<result column="YSSJ" property="yssj" jdbcType="TIMESTAMP" />
+		<result column="ACCT_YH" property="acctYh" jdbcType="VARCHAR" />
+		<result column="REJECT_REASON" property="rejecReason" jdbcType="VARCHAR" />
+	</resultMap>
+	
+	<sql id="Base_Column_List">
+		INVOICE_ID, INVOICE_NO, R_ORG_ID, R_STORAGE_GUID, F_ORG_ID, F_STORAGE_GUID, INVOICE_DATE,
+		ACCOUNT_PAYED, ACCT_FLAG, FSTATE, ACCT_USERID, ACCT_DATE, CREATE_USERID, CREATE_TIME,
+		MODIFY_TIME, INVOICE_QRCODE, INVOICE_CODE, CWNO, YSR, YSSJ, ACCT_YH, REJECT_REASON
+	</sql>
+	
+	<select id="findMyInvoiceList" resultType="HashMap" parameterType="com.phxl.core.base.entity.Pager">
+		select i.invoice_id "invoiceId",i.fstate "fstate",i.invoice_code "invoiceCode",i.invoice_no "invoiceNo",i.account_payed "accountPayed",
+		       to_char(i.invoice_date, 'yyyy-MM-dd') "invoiceDate",i.f_org_id "fOrgId",f.org_name "fOrgName",i.r_org_id "rOrgId",r.org_name "rOrgName",
+		       i.r_storage_guid "rStorageGuid",sto.STORAGE_NAME "rStorageName",u.user_name "createUserName",to_char(i.create_time, 'yyyy-MM-dd') "createTime",i.reject_reason "rejectReason"
+		from tb_invoice i 
+		left join TD_STORAGE_INFO sto on sto.STORAGE_GUID = i.r_storage_guid
+		left join td_org_info r on r.org_id = i.r_org_id left join td_org_info f on f.org_id = i.f_org_id
+		left join ts_user_info u on u.user_id = i.create_userid
+		where 1 = 1
+		<if test="conditiions!=null and conditiions.orgType != null and conditiions.orgType == '01'"><!-- 当前登录机构为医院 -->
+			  and i.r_org_id = #{conditiions.rOrgId, jdbcType=DECIMAL}
+			  and i.r_storage_guid = #{conditiions.rStorageGuid,jdbcType=VARCHAR}
+			  <if test="conditiions!=null and conditiions.fOrgId != null and conditiions.fOrgId > 0">
+				  and i.f_org_id = #{conditiions.fOrgId,jdbcType=DECIMAL}
+			  </if>
+		</if>
+		<if test="conditiions!=null and conditiions.orgType != null and conditiions.orgType == '02'"><!-- 当前登录机构为供应商 -->
+			  and i.f_org_id = #{conditiions.fOrgId, jdbcType=DECIMAL}
+			  <if test="conditiions!=null and conditiions.fStorageGuid != null and conditiions.fStorageGuid != ''">
+			      and i.f_storage_guid = #{conditiions.fStorageGuid,jdbcType=VARCHAR}
+		      </if>
+			  <if test="conditiions!=null and conditiions.rOrgId != null and conditiions.rOrgId > 0">
+				  and i.r_org_id = #{conditiions.rOrgId,jdbcType=DECIMAL}
+			  </if>
+		</if>
+		<if test="conditiions != null and conditiions.startInvoiceDate != null and conditiions.startInvoiceDate != ''">
+		  and <![CDATA[ to_char(i.invoice_date,'yyyy-MM-dd') >= #{conditiions.startInvoiceDate, jdbcType=VARCHAR}]]>
+	    </if>
+	    <if test="conditiions != null and conditiions.endInvoiceDate != null and conditiions.endInvoiceDate != ''">
+		  and <![CDATA[ to_char(i.invoice_date,'yyyy-MM-dd') <= #{conditiions.endInvoiceDate, jdbcType=VARCHAR}]]>
+	    </if>
+	    <if test="conditiions != null and conditiions.startTime != null and conditiions.startTime != ''">
+		  and <![CDATA[ to_char(i.create_time,'yyyy-MM-dd') >= #{conditiions.startTime, jdbcType=VARCHAR}]]>
+	    </if>
+	    <if test="conditiions != null and conditiions.endTime != null and conditiions.endTime != ''">
+		  and <![CDATA[ to_char(i.create_time,'yyyy-MM-dd') <= #{conditiions.endTime, jdbcType=VARCHAR}]]>
+	    </if>
+		<if test="conditiions!=null and conditiions.fstate != null and conditiions.fstate != ''">
+			  and i.fstate = #{conditiions.fstate, jdbcType=VARCHAR}
+		</if>
+		<if test="conditiions!=null and conditiions.invoiceCode != null and conditiions.invoiceCode != ''">
+			  and regexp_like(i.invoice_code, #{conditiions.invoiceCode,jdbcType=VARCHAR})
+		</if>
+		<if test="conditiions!=null and conditiions.invoiceNo != null and conditiions.invoiceNo != ''">
+			  and regexp_like(i.invoice_no, #{conditiions.invoiceNo,jdbcType=VARCHAR})
+		</if>
+		<if test="conditiions!=null and conditiions.sendNo != null and conditiions.sendNo != ''">
+			  and i.invoice_id in (select distinct di.invoice_id from tb_delivery_invoice di left join tb_delivery d on d.send_id = di.send_id 
+			                       where regexp_like(d.send_no, #{conditiions.sendNo,jdbcType=VARCHAR}))
+		</if>
+		
+		  <choose>
+			   <when test="conditiions!=null and conditiions.sortCol!= null and conditiions.sortCol != ''">
+			    order by ${conditiions.sortCol} ${conditiions.sortType}
+			   </when>
+			   <otherwise>
+			   order by i.create_time asc
+			   </otherwise>
+		  </choose> 
+    </select>
+    
+    <select id="findStorageListByOrgId" resultType="hashMap" parameterType="com.phxl.core.base.entity.Pager">
+	  	select c.STORAGE_GUID AS "value",c.STORAGE_NAME AS "text" from TD_STORAGE_INFO c
+	  	where c.ORG_ID = #{conditiions.rOrgId, jdbcType=DECIMAL} and c.FSTATE = '01'
+	  	<if test="conditiions !=null and conditiions.storageLevel !=null and conditiions.storageLevel != ''">
+		  	and c.STORAGE_LEVEL_CODE = #{conditiions.storageLevel,jdbcType=VARCHAR} 
+	  	</if>
+	  	<if test="conditiions !=null and conditiions.storageName !=null and conditiions.storageName != ''">
+		  	and regexp_like(c.STORAGE_NAME, #{conditiions.storageName,jdbcType=VARCHAR}) 
+	  	</if>
+	</select>
+	
+	<select id="searchDeliveryListByInvoiceId" resultType="hashMap" parameterType="com.phxl.core.base.entity.Pager">
+	  	select d.send_id "sendId",d.send_no "sendNo",d.total_price "totalPrice",d.fstate "sendFstate",(d.tf_address||','||d.lxr||','||d.lxdh) "address" 
+	  	from tb_delivery_invoice di left join tb_delivery d on d.send_id = di.send_id
+		where di.invoice_id = #{conditiions.invoiceId,jdbcType=VARCHAR}
+	  	<if test="conditiions !=null and conditiions.storageName !=null and conditiions.storageName != ''">
+		  	and regexp_like(c.STORAGE_NAME, #{conditiions.storageName,jdbcType=VARCHAR}) 
+	  	</if>
+	</select>
+	
+	<select id="getTotalPriceByInvoiceId" resultType="string" parameterType="com.phxl.core.base.entity.Pager">
+		select (case when sum(d.total_price) is null then '0.00' else to_char(ROUND(sum(d.total_price),2),'99999999.00') end) 
+		from tb_delivery_invoice di left join tb_delivery d on d.send_id = di.send_id
+		where di.invoice_id = #{conditiions.invoiceId,jdbcType=VARCHAR}
+	</select>
+	
+	<select id="searchDeliveryList" resultType="HashMap" parameterType="com.phxl.core.base.entity.Pager">
+	    <!-- 查询未关联的送货单 -->
+		select d.send_id "sendId",d.send_no "sendNo",(CASE WHEN d.total_price IS NULL THEN 0 ELSE d.total_price END) "totalPrice",d.fstate "sendFstate",(d.tf_address||','||d.lxr||','||d.lxdh) "address",
+		       0 "is_selected"
+		from tb_delivery d 
+		where d.send_id not in (select distinct di.send_id from tb_delivery_invoice di)
+		and d.r_org_id = #{conditiions.rOrgId, jdbcType=DECIMAL} and d.r_storage_guid = #{conditiions.rStorageGuid, jdbcType=VARCHAR} and d.f_org_id = #{conditiions.fOrgId, jdbcType=DECIMAL} and d.fstate in ('50','60','80')
+		union
+		<!-- 查询已关联的送货单 -->
+		select e.send_id "sendId",e.send_no "sendNo",(CASE WHEN e.total_price IS NULL THEN 0 ELSE e.total_price END) "totalPrice",e.fstate "sendFstate",(e.tf_address||','||e.lxr||','||e.lxdh) "address",
+		       1 "is_selected"
+		from tb_delivery_invoice t
+		left join tb_delivery e on e.send_id = t.send_id
+		where e.r_org_id = #{conditiions.rOrgId, jdbcType=DECIMAL} and e.r_storage_guid = #{conditiions.rStorageGuid, jdbcType=VARCHAR} and e.f_org_id = #{conditiions.fOrgId, jdbcType=DECIMAL} and t.invoice_id = #{conditiions.invoiceId, jdbcType=VARCHAR}
+    </select>
+    
+    <select id="getInvoiceById" resultType="HashMap" parameterType="com.phxl.core.base.entity.Pager">
+	    select t.invoice_id "invoiceId",t.invoice_code "invoiceCode",t.invoice_no "invoiceNo",t.account_payed "accountPayed",to_char(t.invoice_date, 'yyyy-MM-dd') "invoiceDate",
+		       t.f_org_id "fOrgId",o.org_name "fOrgName",t.FSTATE "fstate"
+		from TB_INVOICE t 
+		left join td_org_info o on o.org_id = t.f_org_id
+		where t.invoice_no = #{conditiions.invoiceNo, jdbcType=VARCHAR} and t.r_org_id = #{conditiions.rOrgId, jdbcType=DECIMAL} and t.r_storage_guid = #{conditiions.rStorageGuid, jdbcType=VARCHAR}
+		      and t.FSTATE = '0'
+    </select>
+    
+    <select id="getDeliveryDetail" resultType="HashMap" parameterType="com.phxl.core.base.entity.Pager">
+	    select d.send_id "sendId",d.send_no "sendNo",(case when d.fstate='40'then '待发货' when d.fstate='50' then '待验收' when d.fstate='60' then '验收通过' when d.fstate='80' then '完结' when d.fstate='90' then '验收不通过' else '未知' end) "sendFstate",dd.send_detail_guid "sendDetailGuid",dd.ge_name "geName",dd.material_name "materialName",
+		       dd.spec "spec",dd.fmodel "fmodel",dd.tender_unit "tenderUnit",dd.tf_packing "tfPacking",dd.tender_price "tenderPrice",dd.amount "amount",
+		       NVL(dd.tender_price*dd.amount,0) "amountMoney",dd.flot "flot",to_char(dd.prod_date, 'yyyy-MM-dd') "prodDate",to_char(dd.useful_date, 'yyyy-MM-dd') "usefulDate"
+		from tb_delivery_invoice di
+		left join tb_delivery d on di.send_id = d.send_id 
+		left join tb_delivery_detail dd on dd.send_id= d.send_id
+		where di.invoice_id = #{conditiions.invoiceId, jdbcType=VARCHAR}
+    </select>
+    
+    <select id="findInvoiceExist" resultType="int">
+		select COUNT(1) from TB_INVOICE t where t.f_org_id = #{fOrgId,jdbcType=DECIMAL} and t.invoice_no = #{invoiceNo,jdbcType=VARCHAR} and t.invoice_code = #{invoiceCode,jdbcType=VARCHAR}
+						                  <if test="invoiceId != null and invoiceId != ''" >
+							                 and t.invoice_id != #{invoiceId,jdbcType=VARCHAR}
+							              </if>
+     </select>
+     
+     
+     <!-- 查询送货单是否已入库（有无对应送货单的入库单） -->
+     <select id="selectImportByInvoice" parameterType="java.lang.String" resultType="java.lang.Integer">
+     	select count(*) from tb_import 
+     	where inmode = '01' and send_id = #{sendId}
+     </select>
+     
+     <!-- 查询财务结账月结账列表 -->
+     <select id="selectInvoiceByMonth" resultType="HashMap" parameterType="com.phxl.core.base.entity.Pager">
+     	select tb_invoice.acct_yh "acctYh" , 
+		ts_user_info.user_name "acctUserName" , 
+		min(acct_date) "acctDate" 
+		from tb_invoice left join ts_user_info 
+		on (tb_invoice.acct_userid = ts_user_info.user_id) 
+		where acct_yh is not null 
+		and acct_yh != '0'
+		<!-- 查询库房 -->
+		and (  ( tb_invoice.r_storage_guid = #{conditiions.storageGuid} ) 
+			  or  (tb_invoice.r_storage_guid in 
+					(select storage_guid from V_STORAGECONFIG 
+					where V_STORAGECONFIG."parentStorageGuid" = #{conditiions.storageGuid} )
+				  )
+			)
+		<!-- 查询结算月开始时间 -->
+		<![CDATA[  and tb_invoice.acct_yh >= #{conditiions.acctYhStart} ]]>
+		<!-- 查询结算月结束时间 -->
+		<![CDATA[  and tb_invoice.acct_yh <= #{conditiions.acctYhEnd} ]]>
+		group by tb_invoice.acct_yh , ts_user_info.user_name 
+		order by tb_invoice.acct_yh desc
+     </select>
+     
+     <!-- 查询财务结账月结账列表中的总金额 -->
+     <select id="selectSumMoneyByMonth" resultType="java.lang.String" parameterType="java.lang.String">
+     	select sum(account_payed) "money"  from tb_invoice 
+   	    where acct_yh = #{acctYh} 
+        and tb_invoice.invoice_id in 
+  			(select invoice_id from tb_delivery_invoice where send_id in 
+  	        	(select send_id from tb_delivery where order_type in ('DELIVERY' , 'SETTLE_DELIVERY')
+  	        	)
+  	        ) 
+     </select>
+
+
+	<!-- 已结账详情 -->
+	<select id="selectInvoiceDetailByMonth" resultType="HashMap" parameterType="com.phxl.core.base.entity.Pager">
+		select invoice_id "invoiceId" , 
+		invoice_code "invoiceCode" , 
+		invoice_no "invoiceNo" , 
+		td_org_info.org_name "fOrgName" , 
+		account_payed "money" 
+		from tb_invoice 
+		left join td_org_info on (td_org_info.org_id = tb_invoice.f_org_id) 
+		where tb_invoice.acct_yh = #{conditiions.acctYh} 
+		and tb_invoice.invoice_id in 
+			(select invoice_id from tb_delivery_invoice where send_id in 
+	        	(select send_id from tb_delivery where order_type in ('DELIVERY' , 'SETTLE_DELIVERY')
+	        	)
+	        ) 
+		<if test="conditiions.invoiceNo != null and conditiions.invoiceNo !='' ">
+			and regexp_like(tb_invoice.invoice_no , #{conditiions.invoiceNo}) 
+		</if>
+		<if test="conditiions.invoiceCode != null and conditiions.invoiceCode != '' ">
+			and regexp_like(tb_invoice.invoice_code , #{conditiions.invoiceCode}) 
+		</if>
+		<if test="conditiions.fOrgId != null and conditiions.fOrgId != '' ">
+			and tb_invoice.f_org_id = #{conditiions.fOrgId} 
+		</if>
+	</select>
+	
+	<!-- 已结账总金额 -->
+	<select id="selectInvoiceByMonthCountMoney" resultType="java.math.BigDecimal" parameterType="com.phxl.core.base.entity.Pager">
+		select sum(account_payed) "money" 
+		from tb_invoice 
+		left join td_org_info on (td_org_info.org_id = tb_invoice.f_org_id) 
+		where acct_yh = #{conditiions.acctYh} 
+		and tb_invoice.invoice_id in 
+			(select invoice_id from tb_delivery_invoice where send_id in 
+	        	(select send_id from tb_delivery where order_type in ('DELIVERY' , 'SETTLE_DELIVERY')
+	        	)
+	        ) 
+		<if test="conditiions.invoiceNo != null and conditiions.invoiceNo !='' ">
+			and regexp_like(invoice_no , #{conditiions.invoiceNo}) 
+		</if>
+		<if test="conditiions.invoiceCode != null and conditiions.invoiceCode != '' ">
+			and regexp_like(invoice_code , #{conditiions.invoiceCode}) 
+		</if>
+		<if test="conditiions.fOrgId != null and conditiions.fOrgId != '' ">
+			and f_org_id = #{conditiions.fOrgId} 
+		</if>
+	</select>
+	
+	
+	<!-- 未结账详情 -->
+	<select id="selectInvoiceDetailNotAcct" resultType="HashMap" parameterType="com.phxl.core.base.entity.Pager">
+		select tb_invoice.invoice_id "invoiceId" , 
+		tb_invoice.invoice_code "invoiceCode" , 
+		tb_invoice.invoice_no "invoiceNo" , 
+		td_org_info.org_name "fOrgName" , 
+		tb_invoice.account_payed "money" 
+		from tb_invoice 
+		left join td_org_info on (td_org_info.org_id = tb_invoice.f_org_id) 
+    	left join tb_delivery_invoice on (tb_invoice.invoice_id = tb_delivery_invoice.invoice_id)
+    	left join tb_delivery on (tb_delivery_invoice.send_id = tb_delivery.send_id) 
+    	left join tb_import on (tb_delivery.send_id = tb_import.send_id) 
+		where tb_invoice.r_storage_guid = #{conditiions.storageGuid}
+		and (tb_import.acct_yh = '0' or tb_import.acct_yh_zm='0') 
+		<if test="conditiions.invoiceNo != null and conditiions.invoiceNo !='' ">
+			and regexp_like(tb_invoice.invoice_no , #{conditiions.invoiceNo}) 
+		</if>
+		<if test="conditiions.invoiceCode != null and conditiions.invoiceCode != '' ">
+			and regexp_like(tb_invoice.invoice_code , #{conditiions.invoiceCode}) 
+		</if>
+		<if test="conditiions.fOrgId != null and conditiions.fOrgId != '' ">
+			and tb_invoice.f_org_id = #{conditiions.fOrgId} 
+		</if>
+	</select>
+	
+	<!-- 未结账总金额 -->
+	<select id="selectInvoiceNotAcctCountMoney" resultType="java.math.BigDecimal" parameterType="com.phxl.core.base.entity.Pager">
+		select sum(account_payed) "countMoney" from tb_invoice 
+    	left join tb_delivery_invoice on (tb_invoice.invoice_id = tb_delivery_invoice.invoice_id)
+    	left join tb_delivery on (tb_delivery_invoice.send_id = tb_delivery.send_id) 
+    	left join tb_import on (tb_delivery.send_id = tb_import.send_id) 
+		where tb_invoice.r_storage_guid = #{conditiions.storageGuid} 
+		and (tb_import.acct_yh = '0' or tb_import.acct_yh_zm='0') 
+		<if test="conditiions.invoiceNo != null and conditiions.invoiceNo !='' ">
+			and regexp_like(tb_invoice.invoice_no , #{conditiions.invoiceNo}) 
+		</if>
+		<if test="conditiions.invoiceCode != null and conditiions.invoiceCode != '' ">
+			and regexp_like(tb_invoice.invoice_code , #{conditiions.invoiceCode}) 
+		</if>
+		<if test="conditiions.fOrgId != null and conditiions.fOrgId != '' ">
+			and tb_invoice.f_org_id = #{conditiions.fOrgId} 
+		</if>
+	</select>
+
+	<resultMap type="java.util.HashMap" id="invoiceMonthMap">
+		<result column="VALUE" property="value" jdbcType="VARCHAR"/>
+		<result column="TEXT" property="text" jdbcType="VARCHAR"/>
+	</resultMap>
+	
+	<!-- 查询结账月份 -->
+	<select id="selectInvoiceMonth" resultMap="invoiceMonthMap" parameterType="com.phxl.core.base.entity.Pager">
+		select value , text from ( 
+			SELECT TO_CHAR(ADD_MONTHS(TO_DATE(#{conditiions.acctYhStart},'YYYY-MM'),ROWNUM-1 ),'YYYY-MM') text , 
+			       TO_CHAR(ADD_MONTHS(TO_DATE(#{conditiions.acctYhStart},'YYYY-MM'),ROWNUM-1 ),'YYYYMM') value 
+			FROM DUAL 
+			<![CDATA[ CONNECT BY ROWNUM<=months_between ]]> 
+			(to_date(#{conditiions.acctYhEnd}, 'yyyy-mm'),to_date(#{conditiions.acctYhStart}, 'yyyy-mm'))+1 
+			) 
+			where text != #{conditiions.acctYhStart} 
+			order by value desc
+	</select>
+	
+	<!-- 查询目前最大结账月份 -->
+	<select id="selectInvoiceMaxAcctYh" resultType="java.lang.String" parameterType="java.lang.String">
+		select max(acct_yh) from tb_invoice where r_storage_guid = #{storageGuid} 
+	</select>
+	
+	<!-- 查询该库房最早的开票时间 -->
+	<select id="selectInvoiceMinDate" resultType="java.lang.String" parameterType="java.lang.String">
+		select min(invoice_date) from tb_invoice where r_storage_guid = #{storageGuid} 
+	</select>
+	
+	<resultMap id="resultMap3" type="java.util.HashMap">
+		<result column="ret" property="ret" jdbcType="VARCHAR"/>
+		<result column="fno" property="fno" jdbcType="VARCHAR"/>
+		<result column="error" property="error" jdbcType="VARCHAR"/>
+	   </resultMap>
+	<!-- 确认结账 -->
+	<select id="updateInvoiceSettleAccount" statementType="CALLABLE" parameterType="java.util.HashMap">
+		 {call sp_ck_rk_acct(
+		 		   #{storageGuid,mode=IN,jdbcType=VARCHAR} , 
+	               #{acctYh,mode=IN,jdbcType=VARCHAR} , 
+	               #{userId,mode=IN,jdbcType=VARCHAR} , 
+	               #{retCursor,jdbcType=CURSOR,mode=OUT,javaType=ResultSet, resultMap=resultMap3}
+	      ) }
+	</select>
+	
+</mapper>

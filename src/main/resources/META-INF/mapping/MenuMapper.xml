@@ -1,0 +1,104 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.phxl.ysy.dao.MenuMapper">
+	
+	<resultMap id="BaseResultMap" type="com.phxl.ysy.entity.Menu">
+		<id column="MENU_ID" property="menuId" jdbcType="VARCHAR" />
+		<result column="MENU_NAME" property="menuName" jdbcType="VARCHAR" />
+		<result column="MENU_URL" property="menuUrl" jdbcType="VARCHAR" />
+		<result column="FSTATE" property="fstate" jdbcType="VARCHAR" />
+		<result column="TF_REMARK" property="tfRemark" jdbcType="VARCHAR" />
+		<result column="CREATE_USERID" property="createUserid" jdbcType="VARCHAR" />
+		<result column="CREATE_TIME" property="createTime" jdbcType="TIMESTAMP" />
+		<result column="MODIFY_USERID" property="modifyUserid" jdbcType="VARCHAR" />
+		<result column="MODIFY_TIME" property="modifyTime" jdbcType="TIMESTAMP" />
+		<result column="PARENT_MENUID" property="parentMenuid" jdbcType="VARCHAR" />
+		<result column="FSORT" property="fsort" jdbcType="VARCHAR" />
+		<result column="MENU_CODE" property="menuCode" jdbcType="VARCHAR" />
+	</resultMap>
+	
+	<sql id="Base_Column_List">
+		MENU_ID, MENU_NAME, MENU_URL, FSTATE, TF_REMARK, MODIFY_TIME, CREATE_TIME, CREATE_USERID,
+		MODIFY_USERID, PARENT_MENUID, FSORT, MENU_CODE
+	</sql>
+	
+	<sql id="Base_Column_List_With_Prefix">
+		m.MENU_ID, m.MENU_NAME, m.MENU_URL, m.FSTATE, m.TF_REMARK, m.MODIFY_TIME, m.CREATE_TIME, m.CREATE_USERID,
+		m.MODIFY_USERID, m.PARENT_MENUID, m.FSORT, m.MENU_CODE
+	</sql>
+
+	 <select id="searchMenuWithLevel" resultType="HashMap">
+		with search_child(id,name,key,path,fsort,parent_id,levelr)
+		as(
+		    <!-- 起始条件 -->
+		    select module_id id,module_name name,module_code key,module_url path,fsort,PARENT_MODULEID parent_id,0 levelr
+		    from ts_module
+		    where fstate = '01' and flag= '01' <!-- -列出父节点查询条件,这里只查询末级模块 -->
+		    <if test="moduleId !=null and moduleId != ''">
+		    	and module_id = #{moduleId}
+		    </if>
+		    union all
+		    <!-- 递归条件 -->
+		    select a.id,a.name,a.key,a.path,a.fsort,a.parent_id,b.levelr+1 levelr
+		    from (
+		      select m.menu_id id,m.menu_name name,m.menu_code key,m.menu_url path,m.fsort,
+		      case when m.parent_menuid is null then mm.module_id 
+		      else m.parent_menuid end as parent_id 
+		      from ts_menu m left join TS_MODULE_MENU mm on m.menu_id = mm.menu_id
+		      where m.FSTATE='01'
+		    ) a
+		    inner join search_child b
+		    on ( a.parent_id=b.id)  
+		)
+		select  id "id",name "name",key "key", path "path",fsort "fsort",parent_id "parentId",levelr "level" from search_child
+    </select>
+    
+	<!-- 查询系统所有菜单列表 -->
+	<select id="findMenuList" resultMap="BaseResultMap" parameterType="com.phxl.core.base.entity.Pager">
+		select <include refid="com.phxl.ysy.dao.MenuMapper.Base_Column_List_With_Prefix"></include> 
+		from TS_MENU m 
+		LEFT JOIN TS_MENU cm on cm.PARENT_MENUID=m.MENU_ID
+		where m.fstate='01'
+		and cm.MENU_ID is null <!-- 末级菜单 -->
+		<if test="conditiions!=null and !conditiions.empty">
+			<if test="conditiions.searchName != null and conditiions.searchName != ''">
+				and (
+						regexp_like(MENU_NAME, #{conditiions.searchName, jdbcType=VARCHAR})
+					or regexp_like(MENU_URL, #{conditiions.searchName, jdbcType=VARCHAR})
+					or regexp_like(TF_REMARK, #{conditiions.searchName, jdbcType=VARCHAR})
+				)
+			</if>
+			<if test="conditiions.parentMenuid!=null and conditiions.parentMenuid!=''">
+				and PARENT_MENUID = #{conditiions.parentMenuid}
+			</if>
+		</if>
+			
+		<!-- 排序 -->
+		<choose>
+			<when test="conditiions != null and conditiions.orderMark != null and conditiions.orderField != null and conditiions.orderField!=''">
+				order by [orderField] ${conditiions.orderMark}
+			</when>
+			<otherwise>
+				order by MENU_NAME asc, FSORT asc  
+			</otherwise>
+		</choose>
+	</select>
+	
+	<!-- 批量更新菜单状态 -->
+	<update id="updateFstateBatch">
+		update TS_MENU 
+		set FSTATE = #{fstate, jdbcType=VARCHAR},
+			 MODIFY_USERID = #{modifyUserid, jdbcType=VARCHAR},
+			 MODIFY_TIME = sysdate
+		where MENU_ID in 
+			<foreach collection="menuIds" item="menuId" open="(" close=")" separator=",">
+				#{menuId, jdbcType=VARCHAR}
+			</foreach>
+	</update>
+	
+	<!-- 删除全部组内指定菜单 -->
+	<delete id="deleteGroupMenuByMenuId" parameterType="string">
+		DELETE FROM TS_GROUP_MENU WHERE MENU_ID = #{menuId}
+	</delete>
+	
+</mapper>

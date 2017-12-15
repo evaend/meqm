@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.phxl.ysy.dao.ConfigInfoMapper" >
+  <resultMap id="BaseResultMap" type="com.phxl.ysy.entity.ConfigInfo" >
+    <id column="CONFIG_GUID" property="configGuid" jdbcType="VARCHAR" />
+    <result column="ORG_ID" property="orgId" jdbcType="DECIMAL" />
+    <result column="STORAGE_GUID" property="storageGuid" jdbcType="VARCHAR" />
+    <result column="DEPT_GUID" property="deptGuid" jdbcType="VARCHAR" />
+    <result column="CONFIG_NAME" property="configName" jdbcType="VARCHAR" />
+    <result column="CONFIG_VALUE" property="configValue" jdbcType="VARCHAR" />
+    <result column="TF_REMARK" property="tfRemark" jdbcType="VARCHAR" />
+    <result column="FLAG" property="flag" jdbcType="VARCHAR" />
+    <result column="CONFIG_CODE" property="configCode" jdbcType="VARCHAR" />
+  </resultMap>
+  <insert id="insertUpdateConfigInfo">
+		<foreach collection="configInfos" index="index" item="configInfo" open="begin" close="end;">
+		<if test="configInfo.configCode != null and configInfo.configCode != ''">
+			<if test="configInfo.configValue != null and configInfo.configValue != ''">
+				merge into ts_config_info c
+				using (
+					SELECT #{configInfos[${index}].configCode, jdbcType=VARCHAR} CONFIG_CODE, 
+							 #{configInfos[${index}].configValue, jdbcType=VARCHAR} CONFIG_VALUE
+					from dual) cc
+				on (c.CONFIG_CODE = cc.CONFIG_CODE 
+					<choose>
+						<when test="flag =='00'">
+							and c.DEPT_GUID = #{flagGuid, jdbcType=VARCHAR}
+						</when>
+						<when test="flag =='01'">
+							and c.STORAGE_GUID = #{flagGuid, jdbcType=VARCHAR}
+						</when>
+						<when test="flag =='03'">
+							and c.ORG_ID = #{flagGuid, jdbcType=VARCHAR}
+						</when>
+					</choose>
+				)
+				when matched then
+					update set 
+						CONFIG_VALUE = cc.CONFIG_VALUE
+				when not matched then
+					insert (CONFIG_GUID, ORG_ID, STORAGE_GUID, DEPT_GUID, CONFIG_VALUE, FLAG, CONFIG_CODE)
+					values ( 
+							sys_guid(),
+							<choose>
+								<when test="flag =='00'">
+									null,null,#{flagGuid, jdbcType=VARCHAR},
+								</when>
+								<when test="flag =='01'">
+									null,#{flagGuid, jdbcType=VARCHAR},null,
+								</when>
+								<when test="flag =='03'">
+									#{flagGuid, jdbcType=VARCHAR},null,null,
+								</when>
+							</choose>
+							#{configInfos[${index}].configValue, jdbcType=VARCHAR}, 
+							#{flag},
+							#{configInfos[${index}].configCode, jdbcType=VARCHAR}
+					);
+				</if>
+			</if>
+		</foreach>
+	</insert>
+	
+	<delete id="deleteStorageDeptGuid" parameterType="string">
+	    delete ts_config_info where flag = '01' and CONFIG_CODE = 'deptGuid' and CONFIG_VALUE = #{deptGuid}
+	</delete>
+</mapper>

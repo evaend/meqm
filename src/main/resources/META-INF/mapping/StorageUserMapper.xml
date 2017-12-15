@@ -1,0 +1,156 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.phxl.ysy.dao.StorageUserMapper">
+
+	<resultMap id="BaseResultMap" type="com.phxl.ysy.entity.StorageUser">
+		<id column="USER_ID" property="userId" jdbcType="VARCHAR" />
+		<id column="STORAGE_GUID" property="storageGuid" jdbcType="VARCHAR" />
+		<result column="USER_NAME" property="userName" jdbcType="VARCHAR" />
+		<result column="STORAGE_NAME" property="storageName" jdbcType="VARCHAR" />
+		<result column="ORG_ID" property="orgId" jdbcType="DECIMAL" />
+		<result column="ORG_NAME" property="orgName" jdbcType="VARCHAR" />
+	</resultMap>
+	
+	<resultMap id="BaseExtResultMap" type="java.util.Map" extends="BaseResultMap">
+		<id column="IS_SELECTED" property="isSelected" jdbcType="DECIMAL" javaType="boolean" />
+	</resultMap>
+	
+	<sql id="Base_Column_List">
+		USER_ID, STORAGE_GUID, USER_NAME, STORAGE_NAME, ORG_ID, ORG_NAME
+	</sql>
+	
+	<sql id="Base_Column_List_With_Prefix">
+		su.USER_ID, su.STORAGE_GUID, su.USER_NAME, su.STORAGE_NAME, su.ORG_ID, su.ORG_NAME
+	</sql>
+	
+	<!-- 查询库房工作人员列表 -->
+	<select id="queryUsersByStorageGuid" resultMap="BaseExtResultMap" parameterType="string">
+		SELECT u.USER_ID, sg.STORAGE_GUID, u.USER_NAME, sg.STORAGE_NAME, u.ORG_ID, u.ORG_NAME,
+		  CASE WHEN su.USER_ID IS NOT NULL THEN 1 ELSE 0 END as IS_SELECTED
+		FROM (
+		   SELECT * FROM TD_STORAGE_USER WHERE STORAGE_GUID = #{storageGuid, jdbcType=VARCHAR}
+		) su
+		right join (
+			SELECT u.*, o.ORG_NAME 
+			from TS_USER_INFO u
+			LEFT JOIN TD_ORG_INFO o on u.ORG_ID=o.ORG_ID 
+			WHERE o.ORG_ID = ( SELECT ORG_ID FROM TD_STORAGE_INFO WHERE STORAGE_GUID = #{storageGuid, jdbcType=VARCHAR} )
+		) u on su.USER_ID=u.USER_ID 
+		LEFT JOIN TD_STORAGE_INFO sg on sg.STORAGE_GUID = #{storageGuid, jdbcType=VARCHAR} 
+	</select>
+	
+	<!-- 根据库房guid删除库房工作人员 -->
+	<delete id="deleteUsersByStorageGuid" parameterType="string">
+		delete TD_STORAGE_USER where STORAGE_GUID = #{storageGuid, jdbcType=VARCHAR}
+	</delete>
+	
+	<!-- 批量添加: 库房工作人员 -->
+	<insert id="insertUsersByStorageGuid">
+		insert into TD_STORAGE_USER(STORAGE_GUID, USER_ID, USER_NAME, STORAGE_NAME, ORG_ID, ORG_NAME)
+		
+		SELECT distinct su.STORAGE_GUID, su.USER_ID, u.USER_NAME, sg.STORAGE_NAME, u.ORG_ID, o.ORG_NAME 
+		from <foreach collection="userIds" index="index" open="(" separator=" union " close=")">
+			select 
+				#{storageGuid, jdbcType=VARCHAR} STORAGE_GUID, 
+				#{userIds[${index}], jdbcType=VARCHAR} USER_ID
+			from dual 
+		</foreach> su
+		LEFT JOIN TS_USER_INFO u on su.USER_ID=u.USER_ID
+		LEFT JOIN TD_ORG_INFO o on u.ORG_ID=o.ORG_ID
+		LEFT JOIN TD_STORAGE_INFO sg on sg.STORAGE_GUID=su.STORAGE_GUID
+	</insert>
+	
+	<!-- 【库房人员】查询当前登录用户所有的库房列表（下拉框） -->
+	<select id="findStoragesByUser" resultType="java.util.LinkedHashMap" parameterType="com.phxl.core.base.entity.Pager">
+		SELECT
+		  DISTINCT sg.STORAGE_GUID "value", sg.STORAGE_NAME "text", sgc."jsfs"
+		FROM  TD_STORAGE_USER su
+		left join TD_STORAGE_INFO sg on sg.STORAGE_GUID=su.STORAGE_GUID
+		left join V_STORAGECONFIG sgc on sgc.STORAGE_GUID=su.STORAGE_GUID
+		WHERE sg.FSTATE='01'
+			   and sg.org_id = #{conditiions.orgId}
+			   and su.USER_ID = #{conditiions.userId}
+		<if test="conditiions.searchParams!=null and conditiions.searchParams!=''">
+			and regexp_like(sg.STORAGE_NAME, #{conditiions.searchParams, jdbcType=VARCHAR})
+		</if>
+	</select>
+
+	<!-- 判断某用户是否是指定库房的工作人员 -->
+	<select id="whetherUserOfSpecStorage" resultType="java.lang.Boolean">
+		SELECT
+		  case when count(*)=0 THEN 0 ELSE 1 end flag
+		FROM  TD_STORAGE_USER su
+		left join TD_STORAGE_INFO sg on sg.STORAGE_GUID=su.STORAGE_GUID
+		WHERE sg.FSTATE='01' and sg.STORAGE_GUID=#{storageGuid,jdbcType=VARCHAR} and su.USER_ID = #{userId,jdbcType=VARCHAR}
+	</select>
+
+	<!-- 【库房人员】判断某库房是否属于当前用户所属的库房 -->
+	<select id="whetherStoragesUserByStorageGuid" resultType="java.lang.Boolean">
+		SELECT
+		  case when count(*)=0 THEN 0 ELSE 1 end flag
+		FROM  TD_STORAGE_USER su
+		left join TD_STORAGE_INFO sg on sg.STORAGE_GUID=su.STORAGE_GUID
+		left join V_STORAGECONFIG sgc on sgc.STORAGE_GUID=su.STORAGE_GUID
+		WHERE sg.FSTATE='01'
+			   and sg.org_id = #{orgId,jdbcType=DECIMAL}
+			   and su.USER_ID = #{userId,jdbcType=VARCHAR}
+		and sg.STORAGE_GUID=#{storageGuid,jdbcType=VARCHAR}
+	</select>
+	
+	<!-- 【库房人员】查询当前登录用户所有的一级库房列表（下拉框） -->
+	<select id="findTopStorageByUser" resultType="java.util.LinkedHashMap" parameterType="com.phxl.core.base.entity.Pager">
+		SELECT tt.STORAGE_GUID "value", tt.STORAGE_NAME "text" from(
+			SELECT
+		      DISTINCT sg.STORAGE_GUID, sg.STORAGE_NAME
+		    FROM  TD_STORAGE_USER su,TD_STORAGE_INFO sg
+		    WHERE  sg.STORAGE_GUID=su.STORAGE_GUID and sg.FSTATE='01'
+		    and su.user_id = #{conditiions.userId, jdbcType=VARCHAR}
+		    <if test="conditiions.searchParams!=null and conditiions.searchParams!=''">
+			   and regexp_like(sg.STORAGE_NAME, #{conditiions.searchParams, jdbcType=VARCHAR})
+		    </if>
+		) tt
+	    left join V_STORAGECONFIG vs on tt.STORAGE_GUID = vs.STORAGE_GUID where 1 = 1
+		<if test="conditiions.level!=null and conditiions.level!=''">
+			and vs."storageLevelCode" = #{conditiions.level, jdbcType=VARCHAR}
+		</if>
+	</select>
+	
+	<!-- 【库房】查询某一级库房下所有的子库房信息（下拉框） -->
+	<select id="findStorageByTop" resultType="java.util.LinkedHashMap" parameterType="com.phxl.core.base.entity.Pager">
+		SELECT t.STORAGE_GUID "value", t.STORAGE_NAME "text" from v_storageconfig t,td_storage_info s
+		where s.storage_guid = t.STORAGE_GUID
+		<if test="conditiions.searchParams!=null and conditiions.searchParams!=''">
+		   and regexp_like(t.STORAGE_NAME, #{conditiions.searchParams, jdbcType=VARCHAR})
+	    </if>
+		start with t.storage_guid = #{conditiions.storageGuid, jdbcType=VARCHAR}
+		CONNECT BY NOCYCLE PRIOR t.storage_guid = t."parentStorageGuid"
+	</select>
+	
+	<!-- 【科室产品】查询当前登录的用户所属的科室对应的库房列表（下拉框） -->
+	<select id="findStorageByUserDept" resultType="java.util.LinkedHashMap" parameterType="com.phxl.core.base.entity.Pager">
+		SELECT
+		  DISTINCT sg.STORAGE_GUID "value", sg.STORAGE_NAME "text"
+		FROM  TD_DEPT_USER du,TD_ORG_DEPT od,TD_STORAGE_OPEN_DEPT sod,TD_STORAGE_INFO sg
+		WHERE  du.DEPT_GUID =  od.DEPT_GUID and du.DEPT_GUID = sod.DEPT_GUID
+          and sod.STORAGE_GUID=sg.STORAGE_GUID and od.FSTATE='01' and sg.FSTATE='01'
+			   and od.org_id = #{conditiions.orgId}
+			   and du.USER_ID = #{conditiions.userId}
+	   <if test="conditiions.deptGuid!=null and conditiions.deptGuid!=''">
+	   		and du.DEPT_GUID= #{conditiions.deptGuid}
+	   </if>
+		<if test="conditiions.searchParams!=null and conditiions.searchParams!=''">
+			and regexp_like(sg.STORAGE_NAME, #{conditiions.searchParams, jdbcType=VARCHAR})
+		</if>
+	</select>
+	
+	<!-- 【库房】查询当前库房的工作人员（下拉框） -->
+	<select id="queryUsersByStorageGuidForSelector" resultType="java.util.LinkedHashMap" parameterType="com.phxl.core.base.entity.Pager">
+		SELECT u.USER_ID "value", u.USER_NAME "text"
+		 FROM TD_STORAGE_USER su,TS_USER_INFO u
+		 WHERE su.USER_ID=u.USER_ID and su.STORAGE_GUID = #{conditiions.storageGuid, jdbcType=VARCHAR}
+		<if test="conditiions.searchName!=null and conditiions.searchName!=''">
+			and regexp_like(u.USER_NAME, #{conditiions.searchName, jdbcType=VARCHAR})
+		</if>
+	</select>
+	
+</mapper>

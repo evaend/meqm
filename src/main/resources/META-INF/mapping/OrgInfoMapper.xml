@@ -1,0 +1,136 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.phxl.ysy.dao.OrgInfoMapper" >
+  <resultMap id="BaseResultMap" type="com.phxl.ysy.entity.OrgInfo" >
+    <id column="ORG_ID" property="orgId" jdbcType="DECIMAL" />
+    <result column="ORG_CODE" property="orgCode" jdbcType="VARCHAR" />
+    <result column="ORG_NAME" property="orgName" jdbcType="VARCHAR" />
+    <result column="FQUN" property="fqun" jdbcType="VARCHAR" />
+    <result column="ORG_ALIAS" property="orgAlias" jdbcType="VARCHAR" />
+    <result column="TF_PROVINCE" property="tfProvince" jdbcType="VARCHAR" />
+    <result column="TF_CITY" property="tfCity" jdbcType="VARCHAR" />
+    <result column="TF_DISTRICT" property="tfDistrict" jdbcType="VARCHAR" />
+    <result column="TF_ADDRESS" property="tfAddress" jdbcType="VARCHAR" />
+    <result column="TF_BANK" property="tfBank" jdbcType="VARCHAR" />
+    <result column="BANK_ACCOUNT" property="bankAccount" jdbcType="VARCHAR" />
+    <result column="WEBSITE" property="website" jdbcType="VARCHAR" />
+    <result column="FSTATE" property="fstate" jdbcType="VARCHAR" />
+    <result column="TF_LOGO" property="tfLogo" jdbcType="VARCHAR" />
+    <result column="TF_PROFILE" property="tfProfile" jdbcType="VARCHAR" />
+    <result column="ORG_TYPE" property="orgType" jdbcType="VARCHAR" />
+    <result column="CREATE_USERID" property="createUserid" jdbcType="VARCHAR" />
+    <result column="CREATE_TIME" property="createTime" jdbcType="DATE" />
+    <result column="MODIFY_TIME" property="modifyTime" jdbcType="DATE" />
+    <result column="TF_REMARK" property="tfRemark" jdbcType="VARCHAR" />
+    <result column="PARENT_ORGID" property="parentOrgid" jdbcType="DECIMAL" />
+    <result column="FLAG" property="flag" jdbcType="VARCHAR" />
+    <result column="LXR" property="lxr" jdbcType="VARCHAR" />
+    <result column="LXDH" property="lxdh" jdbcType="VARCHAR" />
+    <result column="ORG_STATUS" property="orgStatus" jdbcType="VARCHAR" />
+    <result column="TF_ACCESSORY" property="tfAccessory" jdbcType="VARCHAR" />
+    <result column="BAD_NEWS_FIRST" property="badNewsFirst" jdbcType="VARCHAR" />
+    <result column="BAD_NEWS_SECOND" property="badNewsSecond" jdbcType="VARCHAR" />
+    <result column="VIP_LEVEL" property="vipLevel" jdbcType="VARCHAR" />
+    <result column="LEGAL_MAN" property="legalMan" jdbcType="VARCHAR" />
+  </resultMap>
+  <sql id="Base_Column_List" >
+    ORG_ID, ORG_CODE, ORG_NAME, FQUN, ORG_ALIAS, TF_PROVINCE, TF_CITY, TF_DISTRICT, TF_ADDRESS, 
+    TF_BANK, BANK_ACCOUNT, WEBSITE, FSTATE, TF_LOGO, TF_PROFILE, ORG_TYPE, CREATE_USERID, 
+    CREATE_TIME, MODIFY_TIME, TF_REMARK, PARENT_ORGID, FLAG, LXR, LXDH, ORG_STATUS,  
+    BAD_NEWS_FIRST, BAD_NEWS_SECOND, VIP_LEVEL, LEGAL_MAN 
+  </sql>
+  
+  <sql id="Base_Column_List_With_Prefix" >
+    o.ORG_ID, o.ORG_CODE, o.ORG_NAME, o.FQUN, o.ORG_ALIAS, o.TF_PROVINCE, o.TF_CITY, o.TF_DISTRICT, o.TF_ADDRESS, 
+    o.TF_BANK, o.BANK_ACCOUNT, o.WEBSITE, o.FSTATE, o.TF_LOGO, o.TF_PROFILE, o.ORG_TYPE, o.CREATE_USERID, 
+    o.CREATE_TIME, o.MODIFY_TIME, o.TF_REMARK, o.PARENT_ORGID, o.FLAG, o.LXR, o.LXDH, o.ORG_STATUS,  
+    o.BAD_NEWS_FIRST, o.BAD_NEWS_SECOND, o.VIP_LEVEL, o.LEGAL_MAN 
+  </sql>
+  
+  <select id="findOrgNameOrOrgCodeExist" resultType="int">
+	select COUNT(1) from (
+	    <if test="type != null and type == 'orgName' ">
+	    select TD_ORG_INFO.ORG_NAME from TD_ORG_INFO where TD_ORG_INFO.ORG_NAME = #{orgValue,jdbcType=VARCHAR}
+		    <if test="orgId != null and orgId > 0">
+			  and TD_ORG_INFO.ORG_ID not in ( #{orgId, jdbcType=DECIMAL} )
+		    </if>
+        UNION
+        select TD_ORG_REGIST.Org_Name from TD_ORG_REGIST where TD_ORG_REGIST.Audit_Fstate = '00' and TD_ORG_REGIST.Org_Name = #{orgValue,jdbcType=VARCHAR}
+	    </if>
+	    <if test="type != null and type == 'orgCode' ">
+	    select TD_ORG_INFO.Org_Code from TD_ORG_INFO where TD_ORG_INFO.Org_Code = #{orgValue,jdbcType=VARCHAR}
+		    <if test="orgId != null and orgId > 0">
+			  and TD_ORG_INFO.ORG_ID not in ( #{orgId, jdbcType=DECIMAL} )
+		    </if>
+		UNION
+		select TD_ORG_REGIST.Org_Code from TD_ORG_REGIST where TD_ORG_REGIST.Audit_Fstate = '00' and TD_ORG_REGIST.Org_Code = #{orgValue,jdbcType=VARCHAR}
+	    </if>
+    )
+  </select>
+  
+  <select id="searchOrgInfoList" resultType="HashMap" parameterType="com.phxl.core.base.entity.Pager">
+   select TD_ORG_INFO.ORG_ID,TD_ORG_INFO.Org_Type,TD_ORG_INFO.ORG_NAME,TD_ORG_INFO.Fstate,TD_ORG_INFO.Org_Alias,TD_ORG_INFO.Tf_Province,TD_ORG_INFO.Tf_City,TD_ORG_INFO.Tf_District,
+		  to_char(TD_ORG_INFO.Modify_Time,'yyyy-MM-dd') MODIFY_TIME,TD_ORG_INFO.Vip_Level,TD_ORG_INFO.ORG_CODE,TD_ORG_INFO.Parent_Orgid,TD_ORG_INFO.LEGAL_MAN,org.ORG_NAME as PARENT_ORGNAME,
+		  TD_ORG_INFO.Flag,TD_ORG_INFO.Lxr,TD_ORG_INFO.Lxdh,TD_ORG_INFO.Tf_Address,TD_ORG_INFO.Tf_Bank,TD_ORG_INFO.Bank_Account,TD_ORG_INFO.Tf_Remark,
+		  TD_HOSPITAL_INFO.Hospital_Level,TD_HOSPITAL_INFO.HOSPITAL_PROPERTY,TD_HOSPITAL_INFO.TAX_NO,TD_SUPPLIER_INFO.CORPORATION_TYPE,TD_SUPPLIER_INFO.Rmb_Amount,
+		  GET_STATICDATA(TD_SUPPLIER_INFO.CORPORATION_TYPE,'CORPORATION_TYPE') AS CORPORATION_TYPENAME,GET_STATICDATA(TD_HOSPITAL_INFO.Hospital_Level,'HOSPITAL_LEVEL') AS HOSPITAL_LEVELNAME,
+		  GET_STATICDATA(TD_HOSPITAL_INFO.HOSPITAL_PROPERTY,'HOSPITAL_PROPERTY') AS HOSPITAL_PROPERTYNAME
+   from TD_ORG_INFO left join TD_HOSPITAL_INFO on TD_HOSPITAL_INFO.ORG_ID = TD_ORG_INFO.Org_Id
+                    left join TD_SUPPLIER_INFO on TD_SUPPLIER_INFO.ORG_ID = TD_ORG_INFO.Org_Id
+                    left join TD_ORG_INFO org on org.ORG_ID = TD_ORG_INFO.Parent_Orgid
+   
+	where 1 = 1
+	  <if test="conditiions!=null and conditiions.orgId != null and conditiions.orgId > 0">
+		  and TD_ORG_INFO.ORG_ID = #{conditiions.orgId, jdbcType=DECIMAL}
+	  </if>
+	  <if test="conditiions!=null and conditiions.orgType != null and conditiions.orgType != ''">
+		  and TD_ORG_INFO.Org_Type = #{conditiions.orgType, jdbcType=VARCHAR}
+	  </if>
+	  <if test="conditiions!=null and conditiions.searchName != null and conditiions.searchName != ''">
+		<![CDATA[  and ( regexp_like(TD_ORG_INFO.ORG_NAME, #{conditiions.searchName,jdbcType=VARCHAR})
+    			   or   regexp_like(TD_ORG_INFO.Org_Alias, #{conditiions.searchName,jdbcType=VARCHAR}) 
+    			   or   regexp_like(TD_ORG_INFO.FQUN, #{conditiions.searchName,jdbcType=VARCHAR}))]]>
+	  </if>
+	
+	  <choose>
+		   <when test="conditiions!=null and conditiions.sortCol!= null and conditiions.sortCol != ''">
+		    order by ${conditiions.sortCol} ${conditiions.sortType}
+		   </when>
+		   <otherwise>
+		   order by TD_ORG_INFO.MODIFY_TIME desc
+		   </otherwise>
+	  </choose> 
+    </select>
+  
+     <select id="searchParentOrgInfoList" resultType="hashMap" parameterType="com.phxl.core.base.entity.Pager">
+	  	select TD_ORG_INFO.ORG_ID AS "value",TD_ORG_INFO.ORG_NAME AS "text" from TD_ORG_INFO where TD_ORG_INFO.Flag = '00'
+	  	<if test="conditiions !=null and conditiions.orgId !=null and conditiions.orgId > 0">
+		  	and TD_ORG_INFO.Org_Id not in (
+			  select TD_ORG_INFO.ORG_ID from TD_ORG_INFO where TD_ORG_INFO.Org_Id = #{conditiions.orgId, jdbcType=DECIMAL} or TD_ORG_INFO.Parent_Orgid = #{conditiions.orgId, jdbcType=DECIMAL}
+			)
+	  	</if>
+	  	<if test="conditiions !=null and conditiions.searchName !=null and conditiions.searchName != ''">
+		  	and regexp_like(TD_ORG_INFO.ORG_NAME, #{conditiions.searchName,jdbcType=VARCHAR}) 
+	  	</if>
+	 </select>
+	 
+	 <!-- 查询机构列表（联想下拉搜索） -->
+	 <select id="findOrgListForSelector" resultType="java.util.LinkedHashMap" parameterType="com.phxl.core.base.entity.Pager">
+		SELECT
+		  DISTINCT o.ORG_ID "value", o.ORG_NAME "text"
+		FROM  TD_ORG_INFO o
+		WHERE o.FSTATE='01'
+		<if test="conditiions!=null">
+			<if test="conditiions.orgTypes!=null and conditiions.orgTypes.length>0">
+				and o.ORG_TYPE in  
+				<foreach collection="conditiions.orgTypes" item="item" index="index" open="(" close=")" separator=",">
+					#{conditiions.orgTypes[${index}], jdbcType=VARCHAR}
+				</foreach>
+			</if>
+			<if test="conditiions.searchName!=null and conditiions.searchName!=''">
+				and regexp_like(o.ORG_NAME, #{conditiions.searchName, jdbcType=VARCHAR})
+			</if>
+		</if>
+	</select>
+	 
+</mapper>
