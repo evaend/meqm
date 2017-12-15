@@ -13,6 +13,16 @@ public class WeixinOpenUser {
 		private String city;
 		
 		private String language;
+		
+		private String headimgurl;
+
+		public String getHeadimgurl() {
+			return headimgurl;
+		}
+
+		public void setHeadimgurl(String headimgurl) {
+			this.headimgurl = headimgurl;
+		}
 
 		public String getOpenUserId() {
 			return openUserId;

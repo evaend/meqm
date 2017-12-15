@@ -18,9 +18,11 @@ import java.util.UUID;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
 
 import net.sf.json.JSONObject;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -28,6 +30,8 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.phxl.core.base.util.SystemConfig;
+import com.phxl.ysy.entity.WeixinOpenUser;
+import com.phxl.ysy.service.weixin.WeixinAPIInterface;
 import com.phxl.ysy.util.WebConnect;
 import com.phxl.ysy.util.WxJsUtils;
 import com.phxl.ysy.web.weixin.AccessToken;
@@ -39,6 +43,11 @@ import com.phxl.ysy.web.weixin.ticket.JsapiTicketInfo;
 @Controller
 @RequestMapping("/test")
 public class TestController {
+	@Autowired
+	WeixinAPIInterface weixinAPIInterface;
+	
+	@Autowired
+	HttpSession session;
 	
 	@RequestMapping(value = "/test.html", method = RequestMethod.GET)
     public void testPage(Model model,HttpServletRequest request,HttpServletResponse response) throws Exception {
@@ -171,4 +180,31 @@ public class TestController {
         System.out.println("echostr = "+echostr);
 	}
 
+	@RequestMapping("/getPermission")
+	@ResponseBody
+	public void getPermission(String code,HttpServletRequest request ,HttpServletResponse response) throws Exception{
+		WeixinOpenUser wxUser = weixinAPIInterface.getUserInfo(
+//				weixinAPIInterface.getOpenid("wxe1ba6ec9765d99ac",
+//						"d8ee2dc6444cdada67cb903f1d828780",code) );
+				session.getAttribute("openid").toString());
+//		if (wxUser.getUserName()==null) {
+//			String url = "https://open.weixin.qq.com/connect/oauth2/authorize?"
+//					+ "appid=wx9a3d0c9c3170978c&"
+//					+ "redirect_uri=http%3a%2f%2fwx.dizaozhe.cc%2fwechatconfig%2fdesc"
+//					+ "&response_type=code"
+//					+ "&scope=snsapi_userinfo"
+//					+ "&state=ssaweqeqew#wechat_redirect";
+//			WebConnect webConnect = new WebConnect();//发起http请求的对象 
+//	        webConnect.initWebClient();
+//	        String resp = (String)webConnect.executeHttpGet(url);
+//		}
+		System.out.println(wxUser.getCity());
+		System.out.println(wxUser.getLanguage());
+		System.out.println(wxUser.getOpenUserId());
+		System.out.println(wxUser.getSex());
+		System.out.println(wxUser.getState());
+		System.out.println(wxUser.getUserName());
+		System.out.println(wxUser.getHeadimgurl());
+	}
+	
 }
