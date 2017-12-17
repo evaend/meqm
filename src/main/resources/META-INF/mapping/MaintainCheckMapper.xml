@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.phxl.ysy.dao.MaintainCheckMapper" >
+  <resultMap id="BaseResultMap" type="com.phxl.ysy.entity.MaintainCheck" >
+    <result column="RRPAIR_ORDER" property="rrpairOrder" jdbcType="VARCHAR" />
+    <result column="RESISTANCE_CHECK" property="resistanceCheck" jdbcType="VARCHAR" />
+    <result column="EXTERIOR_CHECK" property="exteriorCheck" jdbcType="VARCHAR" />
+    <result column="SURFACE_CHECK" property="surfaceCheck" jdbcType="VARCHAR" />
+    <result column="CALIBRATION" property="calibration" jdbcType="VARCHAR" />
+    <result column="CURRENT_CHECK" property="currentCheck" jdbcType="VARCHAR" />
+  </resultMap>
+ 
+</mapper>

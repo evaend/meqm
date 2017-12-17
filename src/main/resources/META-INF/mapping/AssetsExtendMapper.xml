@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.phxl.ysy.dao.AssetsExtendMapper" >
+  <resultMap id="BaseResultMap" type="com.phxl.ysy.entity.AssetsExtend" >
+    <id column="ASSETS_RECORD" property="assetsRecord" jdbcType="VARCHAR" />
+    <id column="PROJECT_NO" property="projectNo" jdbcType="VARCHAR" />
+    <result column="EQUIPMENT_CODE" property="equipmentCode" jdbcType="VARCHAR" />
+    <result column="EQUIPMENT_SPEC" property="equipmentSpec" jdbcType="VARCHAR" />
+    <result column="SUM" property="sum" jdbcType="DECIMAL" />
+    <result column="PRICE" property="price" jdbcType="DECIMAL" />
+  </resultMap>
+  <sql id="Base_Column_List" >
+    ASSETS_RECORD, PROJECT_NO, EQUIPMENT_CODE, EQUIPMENT_SPEC, SUM, PRICE
+  </sql>
+  
+</mapper>

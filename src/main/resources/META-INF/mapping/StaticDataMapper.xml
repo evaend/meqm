@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.phxl.ysy.dao.StaticDataMapper" >
+  <resultMap id="BaseResultMap" type="com.phxl.ysy.entity.StaticData" >
+    <result column="STATIC_DATA_GUID" property="staticDataGuid" jdbcType="VARCHAR" />
+    <result column="TF_CLO_CODE" property="tfCloCode" jdbcType="VARCHAR" />
+    <result column="TF_CLO_NAME" property="tfCloName" jdbcType="VARCHAR" />
+    <result column="CREATE_USERID" property="createUserid" jdbcType="VARCHAR" />
+    <result column="CREATE_TIME" property="createTime" jdbcType="DATE" />
+    <result column="TF_REMARK" property="tfRemark" jdbcType="VARCHAR" />
+    <result column="STATIC_ID" property="staticId" jdbcType="VARCHAR" />
+    <result column="FSORT" property="fsort" jdbcType="DECIMAL" />
+  </resultMap>
+  
+</mapper>

@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.phxl.ysy.dao.BillNoMapper" >
+  <resultMap id="BaseResultMap" type="com.phxl.ysy.entity.BillNo" >
+    <id column="BILL_GUID" property="billGuid" jdbcType="VARCHAR" />
+    <result column="ORG_ID" property="orgId" jdbcType="DECIMAL" />
+    <result column="STORAGE_GUID" property="storageGuid" jdbcType="VARCHAR" />
+    <result column="BILL_NAME" property="billName" jdbcType="VARCHAR" />
+    <result column="BILL_PREFIX" property="billPrefix" jdbcType="VARCHAR" />
+    <result column="YEAR_MONTH" property="yearMonth" jdbcType="VARCHAR" />
+    <result column="NOW_ID" property="nowId" jdbcType="DECIMAL" />
+    <result column="ID_LEN" property="idLen" jdbcType="DECIMAL" />
+  </resultMap>
+  <sql id="Base_Column_List" >
+    BILL_GUID, ORG_ID, STORAGE_GUID, BILL_NAME, BILL_PREFIX, YEAR_MONTH, NOW_ID, ID_LEN
+  </sql>
+  
+</mapper>

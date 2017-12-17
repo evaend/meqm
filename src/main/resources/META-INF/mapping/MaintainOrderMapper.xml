@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.phxl.ysy.dao.MaintainOrderMapper" >
+  <resultMap id="BaseResultMap" type="com.phxl.ysy.entity.MaintainOrder" >
+    <result column="RRPAIR_ORDER" property="rrpairOrder" jdbcType="VARCHAR" />
+    <result column="ASSETS_RECORD" property="assetsRecord" jdbcType="VARCHAR" />
+    <result column="EQUIPMENT_CODE" property="equipmentCode" jdbcType="VARCHAR" />
+    <result column="U_ORG" property="uOrg" jdbcType="VARCHAR" />
+    <result column="USE_DEPT_CODE" property="useDeptCode" jdbcType="VARCHAR" />
+    <result column="LAST_MAINTAIN_DATE" property="lastMaintainDate" jdbcType="DATE" />
+    <result column="MAINTAIN_DATE" property="maintainDate" jdbcType="DATE" />
+    <result column="ENGINEER_USERID" property="engineerUserid" jdbcType="VARCHAR" />
+    <result column="ENGINEER_NAME" property="engineerName" jdbcType="VARCHAR" />
+    <result column="MAINTAIN_PRICE" property="maintainPrice" jdbcType="DECIMAL" />
+    <result column="MAINTAIN_METHOD" property="maintainMethod" jdbcType="VARCHAR" />
+    <result column="EQUIPMENT_FSTATE" property="equipmentFstate" jdbcType="VARCHAR" />
+    <result column="MAINTAIN_REASON" property="maintainReason" jdbcType="VARCHAR" />
+    <result column="MAINTAIN_CYCLE" property="maintainCycle" jdbcType="VARCHAR" />
+    <result column="REMARK" property="remark" jdbcType="VARCHAR" />
+    <result column="TF_ACCESSORY" property="tfAccessory" jdbcType="VARCHAR" />
+  </resultMap>
+  
+</mapper>

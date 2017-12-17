@@ -1,0 +1,146 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.phxl.ysy.dao.RrpairOrderMapper" >
+  <resultMap id="BaseResultMap" type="com.phxl.ysy.entity.RrpairOrder" >
+    <id column="RRPAIR_ORDER" property="rrpairOrder" jdbcType="VARCHAR" />
+    <result column="ASSETS_RECORD" property="assetsRecord" jdbcType="VARCHAR" />
+    <result column="EQUIPMENT_CODE" property="equipmentCode" jdbcType="VARCHAR" />
+    <result column="U_ORG" property="uOrg" jdbcType="VARCHAR" />
+    <result column="USE_DEPT_CODE" property="useDeptCode" jdbcType="VARCHAR" />
+    <result column="ACCT_DATE" property="acctDate" jdbcType="DATE" />
+    <result column="GUARANTEE_DATE" property="guaranteeDate" jdbcType="DATE" />
+    <result column="ORDER_TYPE" property="orderType" jdbcType="VARCHAR" />
+    <result column="MODIFY_TIME" property="modifyTime" jdbcType="DATE" />
+    <result column="ADD" property="add" jdbcType="VARCHAR" />
+    <result column="ORDER_FSTATE" property="orderFstate" jdbcType="VARCHAR" />
+    <result column="URGENT_FLAG" property="urgentFlag" jdbcType="VARCHAR" />
+    <result column="GUARANTEE_FLAG" property="guaranteeFlag" jdbcType="VARCHAR" />
+    <result column="RRPAIR_TYPE" property="rrpairType" jdbcType="VARCHAR" />
+    <result column="LABEL_GUID" property="labelGuid" jdbcType="VARCHAR" />
+    <result column="SPARE" property="spare" jdbcType="VARCHAR" />
+    <result column="RRPAIR_FLAG" property="rrpairFlag" jdbcType="VARCHAR" />
+    <result column="RRPAIR_USERID" property="rrpairUserid" jdbcType="VARCHAR" />
+    <result column="RRPAIR_USERNAME" property="rrpairUsername" jdbcType="VARCHAR" />
+    <result column="RRPAIR_PHONE" property="rrpairPhone" jdbcType="VARCHAR" />
+    <result column="COMPLET_TIME" property="completTime" jdbcType="DATE" />
+    <result column="RRPAIR_DATE" property="rrpairDate" jdbcType="DATE" />
+    <result column="IN_RRPAIR_USERID" property="inRrpairUserid" jdbcType="VARCHAR" />
+    <result column="IN_RRPAIR_USERNAME" property="inRrpairUsername" jdbcType="VARCHAR" />
+    <result column="OUT_RRPAIR_USERNAME" property="outRrpairUsername" jdbcType="VARCHAR" />
+    <result column="OUT_RRPAIR_PHONE" property="outRrpairPhone" jdbcType="VARCHAR" />
+    <result column="FAULT_DESCRIBE" property="faultDescribe" jdbcType="VARCHAR" />
+    <result column="FAULT_ACCESSORY" property="faultAccessory" jdbcType="VARCHAR" />
+    <result column="FAULT_ACCESSORY_AUDIO" property="faultAccessoryAudio" jdbcType="VARCHAR" />
+    <result column="FAULT_WORDS" property="faultWords" jdbcType="VARCHAR" />
+    <result column="REPAIR_CONTENT_TYPE" property="repairContentType" jdbcType="VARCHAR" />
+    <result column="REPAIR_CONTENT_TYP" property="repairContentTyp" jdbcType="VARCHAR" />
+    <result column="QUOTED_PRICE" property="quotedPrice" jdbcType="DECIMAL" />
+    <result column="ACTUAL_PRICE" property="actualPrice" jdbcType="DECIMAL" />
+    <result column="COST_DETAIL" property="costDetail" jdbcType="VARCHAR" />
+    <result column="EVALUATE" property="evaluate" jdbcType="VARCHAR" />
+    <result column="TF_REMARK" property="tfRemark" jdbcType="VARCHAR" />
+  </resultMap>
+  
+  <!-- 查询设备维修列表 -->
+  <select id="selectRrpairList" resultType="java.util.HashMap" parameterType="com.phxl.core.base.entity.Pager">
+  	select 
+		r.RRPAIR_ORDER "rrpairOrder" ,
+		r.ORDER_FSTATE "orderFstate" ,
+		r.URGENT_FLAG "urgentFlag" ,
+		r.RRPAIR_USERNAME "rrpairUserName" , 
+		r.guarantee_date "rrpairTime" , 
+		r.RRPAIR_PHONE "rrpairPhone" ,
+		-- "MaintainUserName" , 
+		r.ORDER_TYPE "orderType" ,
+		r.RRPAIR_TYPE "rrpairType" ,
+		r.RRPAIR_FLAG "rrpairFlag" ,
+		r.SPARE "spare" ,
+		r.COMPLET_TIME "completTime" ,
+		r.MODIFY_TIME "modifyTime" ,
+		r.RRPAIR_DATE "rrpairDate" ,
+		e.EQUIPMENT_NAME "equipmentName" , 
+		a.SPEC "spec" , 
+		r.address  "address" ,  
+		d.dept_nam "useDept" , 
+		r.fault_describe "faultDescribe" , 
+		r.fault_words "faultWords" ,
+		r.repair_content_type "repairContentType" ,
+		r.repair_content_typ "repairContentTyp" , 
+		r.quoted_price "quoredPrice" ,
+		r.actual_price "actualPrice" ,
+		r.fault_accessory "faultAccessory" 
+		from td_rrpair_order r join td_assets_record a on
+		(r.ASSETS_RECORD = a.ASSETS_RECORD )
+		join td_equipment e on
+		(r.EQUIPMENT_CODE = e.EQUIPMENT_CODE )
+		left join td_dept_info d on
+		(d.dept_code = r.use_dept_code)
+		--left join td_label l on
+		--(r.fault_describe = l.label_guid)
+		where 1=1
+		<!-- 维修状态 -->
+		<if test="conditiions.orderFstate != null and conditiions.orderFstate != ''">
+			and r.ORDER_FSTATE = #{conditiions.orderFstate, jdbcType=VARCHAR}
+		</if> 
+		<!-- 维修单号 -->
+		<if test="conditiions.rrpairOrder != null and conditiions.rrpairOrder != ''">
+			regexp_like(r.RRPAIR_ORDER, #{conditiions.rrpairOrder, jdbcType=VARCHAR})
+		</if> 
+		<!-- 设备单号 -->
+		<if test="conditiions.equipmentCode != null and conditiions.equipmentCode != ''">
+			and r.equipment_code = #{conditiions.equipmentCode, jdbcType=VARCHAR}
+		</if> 
+		<!-- 紧急度 -->
+		<if test="conditiions.urgentFlag != null and conditiions.urgentFlag != ''">
+			order by r.urgent_flag #{conditiions.sort}
+		</if>
+		<!-- 时间排序(如果紧急度为空) -->
+		<if test="conditiions.time != null and conditiions.time != ''">
+			order by r.modify_time #{conditiions.sort}
+		</if>
+		<!-- 默认时的排序 -->
+		<if test="(conditiions.urgentFlag == null or conditiions.urgentFlag == '') and (conditiions.time == null or conditiions.time == '')">
+			order by r.modify_time desc
+		</if>
+  </select>
+  
+  <!-- （移动端）查询设备维修各状态数量 -->
+  <select id="selectRrpairFstateNum" resultType="java.util.HashMap">
+  	select ORDER_FSTATE "orderFstate" , count(ORDER_FSTATE) "num" from td_rrpair_order group by ORDER_FSTATE
+  </select>
+  
+  <!-- （移动端）查询设备维修记录全部 -->
+  <select id="selectRrpairFstateCount" resultType="java.util.HashMap">
+  	select count(*) "count" from td_rrpair_order
+  </select>
+  
+  <!-- 查询备注/评论 -->
+  <select id="selectRrpairContent" resultType="java.lang.String" parameterType="java.util.HashMap">
+  	select ${content} from td_rrpair_order where RRPAIR_ORDER = #{rrpairOrder}
+  </select>
+  
+  <!-- 添加备注/评论 -->
+  <update id="updateRrpairContent" parameterType="java.util.HashMap">
+  	update td_rrpair_order set ${content} = #{value} where RRPAIR_ORDER = #{rrpairOrder}
+  </update>
+  
+  
+	<resultMap id="BillResultMap" type="java.util.Map">
+		<result column="ret" property="flag" jdbcType="VARCHAR"/>
+		<result column="fno" property="billNo" jdbcType="VARCHAR"/>
+		<result column="error" property="error" jdbcType="VARCHAR"/>
+	</resultMap>
+	
+	<!-- 获取单号 -->
+	<select id="SP_GET_BILL_NOSTORAGE" parameterType="map" statementType="CALLABLE">
+		{ call sp_get_bill_nostorage(
+			#{billOrgId, jdbcType=NUMERIC, mode=IN},
+			#{asLen, jdbcType=NUMERIC, mode=IN},
+			#{billName, jdbcType=VARCHAR, mode=IN},
+			#{billPrefix, jdbcType=VARCHAR, mode=IN},
+			#{cursor, jdbcType=CURSOR, javaType=ResultSet, mode=OUT, resultMap=BillResultMap}
+		  )
+		}
+	</select>
+  
+</mapper>

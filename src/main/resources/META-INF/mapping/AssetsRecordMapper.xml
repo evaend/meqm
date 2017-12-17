@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.phxl.ysy.dao.AssetsRecordMapper" >
+  <resultMap id="BaseResultMap" type="com.phxl.ysy.entity.AssetsRecord" >
+    <id column="ASSETS_RECORD" property="assetsRecord" jdbcType="VARCHAR" />
+    <result column="CONTRACT_NO" property="contractNo" jdbcType="VARCHAR" />
+    <result column="EQUIPMENT_CODE" property="equipmentCode" jdbcType="VARCHAR" />
+    <result column="FMODEL" property="fmodel" jdbcType="VARCHAR" />
+    <result column="SPEC" property="spec" jdbcType="VARCHAR" />
+    <result column="A_ORG" property="aOrg" jdbcType="VARCHAR" />
+    <result column="PRODUCT_COUNTRY" property="productCountry" jdbcType="VARCHAR" />
+    <result column="PRODUCT" property="product" jdbcType="VARCHAR" />
+    <result column="PRODUCT_TYPE" property="productType" jdbcType="VARCHAR" />
+    <result column="ORIGINAL_VALUE" property="originalValue" jdbcType="VARCHAR" />
+    <result column="SOURCE_FUNDS" property="sourceFunds" jdbcType="VARCHAR" />
+    <result column="B_DEPT_CODE" property="bDeptCode" jdbcType="VARCHAR" />
+    <result column="DEPOSIT" property="deposit" jdbcType="VARCHAR" />
+    <result column="A_DEPT_CODE" property="aDeptCode" jdbcType="VARCHAR" />
+    <result column="PRODUCTION_DATE" property="productionDate" jdbcType="DATE" />
+    <result column="ENABLE_DATE" property="enableDate" jdbcType="DATE" />
+    <result column="USE_LIMIT" property="useLimit" jdbcType="DATE" />
+    <result column="MAINTAIN_DAY" property="maintainDay" jdbcType="VARCHAR" />
+    <result column="ASSETS_USE_ORG" property="assetsUseOrg" jdbcType="VARCHAR" />
+    <result column="QA_LEVEL" property="qaLevel" jdbcType="VARCHAR" />
+    <result column="ACCT_DATE" property="acctDate" jdbcType="VARCHAR" />
+    <result column="DEPRECIATION_TYPE" property="depreciationType" jdbcType="VARCHAR" />
+    <result column="DEPRECIATION_LIMIT" property="depreciationLimit" jdbcType="DATE" />
+    <result column="TOTAL_DEPRECIATION_PRICE" property="totalDepreciationPrice" jdbcType="DECIMAL" />
+    <result column="REPAIR_FLAG" property="repairFlag" jdbcType="VARCHAR" />
+    <result column="USE_FSTATE" property="useFstate" jdbcType="VARCHAR" />
+    <result column="RECODR_DATE" property="recodrDate" jdbcType="DATE" />
+    <result column="CREATE_USERID" property="createUserid" jdbcType="VARCHAR" />
+    <result column="RESIDUAL_VALUE" property="residualValue" jdbcType="VARCHAR" />
+    <result column="CUSTODIAN" property="custodian" jdbcType="VARCHAR" />
+    <result column="INSTALL_PRICE" property="installPrice" jdbcType="DECIMAL" />
+    <result column="MONEY_TYPE" property="moneyType" jdbcType="VARCHAR" />
+    <result column="TF_ACCESSORY" property="tfAccessory" jdbcType="VARCHAR" />
+    <result column="CERT_GUID" property="certGuid" jdbcType="VARCHAR" />
+    <result column="TF_BRAND" property="tfBrand" jdbcType="VARCHAR" />
+    <result column="OUT_RRPAIR_USERNAME" property="outRrpairUsername" jdbcType="VARCHAR" />
+    <result column="OUT_RRPAIR_PHONE" property="outRrpairPhone" jdbcType="VARCHAR" />
+  </resultMap>
+  <sql id="Base_Column_List" >
+    ASSETS_RECORD, CONTRACT_NO, EQUIPMENT_CODE, FMODEL, SPEC, A_ORG, PRODUCT_COUNTRY, 
+    PRODUCT, PRODUCT_TYPE, ORIGINAL_VALUE, SOURCE_FUNDS, B_DEPT_CODE, DEPOSIT, A_DEPT_CODE, 
+    PRODUCTION_DATE, ENABLE_DATE, USE_LIMIT, MAINTAIN_DAY, ASSETS_USE_ORG, QA_LEVEL, 
+    ACCT_DATE, DEPRECIATION_TYPE, DEPRECIATION_LIMIT, TOTAL_DEPRECIATION_PRICE, REPAIR_FLAG, 
+    USE_FSTATE, RECODR_DATE, CREATE_USERID, RESIDUAL_VALUE, CUSTODIAN, INSTALL_PRICE, 
+    MONEY_TYPE, TF_ACCESSORY, CERT_GUID, TF_BRAND, OUT_RRPAIR_USERNAME, OUT_RRPAIR_PHONE
+  </sql>
+  
+  <!-- 查询资产总量 -->
+  <select id="selectAssetsRecordCount" resultType="java.lang.Integer">
+  	select count(*) from td_assets_record
+  </select>
+  
+</mapper>

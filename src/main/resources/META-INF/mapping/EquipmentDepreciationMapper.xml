@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.phxl.ysy.dao.EquipmentDepreciationMapper" >
+  <resultMap id="BaseResultMap" type="com.phxl.ysy.entity.EquipmentDepreciation" >
+    <result column="ASSETS_RECORD" property="assetsRecord" jdbcType="VARCHAR" />
+    <result column="DEPT_CODE" property="deptCode" jdbcType="VARCHAR" />
+    <result column="DEPRECIATION_DATE" property="depreciationDate" jdbcType="DATE" />
+    <result column="DEPRECIATION_PRICE" property="depreciationPrice" jdbcType="DECIMAL" />
+    <result column="CREATE_USERGUID" property="createUserguid" jdbcType="VARCHAR" />
+    <result column="MODIFY_USERGUID" property="modifyUserguid" jdbcType="VARCHAR" />
+    <result column="DEPRECIATION_TYPE" property="depreciationType" jdbcType="VARCHAR" />
+  </resultMap>
+  
+</mapper>

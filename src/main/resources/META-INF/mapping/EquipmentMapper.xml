@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.phxl.ysy.dao.EquipmentMapper" >
+  <resultMap id="BaseResultMap" type="com.phxl.ysy.entity.Equipment" >
+    <result column="EQUIPMENT_CODE" property="equipmentCode" jdbcType="VARCHAR" />
+    <result column="EQUIPMENT_NAME" property="equipmentName" jdbcType="VARCHAR" />
+    <result column="EQUIPMENT_STANDARD_CODE" property="equipmentStandardCode" jdbcType="VARCHAR" />
+    <result column="EQUIPMENT_STANDARD_NAME" property="equipmentStandardName" jdbcType="VARCHAR" />
+    <result column="ENGLISH_NAME" property="englishName" jdbcType="VARCHAR" />
+    <result column="PY_CODE" property="pyCode" jdbcType="VARCHAR" />
+    <result column="INTERNATIONAL_CODE" property="internationalCode" jdbcType="VARCHAR" />
+    <result column="STANDARD_ASSETS_FLAG" property="standardAssetsFlag" jdbcType="VARCHAR" />
+    <result column="METERING_UNIT" property="meteringUnit" jdbcType="VARCHAR" />
+    <result column="USE_LIMIT" property="useLimit" jdbcType="VARCHAR" />
+    <result column="TYPE_CODE" property="typeCode" jdbcType="VARCHAR" />
+  </resultMap>
+  
+</mapper>

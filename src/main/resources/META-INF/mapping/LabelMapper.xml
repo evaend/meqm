@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.phxl.ysy.dao.LabelMapper" >
+  <resultMap id="BaseResultMap" type="com.phxl.ysy.entity.Label" >
+    <id column="LABEL_GUID" property="labelGuid" jdbcType="VARCHAR" />
+    <id column="MULTI_ID" property="multiId" jdbcType="VARCHAR" />
+    <result column="MULTI_NAME" property="multiName" jdbcType="VARCHAR" />
+    <result column="LABEL_TYPE" property="labelType" jdbcType="VARCHAR" />
+  </resultMap>
+
+</mapper>
