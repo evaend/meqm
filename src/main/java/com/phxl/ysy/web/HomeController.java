@@ -45,8 +45,6 @@ public class HomeController {
 	WeixinAPIInterface weixinAPIInterface;
 	@Autowired
 	HttpSession session;
-	@Autowired
-	LoginController loginController;
 	
 	/**
 	 * 微信跳转
