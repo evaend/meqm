@@ -11,6 +11,7 @@ import java.net.URL;
 import java.security.MessageDigest;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
@@ -27,10 +28,12 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.phxl.core.base.util.SystemConfig;
 import com.phxl.ysy.entity.WeixinOpenUser;
+import com.phxl.ysy.service.IMessageService;
 import com.phxl.ysy.service.weixin.WeixinAPIInterface;
 import com.phxl.ysy.util.WebConnect;
 import com.phxl.ysy.util.WxJsUtils;
@@ -47,12 +50,15 @@ public class TestController {
 	WeixinAPIInterface weixinAPIInterface;
 	
 	@Autowired
+	IMessageService imessageService;
+	
+	@Autowired
 	HttpSession session;
 	
 	@RequestMapping(value = "/test.html", method = RequestMethod.GET)
     public void testPage(Model model,HttpServletRequest request,HttpServletResponse response) throws Exception {
 
-        String url = "http://69pbn9.natappfree.cc/test/test.html";
+        String url = "http://hsms.com.cn/test/test.html";
         WxJsUtils jsUtils = new WxJsUtils();
 		final String appId = SystemConfig.getProperty("wechat.config.appid");
         Map<String, String> ret = jsUtils.sign(url);
@@ -206,6 +212,25 @@ public class TestController {
 		System.out.println(wxUser.getUserName());
 		System.out.println(wxUser.getHeadimgurl());
 		request.getSession().setAttribute("wxUser", wxUser);
+	}
+	
+	@RequestMapping("/pushMessage")
+	@ResponseBody
+	public void pushMessage(
+			@RequestParam(value="code",required = false) String code ,
+			HttpServletRequest request ,HttpServletResponse response) {
+		Map<String,Object> argument = new HashMap<String,Object>(); 
+        argument.put("first", "123456");
+        argument.put("keyword1", "IT78922");
+        argument.put("keyword2","维修中");
+        argument.put("keyword3",new Date());
+        argument.put("keyword4","陶悠");
+        argument.put("keyword5","维修中");
+        argument.put("remark","所属科室：设备科");
+
+        String message = imessageService.getMessageJsonContent(argument,
+        		"A6C68D5EFF5E4D55B5D8396CB3232DE0","www.baidu.com ","1");
+        imessageService.pushMessages(message);
 	}
 	
 }

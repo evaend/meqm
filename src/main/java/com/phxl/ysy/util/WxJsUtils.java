@@ -18,7 +18,7 @@ public class WxJsUtils {
 	public static void main(String[] args) throws Exception {
 
         // 注意 URL 一定要动态获取，不能 hardcode
-        String url = "http://69pbn9.natappfree.cc/WxServlet/test/test";
+        String url = "http://hsms.com.cn/WxServlet/test/test";
         Map<String, String> ret = sign(url);
         for (Map.Entry entry : ret.entrySet()) {
             System.out.println(entry.getKey() + "=" + entry.getValue());
