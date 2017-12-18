@@ -49,6 +49,83 @@
     MONEY_TYPE, TF_ACCESSORY, CERT_GUID, TF_BRAND, OUT_RRPAIR_USERNAME, OUT_RRPAIR_PHONE
   </sql>
   
+  <!-- 查询资产档案信息列表 -->
+  <select id="selectAssetsList" parameterType="com.phxl.core.base.entity.Pager" resultType="java.util.Map">
+  	select 
+		a.assets_record "assetsRecord" ,
+		e.equipment_standard_name "equipmetStandarName" ,
+		a.spec "spec" ,
+		a.fmodel "fmodel" , 
+		a.use_fstate "useFstate" , 
+		a.product_type "productType" ,
+		e.CERT_GUID "certGuid" ,
+		a.product "product" ,
+		(select dept_nam from td_dept_info where dept_code = a.use_dept_code) "useDeptCode" , 
+		a.deposit "deposit" ,
+		(select dept_nam from td_dept_info where dept_code = a.b_dept_code) "bDept" , 
+		a.custodian "custodian" ,
+		a.buy_price "buyPrice" ,
+		a.install_price "installPrice" ,
+		a.source_funds "sourceFunds" ,
+		a.production_date "productionDate" ,
+		a.enable_date "enableDate" ,
+		a.recodr_date "recodrDate" ,
+		a.acct_date "acctDate" ,
+		a.use_limit "useLimit" ,
+		a.depreciation_limit "depreciationLimit" ,
+		a.depreciation_type "depreciationType" ,
+		a.residual_value "residualValue" ,
+		a.qa_level "qalevel" ,
+		a.maintain_day "maintainDay" ,
+		a.out_aa_org "outAaOrg" ,
+		a.repair_flag "repairFlag" ,
+		a.OUT_RRPAIR_USERNAME "outRrpairUserName" ,
+		a.out_rrpair_phone "outRrpairPhone" , 
+		a.equipment_code "equipmentCode" ,
+		e.equipment_name "equipmentName" ,
+		a.deposit "address" ,
+		(select add_months(a.production_date,(12*a.use_limit) ) from dual) "validity" , 
+		a.tf_accessory "tfAccessory"
+		from td_assets_record a left join td_equipment e
+		on (a.equipment_code = e.equipment_code)
+  		where 1=1
+  		<if test="conditiions.assetsRecord != null and conditiions.assetsRecord != ''">
+			and regexp_like(a.assets_record, #{conditiions.assetsRecord})	
+  		</if>
+  		<if test="conditiions.equipmetStandarName != null and conditiions.equipmetStandarName != ''">
+			and regexp_like(e.equipment_standard_name, #{conditiions.equipmetStandarName})	
+  		</if>
+  		<if test="conditiions.useFstate != null and conditiions.useFstate != ''">
+  			and a.use_fstate = #{conditiions.useFstate}
+  		</if>
+  		<if test="conditiions.productType != null and conditiions.productType != ''">
+  			and a.product_type = #{conditiions.productType}
+  		</if>
+  		<if test="conditiions.spec != null and conditiions.spec != ''">
+			and regexp_like(a.spec, #{conditiions.spec})	
+  		</if>
+  		<if test="conditiions.product != null and conditiions.product != ''">
+			and regexp_like(a.product, #{conditiions.product})	
+  		</if>
+  		<if test="conditiions.useDeptCode != null and conditiions.useDeptCode != ''">
+			and regexp_like(a.use_dept_code, #{conditiions.useDeptCode})	
+  		</if>
+  		<if test="conditiions.bDept != null and conditiions.bDept != ''">
+			and regexp_like(a.b_dept_code, #{conditiions.bDept})	
+  		</if>
+  		<if test="conditiions.custodian != null and conditiions.custodian != ''">
+			and regexp_like(a.custodian, #{conditiions.custodian})	
+  		</if>
+  		<if test="conditiions.mobile != null and conditiions.mobile != ''">
+			and ( regexp_like(a.assets_record, #{conditiions.mobile})
+				or regexp_like(e.equipment_standard_name, #{conditiions.mobile})
+			) 	
+  		</if>
+  		<if test="conditiions.assetsRecordOne != null and conditiions.assetsRecordOne != ''">
+			and a.assets_record = #{conditiions.assetsRecordOne})	
+  		</if>
+  </select>
+  
   <!-- 查询资产总量 -->
   <select id="selectAssetsRecordCount" resultType="java.lang.Integer">
   	select count(*) from td_assets_record

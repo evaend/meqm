@@ -172,7 +172,7 @@ public class MessageHandlerUtil {
                                 "<Content><![CDATA[%s]]></Content>" +
                                 "</xml>",
                         fromUserName, toUserName, getMessageCreateTime(),
-                        "感谢您关注我的个人公众号，请点击链接绑定微信：https://open.weixin.qq.com/connect/oauth2/authorize?appid=wxe1ba6ec9765d99ac&redirect_uri=http%3A%2F%2Fv5ru69.natappfree.cc%2Fhome%2FwechatBinding&response_type=code&scope=snsapi_base&state=binding#wechat_redirect");
+                        "感谢您关注我的个人公众号，请点击链接绑定微信：https://open.weixin.qq.com/connect/oauth2/authorize?appid=wxe1ba6ec9765d99ac&redirect_uri=http%3A%2F%2F69pbn9.natappfree.cc%2Fhome%2FwechatBinding&response_type=code&scope=snsapi_base&state=binding#wechat_redirect");
         return responseMessageXml;
     }
 

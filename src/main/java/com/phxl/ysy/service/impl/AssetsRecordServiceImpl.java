@@ -1,6 +1,7 @@
 package com.phxl.ysy.service.impl;
 
 import java.util.List;
+import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -18,6 +19,10 @@ public class AssetsRecordServiceImpl extends BaseService implements AssetsRecord
 
 	public Integer selectAssetsRecordCount() {
 		return assetsRecordMapper.selectAssetsRecordCount();
+	}
+
+	public List<Map<String, Object>> selectAssetsList(Pager pager) {
+		return assetsRecordMapper.selectAssetsList(pager);
 	}
 
 }

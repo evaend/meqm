@@ -39,6 +39,7 @@
     <result column="COST_DETAIL" property="costDetail" jdbcType="VARCHAR" />
     <result column="EVALUATE" property="evaluate" jdbcType="VARCHAR" />
     <result column="TF_REMARK" property="tfRemark" jdbcType="VARCHAR" />
+    <result column="rrpair_order_guid" property="rrpairOrderGuid" jdbcType="VARCHAR" />
   </resultMap>
   
   <!-- 查询设备维修列表 -->
@@ -69,9 +70,9 @@
 		r.quoted_price "quoredPrice" ,
 		r.actual_price "actualPrice" ,
 		r.fault_accessory "faultAccessory" 
-		from td_rrpair_order r join td_assets_record a on
+		from td_rrpair_order r left join td_assets_record a on
 		(r.ASSETS_RECORD = a.ASSETS_RECORD )
-		join td_equipment e on
+		left join td_equipment e on
 		(r.EQUIPMENT_CODE = e.EQUIPMENT_CODE )
 		left join td_dept_info d on
 		(d.dept_code = r.use_dept_code)
@@ -84,19 +85,23 @@
 		</if> 
 		<!-- 维修单号 -->
 		<if test="conditiions.rrpairOrder != null and conditiions.rrpairOrder != ''">
-			regexp_like(r.RRPAIR_ORDER, #{conditiions.rrpairOrder, jdbcType=VARCHAR})
+			and regexp_like(r.RRPAIR_ORDER, #{conditiions.rrpairOrder, jdbcType=VARCHAR})
 		</if> 
 		<!-- 设备单号 -->
 		<if test="conditiions.equipmentCode != null and conditiions.equipmentCode != ''">
 			and r.equipment_code = #{conditiions.equipmentCode, jdbcType=VARCHAR}
 		</if> 
+		<!-- 查询历史工单的时候排除当前工单 -->
+		<if test="conditiions.assetsRecordOne != null and conditiions.assetsRecordOne != ''">
+			and r.RRPAIR_ORDER != #{conditiions.assetsRecordOne}
+		</if>
 		<!-- 紧急度 -->
 		<if test="conditiions.urgentFlag != null and conditiions.urgentFlag != ''">
-			order by r.urgent_flag #{conditiions.sort}
+			order by r.urgent_flag ${conditiions.sort}
 		</if>
 		<!-- 时间排序(如果紧急度为空) -->
 		<if test="conditiions.time != null and conditiions.time != ''">
-			order by r.modify_time #{conditiions.sort}
+			order by r.modify_time ${conditiions.sort}
 		</if>
 		<!-- 默认时的排序 -->
 		<if test="(conditiions.urgentFlag == null or conditiions.urgentFlag == '') and (conditiions.time == null or conditiions.time == '')">

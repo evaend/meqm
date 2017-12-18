@@ -52,7 +52,7 @@ public class TestController {
 	@RequestMapping(value = "/test.html", method = RequestMethod.GET)
     public void testPage(Model model,HttpServletRequest request,HttpServletResponse response) throws Exception {
 
-        String url = "http://v5ru69.natappfree.cc/test/test.html";
+        String url = "http://69pbn9.natappfree.cc/test/test.html";
         WxJsUtils jsUtils = new WxJsUtils();
 		final String appId = SystemConfig.getProperty("wechat.config.appid");
         Map<String, String> ret = jsUtils.sign(url);
@@ -205,6 +205,7 @@ public class TestController {
 		System.out.println(wxUser.getState());
 		System.out.println(wxUser.getUserName());
 		System.out.println(wxUser.getHeadimgurl());
+		session.setAttribute("wxUser", wxUser);
 	}
 	
 }

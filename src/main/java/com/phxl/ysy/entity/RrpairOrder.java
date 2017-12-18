@@ -3,6 +3,9 @@ package com.phxl.ysy.entity;
 import java.math.BigDecimal;
 import java.util.Date;
 
+import com.phxl.core.base.annotation.BaseSql;
+
+@BaseSql(tableName="td_rrpair_order", resultName="com.phxl.ysy.dao.RrpairOrderMapper.BaseResultMap")
 public class RrpairOrder {
     private String rrpairOrder;
 
@@ -22,7 +25,7 @@ public class RrpairOrder {
 
     private Date modifyTime;
 
-    private String add;
+    private String address;
 
     private String orderFstate;
 
@@ -77,8 +80,18 @@ public class RrpairOrder {
     private String evaluate;
 
     private String tfRemark;
+    
+    private String rrpairOrderGuid;
+    
+    public String getRrpairOrderGuid() {
+		return rrpairOrderGuid;
+	}
 
-    public String getRrpairOrder() {
+	public void setRrpairOrderGuid(String rrpairOrderGuid) {
+		this.rrpairOrderGuid = rrpairOrderGuid;
+	}
+
+	public String getRrpairOrder() {
         return rrpairOrder;
     }
 
@@ -150,12 +163,12 @@ public class RrpairOrder {
         this.modifyTime = modifyTime;
     }
 
-    public String getAdd() {
-        return add;
+    public String getAddress() {
+        return address;
     }
 
-    public void setAdd(String add) {
-        this.add = add == null ? null : add.trim();
+    public void setAddress(String address) {
+        this.address = address == null ? null : address.trim();
     }
 
     public String getOrderFstate() {

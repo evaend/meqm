@@ -1,12 +1,15 @@
 package com.phxl.ysy.web;
 
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
 
+import org.apache.commons.lang.ObjectUtils.Null;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -15,7 +18,9 @@ import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.phxl.core.base.entity.Pager;
 import com.phxl.core.base.exception.ValidationException;
+import com.phxl.core.base.util.IdentifieUtil;
 import com.phxl.ysy.entity.RrpairOrder;
+import com.phxl.ysy.entity.WeixinOpenUser;
 import com.phxl.ysy.service.RrpairOrderService;
 
 @Controller
@@ -23,6 +28,9 @@ import com.phxl.ysy.service.RrpairOrderService;
 public class RrpairOrderController {
 	@Autowired
 	RrpairOrderService rrpairOrderService;
+	
+	@Autowired
+	HttpSession session;
 	
 	@RequestMapping("/selectRrpairList")
 	@ResponseBody
@@ -139,12 +147,45 @@ public class RrpairOrderController {
 			@RequestParam(value="repairContentTyp",required = false) String repairContentTyp ,
 			@RequestParam(value="faultWords",required = false) String faultWords ,
 			@RequestParam(value="faultAccessory",required = false) String[] faultAccessory ,
+			@RequestParam(value="assetsRecord",required = false) String assetsRecord ,
 			HttpServletRequest request,HttpServletResponse response) throws Exception {
 		String str = "error";
 		
 		//机构ID，单据名称，单据前缀，单号长度
 		String rrpairOrder = rrpairOrderService.callSpGetBill(212L, "维修单", "AA", 6);
-		System.out.println(rrpairOrder);
+		RrpairOrder rrpair = new RrpairOrder();
+		rrpair.setRrpairOrder(rrpairOrder);
+		rrpair.setAssetsRecord(assetsRecord);
+		rrpair.setEquipmentCode(equipmentCode);
+		rrpair.setUseDeptCode(useDept);
+		rrpair.setGuaranteeDate(new Date());
+		rrpair.setModifyTime(new Date());
+		rrpair.setAddress(address);
+		rrpair.setOrderFstate("10");
+		rrpair.setUrgentFlag(urgentFlag);
+		rrpair.setSpare(spare);
+//		if (session.getAttribute("wxUser") == null) {
+//			throw new ValidationException("当前没有登录，不能报修");
+//		}
+//		rrpair.setRrpairUserid(session.getAttribute("openid").toString());
+//		WeixinOpenUser wxUser = (WeixinOpenUser)session.getAttribute("wxUser");
+//		rrpair.setRrpairUsername(wxUser.getUserName());
+		rrpair.setRrpairUserid("11");
+		rrpair.setRrpairUsername("11");
+		rrpair.setRrpairPhone("027-59566545");//医商云客服电话
+		rrpair.setRepairContentTyp(repairContentTyp);
+		String fault = null;
+		if (faultAccessory!=null) {
+			for (int i = 0; i < faultAccessory.length; i++) {
+				fault += faultAccessory[i]+";";
+			}
+		}
+		rrpair.setFaultAccessory(fault);
+		rrpair.setFaultWords(faultWords);
+		rrpair.setRrpairOrderGuid(IdentifieUtil.getGuId());
+		
+		rrpairOrderService.insertInfo(rrpair);
+		
 		str = "success";
 		return str;
 	}
