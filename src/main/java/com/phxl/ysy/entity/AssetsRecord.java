@@ -77,6 +77,11 @@ public class AssetsRecord {
     private String outRrpairUsername;
 
     private String outRrpairPhone;
+    
+    private String useDeptCode;
+    private String aaOrg;
+    private String buyPrice;
+    private Long orgId;
 
     public String getAssetsRecord() {
         return assetsRecord;
@@ -373,4 +378,38 @@ public class AssetsRecord {
     public void setOutRrpairPhone(String outRrpairPhone) {
         this.outRrpairPhone = outRrpairPhone == null ? null : outRrpairPhone.trim();
     }
+
+	public String getUseDeptCode() {
+		return useDeptCode;
+	}
+
+	public void setUseDeptCode(String useDeptCode) {
+		this.useDeptCode = useDeptCode;
+	}
+
+	public String getAaOrg() {
+		return aaOrg;
+	}
+
+	public void setAaOrg(String aaOrg) {
+		this.aaOrg = aaOrg;
+	}
+
+	public String getBuyPrice() {
+		return buyPrice;
+	}
+
+	public void setBuyPrice(String buyPrice) {
+		this.buyPrice = buyPrice;
+	}
+
+	public Long getOrgId() {
+		return orgId;
+	}
+
+	public void setOrgId(Long orgId) {
+		this.orgId = orgId;
+	}
+	
+    
 }

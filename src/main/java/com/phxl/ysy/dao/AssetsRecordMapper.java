@@ -5,6 +5,7 @@ import java.util.Map;
 
 import com.phxl.core.base.entity.Pager;
 import com.phxl.ysy.entity.AssetsRecord;
+import com.phxl.ysy.web.dto.EquipmentDto;
 
 public interface AssetsRecordMapper {
     //查询资产总量
@@ -12,4 +13,8 @@ public interface AssetsRecordMapper {
 	
 	//查询资产档案信息列表
 	List<Map<String, Object>> selectAssetsList(Pager pager);
+
+	Object importAssets(List<EquipmentDto> list);
+
+	Object importEquipments(List<EquipmentDto> list);
 }

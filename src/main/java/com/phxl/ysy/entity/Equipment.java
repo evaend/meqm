@@ -1,5 +1,8 @@
 package com.phxl.ysy.entity;
 
+import com.phxl.core.base.annotation.BaseSql;
+
+@BaseSql(tableName="TD_EQUIPMENT", resultName="com.phxl.ysy.dao.EquipmentMapper.BaseResultMap")
 public class Equipment {
     private String equipmentCode;
 
@@ -22,6 +25,9 @@ public class Equipment {
     private String useLimit;
 
     private String typeCode;
+    
+    private String certGuid;
+    private String qrcode;
 
     public String getEquipmentCode() {
         return equipmentCode;
@@ -110,4 +116,20 @@ public class Equipment {
     public void setTypeCode(String typeCode) {
         this.typeCode = typeCode == null ? null : typeCode.trim();
     }
+
+	public String getCertGuid() {
+		return certGuid;
+	}
+
+	public void setCertGuid(String certGuid) {
+		this.certGuid = certGuid;
+	}
+
+	public String getQrcode() {
+		return qrcode;
+	}
+
+	public void setQrcode(String qrcode) {
+		this.qrcode = qrcode;
+	}
 }
