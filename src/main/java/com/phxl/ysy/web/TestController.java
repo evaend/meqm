@@ -205,7 +205,7 @@ public class TestController {
 		System.out.println(wxUser.getState());
 		System.out.println(wxUser.getUserName());
 		System.out.println(wxUser.getHeadimgurl());
-		session.setAttribute("wxUser", wxUser);
+		request.getSession().setAttribute("wxUser", wxUser);
 	}
 	
 }

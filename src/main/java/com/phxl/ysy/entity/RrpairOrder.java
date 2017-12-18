@@ -83,7 +83,17 @@ public class RrpairOrder {
     
     private String rrpairOrderGuid;
     
-    public String getRrpairOrderGuid() {
+    private String tfComment;
+    
+    public String getTfComment() {
+		return tfComment;
+	}
+
+	public void setTfComment(String tfComment) {
+		this.tfComment = tfComment;
+	}
+
+	public String getRrpairOrderGuid() {
 		return rrpairOrderGuid;
 	}
 

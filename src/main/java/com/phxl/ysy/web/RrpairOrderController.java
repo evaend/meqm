@@ -1,5 +1,8 @@
 package com.phxl.ysy.web;
 
+import java.io.ByteArrayInputStream;
+import java.math.BigDecimal;
+import java.text.MessageFormat;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -9,16 +12,22 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
+import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.lang.ObjectUtils.Null;
+import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
+import org.springframework.util.Assert;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.phxl.core.base.entity.Pager;
 import com.phxl.core.base.exception.ValidationException;
+import com.phxl.core.base.util.FTPUtils;
 import com.phxl.core.base.util.IdentifieUtil;
+import com.phxl.core.base.util.LocalAssert;
+import com.phxl.core.base.util.SystemConfig;
 import com.phxl.ysy.entity.RrpairOrder;
 import com.phxl.ysy.entity.WeixinOpenUser;
 import com.phxl.ysy.service.RrpairOrderService;
@@ -115,15 +124,19 @@ public class RrpairOrderController {
 			throw new ValidationException("当前维修记录不存在");
 		}else{
 			//修改类型
-			if (rrpairType!= null) {
+			if (StringUtils.isNotBlank(rrpairType)) {
 				rrpair.setRrpairType(rrpairType);
-			}else if (assersNextRecord!= null) {	//修改状态
-				rrpair.setAssetsRecord(assersNextRecord);
-			}else if (isPass!= null) {	//是否验证通过，如果通过，则备注通过，如果不通过则备注不通过
+			}
+			if (StringUtils.isNotBlank(assersNextRecord)) {	//修改状态
+				rrpair.setOrderFstate(assersNextRecord);
+			}
+			if (isPass != null && (isPass == 0 || isPass == 1)) {	//是否验证通过，如果通过，则备注通过，如果不通过则备注不通过
 				rrpair.setAssetsRecord("80");
 				if (isPass == 0) {
+					rrpair.setTfRemark("验证通过");
 					//填写备注为验证通过
 				}else {
+					rrpair.setTfRemark("验证不通过");
 					//填写备注为验证不通过
 				}
 			}
@@ -140,7 +153,7 @@ public class RrpairOrderController {
 			@RequestParam(value="equipmentCode",required = false) String equipmentCode,
 			@RequestParam(value="equipmentName",required = false) String equipmentName ,
 			@RequestParam(value="address",required = false) String address ,
-			@RequestParam(value="useDept",required = false) String useDept ,
+			@RequestParam(value="useDeptCode",required = false) String useDeptCode ,
 			@RequestParam(value="useFstate",required = false) String useFstate ,
 			@RequestParam(value="urgentFlag",required = false) String urgentFlag ,
 			@RequestParam(value="spare",required = false) String spare ,
@@ -157,7 +170,7 @@ public class RrpairOrderController {
 		rrpair.setRrpairOrder(rrpairOrder);
 		rrpair.setAssetsRecord(assetsRecord);
 		rrpair.setEquipmentCode(equipmentCode);
-		rrpair.setUseDeptCode(useDept);
+		rrpair.setUseDeptCode(useDeptCode);
 		rrpair.setGuaranteeDate(new Date());
 		rrpair.setModifyTime(new Date());
 		rrpair.setAddress(address);
@@ -177,9 +190,47 @@ public class RrpairOrderController {
 		String fault = null;
 		if (faultAccessory!=null) {
 			for (int i = 0; i < faultAccessory.length; i++) {
-				fault += faultAccessory[i]+";";
+				 //获取文件类型
+		        int beginIndex = faultAccessory[i].indexOf("/");
+		        int endIndex = faultAccessory[i].indexOf(";");
+		        String filename = faultAccessory[i].substring(beginIndex+1,endIndex);
+		        StringBuffer buf = new StringBuffer(".");
+		        if(StringUtils.isNotBlank(filename)){
+		            filename = buf.append(filename).toString();
+		        }else{
+		            throw new ValidationException("未知的上传文件类型!");
+		        }
+		        //获取文件
+		        String file = faultAccessory[i];
+		        file = file.replaceAll("data:image/jpeg;base64,", "");  
+		        file = file.replaceAll("data:image/jpg;base64,", "");
+		        file = file.replaceAll("data:image/png;base64,", ""); 
+		        file = file.replaceAll("data:image/gif;base64,", ""); 
+		        file = file.replaceAll("data:image/bmp;base64,", "");
+		        file = file.replaceAll("data:application/pdf;base64,", "");
+		        Base64 decoder = new Base64();  
+		        byte[] buffer = decoder.decodeBase64(file);
+		        ByteArrayInputStream in = new ByteArrayInputStream(buffer);
+		        
+		        String configKey="resource.ftp.ysyFile.organization.cert.product";
+		        String rCertGuid = rrpairOrder+i;
+		        String[] args=new String[]{rCertGuid};//证件注册GUID
+		        
+		        String directory=MessageFormat.format(SystemConfig.getProperty(configKey), args);//目录位置
+				
+		        //确定存储文件名
+		        int index = filename.lastIndexOf(".");
+		        if(index<0){
+		            throw new ValidationException("未知的上传文件类型!");
+		        }
+		        String fileName=rCertGuid+filename.substring(index);
+		        
+		        String filePath=directory+fileName;
+		        FTPUtils.upload(directory, fileName, in);
+		        fault += filePath+";";
 			}
 		}
+		
 		rrpair.setFaultAccessory(fault);
 		rrpair.setFaultWords(faultWords);
 		rrpair.setRrpairOrderGuid(IdentifieUtil.getGuId());
@@ -189,4 +240,127 @@ public class RrpairOrderController {
 		str = "success";
 		return str;
 	}
+	
+	//修改维修工单信息
+	@RequestMapping("/updateRrpairInfo")
+	@ResponseBody
+	public String updateRrpairInfo(
+			@RequestParam(value="rrpairOrder",required = false) String rrpairOrder,
+			@RequestParam(value="orderType",required = false) String orderType ,
+			@RequestParam(value="rrpairType",required = false) String rrpairType ,
+			@RequestParam(value="rrpairFlag",required = false) String rrpairFlag ,
+			@RequestParam(value="urgentFlag",required = false) String urgentFlag ,
+			@RequestParam(value="spare",required = false) String spare ,
+			@RequestParam(value="completTime",required = false) Date completTime ,
+			HttpServletRequest request,HttpServletResponse response) throws ValidationException{
+		String str = "error";
+		RrpairOrder rrpair = rrpairOrderService.find(RrpairOrder.class, rrpairOrder);
+		if (rrpair==null) {
+			throw new ValidationException("当前维修记录不存在");
+		}else{
+			rrpair.setOrderType(orderType);
+			rrpair.setRrpairType(rrpairType);
+			rrpair.setRrpairFlag(rrpairFlag);
+			rrpair.setUrgentFlag(urgentFlag);
+			rrpair.setSpare(spare);
+			rrpair.setCompletTime(completTime);
+			rrpairOrderService.updateInfo(rrpair);
+		}
+		str = "success";
+		return str;
+	}
+	
+	//修改预估费用
+	@RequestMapping("/updateRrpairQuoredPrice")
+	@ResponseBody
+	public String updateRrpairQuoredPrice(
+			@RequestParam(value="rrpairOrder",required = false) String rrpairOrder,
+			@RequestParam(value="quoredPrice",required = false) String quoredPrice ,
+			@RequestParam(value="costDetail",required = false) String costDetail ,
+			HttpServletRequest request,HttpServletResponse response) throws ValidationException{
+		String str = "error";
+		RrpairOrder rrpair = rrpairOrderService.find(RrpairOrder.class, rrpairOrder);
+		if (rrpair==null) {
+			throw new ValidationException("当前维修记录不存在");
+		}else{
+			if (StringUtils.isNotBlank(quoredPrice)) {
+				rrpair.setQuotedPrice(BigDecimal.valueOf(Double.valueOf(quoredPrice)));
+			}
+			rrpair.setCostDetail(costDetail);
+			rrpairOrderService.updateInfo(rrpair);
+		}
+		str = "success";
+		return str;
+	}
+
+	//修改维修工单信息
+	@RequestMapping("/updateRrpairType")
+	@ResponseBody
+	public String updateRrpairType(
+			@RequestParam(value="rrpairOrder",required = false) String rrpairOrder,
+			@RequestParam(value="faultDescribe",required = false) String faultDescribe ,
+			@RequestParam(value="faultWords",required = false) String faultWords ,
+			@RequestParam(value="faultAccessory",required = false) String [] faultAccessory ,
+			@RequestParam(value="repairContentType",required = false) String repairContentType ,
+			@RequestParam(value="repairContentTyp",required = false) String repairContentTyp ,
+			HttpServletRequest request,HttpServletResponse response) throws Exception{
+		String str = "error";
+		RrpairOrder rrpair = rrpairOrderService.find(RrpairOrder.class, rrpairOrder);
+		if (rrpair==null) {
+			throw new ValidationException("当前维修记录不存在");
+		}else{
+			rrpair.setFaultDescribe(faultDescribe);
+			rrpair.setFaultWords(faultWords);
+			String fault = null;
+			if (faultAccessory!=null) {
+				for (int i = 0; i < faultAccessory.length; i++) {
+					 //获取文件类型
+			        int beginIndex = faultAccessory[i].indexOf("/");
+			        int endIndex = faultAccessory[i].indexOf(";");
+			        String filename = faultAccessory[i].substring(beginIndex+1,endIndex);
+			        StringBuffer buf = new StringBuffer(".");
+			        if(StringUtils.isNotBlank(filename)){
+			            filename = buf.append(filename).toString();
+			        }else{
+			            throw new ValidationException("未知的上传文件类型!");
+			        }
+			        //获取文件
+			        String file = faultAccessory[i];
+			        file = file.replaceAll("data:image/jpeg;base64,", "");  
+			        file = file.replaceAll("data:image/jpg;base64,", "");
+			        file = file.replaceAll("data:image/png;base64,", ""); 
+			        file = file.replaceAll("data:image/gif;base64,", ""); 
+			        file = file.replaceAll("data:image/bmp;base64,", "");
+			        file = file.replaceAll("data:application/pdf;base64,", "");
+			        Base64 decoder = new Base64();  
+			        byte[] buffer = decoder.decodeBase64(file);
+			        ByteArrayInputStream in = new ByteArrayInputStream(buffer);
+			        
+			        String configKey="resource.ftp.ysyFile.organization.cert.product";
+			        String rCertGuid = rrpairOrder+i;
+			        String[] args=new String[]{rCertGuid};//证件注册GUID
+			        
+			        String directory=MessageFormat.format(SystemConfig.getProperty(configKey), args);//目录位置
+					
+			        //确定存储文件名
+			        int index = filename.lastIndexOf(".");
+			        if(index<0){
+			            throw new ValidationException("未知的上传文件类型!");
+			        }
+			        String fileName=rCertGuid+filename.substring(index);
+			        
+			        String filePath=directory+fileName;
+			        FTPUtils.upload(directory, fileName, in);
+			        fault += filePath+";";
+				}
+			}
+			rrpair.setFaultAccessory(fault);
+			rrpair.setRepairContentType(repairContentType);
+			rrpair.setRepairContentTyp(repairContentTyp);
+			rrpairOrderService.updateInfo(rrpair);
+		}
+		str = "success";
+		return str;
+	}
+	
 }

@@ -62,6 +62,7 @@
 		e.EQUIPMENT_NAME "equipmentName" , 
 		a.SPEC "spec" , 
 		r.address  "address" ,  
+		r.use_dept_code "useDeptCode" , 
 		d.dept_nam "useDept" , 
 		r.fault_describe "faultDescribe" , 
 		r.fault_words "faultWords" ,
@@ -69,7 +70,8 @@
 		r.repair_content_typ "repairContentTyp" , 
 		r.quoted_price "quoredPrice" ,
 		r.actual_price "actualPrice" ,
-		r.fault_accessory "faultAccessory" 
+		r.fault_accessory "faultAccessory" ,
+		r.cost_detail "costDetail"
 		from td_rrpair_order r left join td_assets_record a on
 		(r.ASSETS_RECORD = a.ASSETS_RECORD )
 		left join td_equipment e on
