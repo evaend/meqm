@@ -3,6 +3,7 @@ package com.phxl.ysy.web;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -16,7 +17,6 @@ import javax.servlet.http.HttpSession;
 
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.Predicate;
-import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -32,11 +32,11 @@ import com.phxl.core.base.entity.Pager;
 import com.phxl.core.base.exception.ValidationException;
 import com.phxl.core.base.interceptor.ResResultBindingInterceptor;
 import com.phxl.core.base.util.LocalAssert;
-import com.phxl.ysy.constant.CustomConst.DictName;
 import com.phxl.ysy.constant.CustomConst.LoginUser;
 import com.phxl.ysy.entity.Register;
 import com.phxl.ysy.service.AssetsRecordService;
 import com.phxl.ysy.service.EquipmentAdditionalService;
+import com.phxl.ysy.service.IMessageService;
 import com.phxl.ysy.util.CreateHtml;
 import com.phxl.ysy.util.ExcelUtils;
 import com.phxl.ysy.util.ExcelUtils.EntityHandler;
@@ -52,6 +52,8 @@ public class EquipmentAdditionalController {
 	EquipmentAdditionalService equipmentAdditionalService;
 	@Autowired
 	AssetsRecordService assetsRecordService;
+	@Autowired
+	IMessageService imessageService;
 
 	/**
 	 * 1、由机构管理员或由本机构其他人员，导入本机构的资产信息
@@ -147,6 +149,18 @@ public class EquipmentAdditionalController {
 		Map<String, String> formatMap = new HashMap<String, String>();
 		formatMap.put("fmodel", "20");// 名称保留20个字符的长度，目前先支持取长度
 		formatMap.put("useDeptCode", "20");// 注册证名称保留20个字符的长度，目前先支持取长度
+		
+//		Map<String,Object> argument = new HashMap<String,Object>();                 
+//        argument.put("first", "123456");
+//        argument.put("keyword1", "IT78922");
+//        argument.put("keyword2","维修中");
+//        argument.put("keyword3",new Date());
+//        argument.put("keyword4","陶悠");
+//        argument.put("keyword5","维修中");
+//        argument.put("remark","所属科室：设备科");
+//
+//        String message = imessageService.getMessageJsonContent(argument,"A6C68D5EFF5E4D55B5D8396CB3232DE0","www.baidu.com","1");
+//        imessageService.pushMessages(message);
 		CreateHtml.createQRCodePDF(response, request, listData, tableFileds, titleFileds,title, formatMap);
 	}
 	
