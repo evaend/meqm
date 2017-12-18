@@ -1,5 +1,8 @@
 package com.phxl.ysy.entity;
 
+import com.phxl.core.base.annotation.BaseSql;
+
+@BaseSql(tableName="TS_DEPT_INFO", resultName="com.phxl.ysy.dao.DeptInfoMapper.BaseResultMap")
 public class DeptInfo {
     private String deptCode;
 

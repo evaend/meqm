@@ -85,7 +85,9 @@
 		e.equipment_name "equipmentName" ,
 		a.deposit "address" ,
 		(select add_months(a.production_date,(12*a.use_limit) ) from dual) "validity" , 
-		a.tf_accessory "tfAccessory"
+		a.tf_accessory "tfAccessory",
+		to_char(a.buy_date,'yyyy-MM-dd') "buyDate" ,
+		e.qrcode "qrcode"
 		from td_assets_record a left join td_equipment e
 		on (a.equipment_code = e.equipment_code)
   		where 1=1
@@ -122,7 +124,7 @@
 			) 	
   		</if>
   		<if test="conditiions.assetsRecordOne != null and conditiions.assetsRecordOne != ''">
-			and a.assets_record = #{conditiions.assetsRecordOne}
+			and a.assets_record = #{conditiions.assetsRecordOne}	
   		</if>
   </select>
   
@@ -130,5 +132,37 @@
   <select id="selectAssetsRecordCount" resultType="java.lang.Integer">
   	select count(*) from td_assets_record
   </select>
+  
+  <insert id="importAssets">
+       insert into td_assets_record ( ASSETS_RECORD, EQUIPMENT_CODE, FMODEL, SPEC,
+    PRODUCT, PRODUCT_TYPE, SOURCE_FUNDS, B_DEPT_CODE, DEPOSIT,
+    PRODUCTION_DATE, USE_LIMIT, MAINTAIN_DAY, QA_LEVEL, 
+    ACCT_DATE, DEPRECIATION_TYPE, DEPRECIATION_LIMIT, REPAIR_FLAG, 
+    USE_FSTATE, CREATE_USERID, RESIDUAL_VALUE, CUSTODIAN, INSTALL_PRICE, 
+    OUT_AA_ORG,USE_DEPT_CODE,BUY_PRICE,ORG_ID
+      )  values
+    <foreach collection="list" index="index" open="(" close=")" separator="),("> 
+      #{list[${index}].assetsRecord,jdbcType=VARCHAR}, #{list[${index}].assetsRecord,jdbcType=VARCHAR}, #{list[${index}].fmodel,jdbcType=VARCHAR}, 
+      #{list[${index}].spec,jdbcType=VARCHAR}, #{list[${index}].product,jdbcType=VARCHAR},   #{list[${index}].productType,jdbcType=VARCHAR}, 
+      #{list[${index}].sourceFunds,jdbcType=VARCHAR}, #{list[${index}].bDeptCode,jdbcType=VARCHAR}, #{list[${index}].deposit,jdbcType=VARCHAR}, 
+      #{list[${index}].productionDate,jdbcType=TIMESTAMP}, #{list[${index}].useLimit,jdbcType=VARCHAR}, #{list[${index}].maintainDay,jdbcType=VARCHAR},
+      #{list[${index}].qaLevel,jdbcType=VARCHAR},#{list[${index}].acctDate,jdbcType=TIMESTAMP},
+      #{list[${index}].depreciationType,jdbcType=VARCHAR}, #{list[${index}].repairFlag,jdbcType=VARCHAR},
+      '01',#{list[${index}].createUserid,jdbcType=VARCHAR},
+      #{list[${index}].residualValue,jdbcType=VARCHAR}, #{list[${index}].custodian,jdbcType=VARCHAR}, 
+       #{list[${index}].installPrice,jdbcType=VARCHAR}, #{list[${index}].outAaOrg,jdbcType=VARCHAR}, 
+       #{list[${index}].useDeptCode,jdbcType=VARCHAR}, #{list[${index}].buyPrice,jdbcType=VARCHAR},
+       #{list[${index}].orgId,jdbcType=DECIMAL}
+     </foreach> 
+  </insert>
+  
+  <insert id="importEquipments">
+  	insert into td_equipment (EQUIPMENT_CODE,EQUIPMENT_NAME, EQUIPMENT_STANDARD_NAME,QRCODE)
+  	values
+    <foreach collection="list" index="index" open="(" close=")" separator="),("> 
+      #{list[${index}].assetsRecord,jdbcType=VARCHAR}, #{list[${index}].equipmentName,jdbcType=VARCHAR},
+       #{list[${index}].equipmentName,jdbcType=VARCHAR}, #{list[${index}].qrcode,jdbcType=VARCHAR}
+     </foreach> 
+  </insert>
   
 </mapper>

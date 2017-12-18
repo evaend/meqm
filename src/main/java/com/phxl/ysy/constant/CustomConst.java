@@ -1151,4 +1151,43 @@ public class CustomConst {
         public static final String OPER_ORDER = "00";
     }
 
+    /**
+     * 维修标志
+     * 2017年12月17日 下午4:48:25
+     * @author 陶悠
+     *
+     */
+    public static final class RepairFlag {
+		/**00、正常*/
+		public static final String USEFUL = "00";
+		/**01、维修中*/
+		public static final String REPAIRING= "01";
+	}
+    
+    /**
+     * 维修标志
+     */
+    public final static Map<String,String> RepairFlagMap = new HashMap<String, String>() {{
+        put("00", "正常"); 
+        put("01", "维修中");
+    }};
+
+    /**
+     * 折旧方法
+     */
+    public final static Map<String,String> DepreciationTypeMap = new HashMap<String, String>() {{
+        put("01", "平均年限法"); 
+        put("02", "工作量法");
+        put("03", "双倍余额递减法");
+        put("04", "年数总和法");
+    }};
+    
+    /**
+     * 资产分类
+     */
+    public final static Map<String,String> ProductTypeMap = new HashMap<String, String>() {{
+        put("01", "固定资产"); 
+        put("02", "医疗设备");
+        put("03", "其他");
+    }};
 }
