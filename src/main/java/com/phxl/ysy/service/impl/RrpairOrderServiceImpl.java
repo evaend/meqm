@@ -1,9 +1,12 @@
 package com.phxl.ysy.service.impl;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import javax.sound.midi.MidiChannel;
 
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
@@ -17,14 +20,26 @@ import com.phxl.core.base.entity.Pager;
 import com.phxl.core.base.exception.ValidationException;
 import com.phxl.core.base.service.impl.BaseService;
 import com.phxl.core.base.util.LocalAssert;
+import com.phxl.ysy.dao.AssetsRecordMapper;
+import com.phxl.ysy.dao.CallprocedureMapper;
 import com.phxl.ysy.dao.RrpairOrderMapper;
 import com.phxl.ysy.entity.RrpairOrder;
+import com.phxl.ysy.service.IMessageService;
 import com.phxl.ysy.service.RrpairOrderService;
 
 @Service
 public class RrpairOrderServiceImpl extends BaseService implements RrpairOrderService{
 	@Autowired
 	RrpairOrderMapper rrpairOrderMapper;
+	
+	@Autowired
+	IMessageService imessageService;
+	
+	@Autowired
+	AssetsRecordMapper assetsRecordMapper;
+	
+	@Autowired
+	CallprocedureMapper callprocedureMapper;
 
 	public List<Map<String, Object>> selectRrpairList(Pager pager) {
 		List<Map<String, Object>> list = rrpairOrderMapper.selectRrpairList(pager);
@@ -44,14 +59,58 @@ public class RrpairOrderServiceImpl extends BaseService implements RrpairOrderSe
 	}
 
 	public List<Map<String, Object>> selectRrpairFstateNum() {
-		List<Map<String, Object>> list = rrpairOrderMapper.selectRrpairFstateNum();
+		Map<String, Object> m = new HashMap<String, Object>();
+		m.put("orderFstate", "10");
+		Map<String, Object> m1 = rrpairOrderMapper.selectRrpairFstateNum(m);
+		m.put("orderFstate", "30");
+		Map<String, Object> m3 = rrpairOrderMapper.selectRrpairFstateNum(m);
+		m.put("orderFstate", "50");
+		Map<String, Object> m5 = rrpairOrderMapper.selectRrpairFstateNum(m);
+		m.put("orderFstate", "80");
+		Map<String, Object> m8 = rrpairOrderMapper.selectRrpairFstateNum(m);
 		List<Map<String, Object>> returnList = new ArrayList<Map<String,Object>>();
-		for (Map<String, Object> map : list) {
-			Map<String, Object> m = new HashMap<String, Object>();
-			m.put(map.get("orderFstate").toString(),map.get("num").toString());
-			returnList.add(m);
+		if (m1== null || m1.size()==0) {
+			Map<String, Object> mm1 = new HashMap<String, Object>();
+			mm1.put("code", "10");
+			mm1.put("num", "0");
+			returnList.add(mm1);
+		}else{
+			returnList.add(m1);
 		}
-		returnList.add(rrpairOrderMapper.selectRrpairFstateCount());
+		
+		if (m3== null || m3.size()==0) {
+			Map<String, Object> mm3 = new HashMap<String, Object>();
+			mm3.put("code", "30");
+			mm3.put("num", "0");
+			returnList.add(mm3);
+		}else{
+			returnList.add(m3);
+		}
+
+		if (m5== null || m5.size()==0) {
+			Map<String, Object> mm5 = new HashMap<String, Object>();
+			mm5.put("code", "50");
+			mm5.put("num", "0");
+			returnList.add(mm5);
+		}else{
+			returnList.add(m5);
+		}
+		
+		if (m8== null || m8.size()==0) {
+			Map<String, Object> mm8 = new HashMap<String, Object>();
+			mm8.put("code", "80");
+			mm8.put("num", "0");
+			returnList.add(mm8);
+		}else{
+			returnList.add(m8);
+		}
+		Map<String, Object> map = new HashMap<String, Object>();
+		map.put("code","assetsRecordCount");
+		map.put("num",assetsRecordMapper.selectAssetsRecordCount());
+		returnList.add(map);
+		Map<String, Object> map1 = rrpairOrderMapper.selectRrpairFstateCount();
+		map1.put("code", "rrpairOrderCount");
+		returnList.add(map1);
 		return returnList;
 	}
 
@@ -107,7 +166,7 @@ public class RrpairOrderServiceImpl extends BaseService implements RrpairOrderSe
 		params.put("asLen", asLen);
 
 		//获取指定单据类型的最新单号
-		rrpairOrderMapper.SP_GET_BILL_NOSTORAGE(params);
+		callprocedureMapper.SP_GET_BILL_NOSTORAGE(params);
 		//获取指定单据类型的最新单号
 		List<Map> result=(List<Map>)params.get("cursor");
 		if(CollectionUtils.isNotEmpty(result)){
@@ -129,5 +188,50 @@ public class RrpairOrderServiceImpl extends BaseService implements RrpairOrderSe
 		}
 	}
 	
-	
+	public void pushMessage(String rrpairOrder){
+		Pager pager = new Pager(false);
+		pager.addQueryParam("rrpairOrder", rrpairOrder);
+		List<Map<String, Object>> list = rrpairOrderMapper.selectRrpairList(pager);
+		Map<String, Object> map = list.get(0);
+		Map<String,Object> argument = new HashMap<String,Object>(); 
+        argument.put("first", rrpairOrder);
+        argument.put("keyword1", map.get("equipmentCode"));
+        argument.put("keyword2", map.get("orderFstate"));
+        argument.put("keyword3", new Date());
+        RrpairOrder rrpair = find(RrpairOrder.class, rrpairOrder);
+        if(map.get("rrpairType")==null){
+        	argument.put("keyword4", "");
+		}else if(map.get("rrpairType").toString().equals("00")){
+			argument.put("keyword4", rrpair.getInRrpairUsername());
+		}else if(map.get("rrpairType").toString().equals("01")){
+			argument.put("keyword4", rrpair.getOutRrpairUsername());
+		}else{
+			argument.put("keyword4", "");
+		}
+        if (map.get("orderFstate")!=null) {
+        	switch (map.get("orderFstate").toString()) {
+    		case "10":
+    			argument.put("keyword5","待维修");
+    			break;
+    		case "30":
+    			argument.put("keyword5","维修中");
+    			break;
+			case "50":
+				argument.put("keyword5","待验收");
+				break;
+			case "80":
+				argument.put("keyword5","已关闭");
+				break;
+    		default:
+				argument.put("keyword5","");
+    			break;
+    		}
+		}
+        
+        
+        argument.put("remark","所属科室："+map.get("useDept"));
+        String message = imessageService.getMessageJsonContent(argument,
+        		"A6C68D5EFF5E4D55B5D8396CB3232DE0","www.baidu.com ","1");
+        imessageService.pushMessages(message);
+	}
 }

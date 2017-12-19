@@ -12,7 +12,7 @@ public interface RrpairOrderMapper {
 	List<Map<String, Object>> selectRrpairList(Pager pager);
 	
 	//（移动端）查询设备维修各状态数量
-	List<Map<String, Object>> selectRrpairFstateNum();
+	Map<String, Object> selectRrpairFstateNum(Map<String, Object> map);
 	
 	//（移动端）查询设备维修记录全部
 	Map<String, Object> selectRrpairFstateCount();

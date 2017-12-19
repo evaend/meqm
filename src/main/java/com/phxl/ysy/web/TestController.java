@@ -32,6 +32,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.phxl.core.base.util.SystemConfig;
+import com.phxl.ysy.entity.UserInfo;
 import com.phxl.ysy.entity.WeixinOpenUser;
 import com.phxl.ysy.service.IMessageService;
 import com.phxl.ysy.service.weixin.WeixinAPIInterface;
@@ -66,8 +67,27 @@ public class TestController {
         for (Map.Entry entry : ret.entrySet()) {
             System.out.println(entry.getKey() + "=" + entry.getValue());
             request.setAttribute(entry.getKey().toString(), entry.getValue());
+            session.setAttribute(entry.getKey().toString(), entry.getValue());
         }
         request.getRequestDispatcher("/index.jsp").forward(request, response);
+    }
+	
+	
+	@RequestMapping(value = "/testScan", method = RequestMethod.GET)
+	@ResponseBody
+    public Map<String, String> testScan(Model model,HttpServletRequest request,HttpServletResponse response) throws Exception {
+		System.out.println("..............");
+        String url = "http://hsms.com.cn/test/testScan";
+        WxJsUtils jsUtils = new WxJsUtils();
+		final String appId = SystemConfig.getProperty("wechat.config.appid");
+        Map<String, String> ret = jsUtils.sign(url);
+        ret.put("appId", appId);
+        for (Map.Entry entry : ret.entrySet()) {
+            System.out.println(entry.getKey() + "=" + entry.getValue());
+            request.setAttribute(entry.getKey().toString(), entry.getValue());
+            session.setAttribute(entry.getKey().toString(), entry.getValue());
+        }
+        return ret;
     }
 	
 	@RequestMapping("/luyinTest")
@@ -185,48 +205,65 @@ public class TestController {
         System.out.println("nonce = "+nonce);
         System.out.println("echostr = "+echostr);
 	}
+	
+
+	@RequestMapping("/permission")
+	@ResponseBody
+	public String permission(HttpServletRequest request ,HttpServletResponse response) throws Exception{
+		return "https://open.weixin.qq.com/connect/oauth2/authorize?appid=wxa0d673d35aab0631&redirect_uri=http%3A%2F%2Fhsms.com.cn%2Ftest%2FgetPermission&response_type=code&scope=snsapi_base&state=binding#wechat_redirect";
+	}
 
 	@RequestMapping("/getPermission")
 	@ResponseBody
-	public void getPermission(String code,HttpServletRequest request ,HttpServletResponse response) throws Exception{
-		WeixinOpenUser wxUser = weixinAPIInterface.getUserInfo(
-//				weixinAPIInterface.getOpenid("wxe1ba6ec9765d99ac",
-//						"d8ee2dc6444cdada67cb903f1d828780",code) );
-				session.getAttribute("openid").toString());
-//		if (wxUser.getUserName()==null) {
-//			String url = "https://open.weixin.qq.com/connect/oauth2/authorize?"
-//					+ "appid=wx9a3d0c9c3170978c&"
-//					+ "redirect_uri=http%3a%2f%2fwx.dizaozhe.cc%2fwechatconfig%2fdesc"
-//					+ "&response_type=code"
-//					+ "&scope=snsapi_userinfo"
-//					+ "&state=ssaweqeqew#wechat_redirect";
-//			WebConnect webConnect = new WebConnect();//发起http请求的对象 
-//	        webConnect.initWebClient();
-//	        String resp = (String)webConnect.executeHttpGet(url);
-//		}
-		System.out.println(wxUser.getCity());
-		System.out.println(wxUser.getLanguage());
-		System.out.println(wxUser.getOpenUserId());
-		System.out.println(wxUser.getSex());
-		System.out.println(wxUser.getState());
-		System.out.println(wxUser.getUserName());
-		System.out.println(wxUser.getHeadimgurl());
-		request.getSession().setAttribute("wxUser", wxUser);
+	public WeixinOpenUser getPermission(HttpServletRequest request ,HttpServletResponse response) throws Exception{
+		String code = request.getParameter("code");
+		String appid = SystemConfig.getProperty("wechat.config.appid");// appid
+		String secret = SystemConfig.getProperty("wechat.config.secret");// secret
+		String openid = weixinAPIInterface.getOpenid(appid, secret, code);
+		System.out.println("openid = "+openid);
+		session.setAttribute("openid", openid);
+		if (request.getSession().getAttribute("wxUser")==null) {
+			WeixinOpenUser wxUser = weixinAPIInterface.getUserInfo(openid);
+			
+			System.out.println(wxUser.getCity());
+			System.out.println(wxUser.getLanguage());
+			System.out.println(wxUser.getOpenUserId());
+			System.out.println(wxUser.getSex());
+			System.out.println(wxUser.getState());
+			System.out.println(wxUser.getUserName());
+			System.out.println(wxUser.getHeadimgurl());
+			request.getSession().setAttribute("wxUser", wxUser);
+			return wxUser;
+		}else{
+			WeixinOpenUser wxUser = (WeixinOpenUser)request.getSession().getAttribute("wxUser");
+
+			System.out.println("City = "+wxUser.getCity());
+			System.out.println("getLanguage = "+wxUser.getLanguage());
+			System.out.println("getOpenUserId = "+wxUser.getOpenUserId());
+			System.out.println("getSex"+wxUser.getSex());
+			System.out.println("getState = "+wxUser.getState());
+			System.out.println("getUserName = "+wxUser.getUserName());
+			System.out.println("getHeadimgurl = "+wxUser.getHeadimgurl());
+			return wxUser;
+		}
 	}
 	
 	@RequestMapping("/pushMessage")
 	@ResponseBody
 	public void pushMessage(
-			@RequestParam(value="code",required = false) String code ,
+			@RequestParam(value="id",required = false) String id,
 			HttpServletRequest request ,HttpServletResponse response) {
 		Map<String,Object> argument = new HashMap<String,Object>(); 
-        argument.put("first", "123456");
+        argument.put("first", id);
         argument.put("keyword1", "IT78922");
         argument.put("keyword2","维修中");
         argument.put("keyword3",new Date());
         argument.put("keyword4","陶悠");
         argument.put("keyword5","维修中");
         argument.put("remark","所属科室：设备科");
+//		System.out.println("resultStr = "+resultStr);
+//		System.out.println("errMsg = "+errMsg);
+		System.out.println("1111");
 
         String message = imessageService.getMessageJsonContent(argument,
         		"A6C68D5EFF5E4D55B5D8396CB3232DE0","www.baidu.com ","1");

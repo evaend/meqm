@@ -71,7 +71,8 @@
 		r.quoted_price "quoredPrice" ,
 		r.actual_price "actualPrice" ,
 		r.fault_accessory "faultAccessory" ,
-		r.cost_detail "costDetail"
+		r.cost_detail "costDetail" ,
+		r.equipment_code "equipmentCode"
 		from td_rrpair_order r left join td_assets_record a on
 		(r.ASSETS_RECORD = a.ASSETS_RECORD )
 		left join td_equipment e on
@@ -112,13 +113,14 @@
   </select>
   
   <!-- （移动端）查询设备维修各状态数量 -->
-  <select id="selectRrpairFstateNum" resultType="java.util.HashMap">
-  	select ORDER_FSTATE "orderFstate" , count(ORDER_FSTATE) "num" from td_rrpair_order group by ORDER_FSTATE
+  <select id="selectRrpairFstateNum" resultType="java.util.HashMap" parameterType="java.util.HashMap">
+  	select ORDER_FSTATE "code" , count(*) "num" from td_rrpair_order 
+  	where ORDER_FSTATE = #{orderFstate} group by ORDER_FSTATE
   </select>
   
   <!-- （移动端）查询设备维修记录全部 -->
   <select id="selectRrpairFstateCount" resultType="java.util.HashMap">
-  	select count(*) "count" from td_rrpair_order
+  	select count(*) "num" from td_rrpair_order
   </select>
   
   <!-- 查询备注/评论 -->
@@ -128,26 +130,7 @@
   
   <!-- 添加备注/评论 -->
   <update id="updateRrpairContent" parameterType="java.util.HashMap">
-  	update td_rrpair_order set ${content} = #{value} where RRPAIR_ORDER = #{rrpairOrder}
+  	update td_rrpair_order set ${content} = #{value} , modify_time = sysdate where RRPAIR_ORDER = #{rrpairOrder}
   </update>
-  
-  
-	<resultMap id="BillResultMap" type="java.util.Map">
-		<result column="ret" property="flag" jdbcType="VARCHAR"/>
-		<result column="fno" property="billNo" jdbcType="VARCHAR"/>
-		<result column="error" property="error" jdbcType="VARCHAR"/>
-	</resultMap>
-	
-	<!-- 获取单号 -->
-	<select id="SP_GET_BILL_NOSTORAGE" parameterType="map" statementType="CALLABLE">
-		{ call sp_get_bill_nostorage(
-			#{billOrgId, jdbcType=NUMERIC, mode=IN},
-			#{asLen, jdbcType=NUMERIC, mode=IN},
-			#{billName, jdbcType=VARCHAR, mode=IN},
-			#{billPrefix, jdbcType=VARCHAR, mode=IN},
-			#{cursor, jdbcType=CURSOR, javaType=ResultSet, mode=OUT, resultMap=BillResultMap}
-		  )
-		}
-	</select>
   
 </mapper>
