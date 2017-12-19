@@ -36,7 +36,7 @@ public class AssetsRecord {
 
     private Date enableDate;
 
-    private Date useLimit;
+    private BigDecimal useLimit;
 
     private String maintainDay;
 
@@ -44,11 +44,11 @@ public class AssetsRecord {
 
     private String qaLevel;
 
-    private String acctDate;
+    private Date acctDate;
 
     private String depreciationType;
 
-    private Date depreciationLimit;
+    private BigDecimal depreciationLimit;
 
     private BigDecimal totalDepreciationPrice;
 
@@ -82,6 +82,8 @@ public class AssetsRecord {
     private String aaOrg;
     private String buyPrice;
     private Long orgId;
+    private Date buyDate;
+
 
     public String getAssetsRecord() {
         return assetsRecord;
@@ -211,11 +213,11 @@ public class AssetsRecord {
         this.enableDate = enableDate;
     }
 
-    public Date getUseLimit() {
+    public BigDecimal getUseLimit() {
         return useLimit;
     }
 
-    public void setUseLimit(Date useLimit) {
+    public void setUseLimit(BigDecimal useLimit) {
         this.useLimit = useLimit;
     }
 
@@ -243,12 +245,12 @@ public class AssetsRecord {
         this.qaLevel = qaLevel == null ? null : qaLevel.trim();
     }
 
-    public String getAcctDate() {
+    public Date getAcctDate() {
         return acctDate;
     }
 
-    public void setAcctDate(String acctDate) {
-        this.acctDate = acctDate == null ? null : acctDate.trim();
+    public void setAcctDate(Date acctDate) {
+        this.acctDate = acctDate;
     }
 
     public String getDepreciationType() {
@@ -259,11 +261,11 @@ public class AssetsRecord {
         this.depreciationType = depreciationType == null ? null : depreciationType.trim();
     }
 
-    public Date getDepreciationLimit() {
+    public BigDecimal getDepreciationLimit() {
         return depreciationLimit;
     }
 
-    public void setDepreciationLimit(Date depreciationLimit) {
+    public void setDepreciationLimit(BigDecimal depreciationLimit) {
         this.depreciationLimit = depreciationLimit;
     }
 
@@ -409,6 +411,14 @@ public class AssetsRecord {
 
 	public void setOrgId(Long orgId) {
 		this.orgId = orgId;
+	}
+
+	public Date getBuyDate() {
+		return buyDate;
+	}
+
+	public void setBuyDate(Date buyDate) {
+		this.buyDate = buyDate;
 	}
 	
     

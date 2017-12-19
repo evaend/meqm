@@ -14,7 +14,7 @@ public interface AssetsRecordMapper {
 	//查询资产档案信息列表
 	List<Map<String, Object>> selectAssetsList(Pager pager);
 
-	Object importAssets(List<EquipmentDto> list);
+	int importAssets(List<EquipmentDto> list);
 
-	Object importEquipments(List<EquipmentDto> list);
+	int importEquipments(List<EquipmentDto> list);
 }

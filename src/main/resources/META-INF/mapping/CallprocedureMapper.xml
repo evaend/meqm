@@ -15,7 +15,7 @@
 			#{asLen, jdbcType=NUMERIC, mode=IN},
 			#{billName, jdbcType=VARCHAR, mode=IN},
 			#{billPrefix, jdbcType=VARCHAR, mode=IN},
-			#{cursor, jdbcType=CURSOR, javaType=ResultSet, mode=OUT, resultMap=BillResultMap}
+			#{cursor, jdbcType=CURSOR, javaType=ResultSet, mode=OUT, resultMap=com.phxl.ysy.dao.CallprocedureMapper.BillResultMap}
 		  )
 		}
 	</select>
@@ -24,7 +24,7 @@
 	<select id="SP_GET_QRBILL" parameterType="map" statementType="CALLABLE">
 		{ call sp_get_asbill(
 			#{billPrefix, jdbcType=VARCHAR, mode=IN},
-			#{cursor, jdbcType=CURSOR, javaType=ResultSet, mode=OUT, resultMap=BillResultMap}
+			#{cursor, jdbcType=CURSOR, javaType=ResultSet, mode=OUT, resultMap=com.phxl.ysy.dao.CallprocedureMapper.BillResultMap}
 		  )
 		}
 	</select>

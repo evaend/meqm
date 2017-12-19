@@ -88,7 +88,8 @@ public class EquipmentAdditionalController {
 					}
 				},
 				new String[]{"资产名称[equipmentName]", "型号[fmodel]", "规格[spec]", "资产分类[productType]", "生产商[product]", "使用科室[useDeptCode]", "存放地址[deposit]", "管理科室[bDeptCode]", "责任人[custodian]"
-						, "购置金额[buyPrice]", "安装费[installPrice]", "经费来源[sourceFunds]", "出厂日期[productionDate]", "购买日期[acctDate]", "使用年限[useLimit]", "折旧年限[depreciationLimit]", "折旧方法[depreciationType]", "残值[residualValue]", "质量等级[qaLevel]", "保养周期[maintainDay]", "维修商[aaOrg]", "维修标志[repairFlag]"}
+						, "购置金额[buyPrice]", "安装费[installPrice]", "经费来源[sourceFunds]", "出厂日期[productionDate]", "购买日期原始[aa]", "使用年限[useLimit]", "折旧年限[depreciationLimit]", "折旧方法[depreciationType]", "残值[residualValue]", "质量等级[qaLevel]", "保养周期[maintainDay]", "维修商[aaOrg]", "维修标志[repairFlag]",
+						"购买日期[buyDate]"}
 		);
 
 		//检查: 
@@ -122,6 +123,9 @@ public class EquipmentAdditionalController {
 		Assert.notEmpty(entityList, "没有发现资产信息，请检查文档中的资产");
 		String userId = (String) session.getAttribute(LoginUser.SESSION_USERID);
 		String orgId = (String) session.getAttribute(LoginUser.SESSION_USER_ORGID);
+		if(StringUtils.isBlank(orgId)){
+			orgId = "212";
+		}
 		//导入资产
 		equipmentAdditionalService.importEquipments(entityList,userId,orgId );
 		logger.info("导入资产信息->导入成功: 共{}个信息，使用时间{}（秒）", entityList.size(), BigDecimal.valueOf((System.currentTimeMillis() - startTime) / 1000d).setScale(3));
@@ -144,11 +148,11 @@ public class EquipmentAdditionalController {
 		List<Map<String, Object>> listData = assetsRecordService.selectAssetsList(pager);
 
 		List<String> titleFileds = Arrays.asList("equipmentName");
-		List<String> tableFileds = Arrays.asList("qrcode", "fmodel","buyDate", "useDeptCode");
+		List<String> tableFileds = Arrays.asList("qrcode", "fmodel","buyDate", "useDept");
 		String title = "${equipmentName}";
 		Map<String, String> formatMap = new HashMap<String, String>();
 		formatMap.put("fmodel", "20");// 名称保留20个字符的长度，目前先支持取长度
-		formatMap.put("useDeptCode", "20");// 注册证名称保留20个字符的长度，目前先支持取长度
+		formatMap.put("useDept", "20");// 注册证名称保留20个字符的长度，目前先支持取长度
 		
 //		Map<String,Object> argument = new HashMap<String,Object>();                 
 //        argument.put("first", "123456");

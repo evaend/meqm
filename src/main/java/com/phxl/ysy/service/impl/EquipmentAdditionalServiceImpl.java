@@ -60,23 +60,23 @@ public class EquipmentAdditionalServiceImpl  extends BaseService implements Equi
 				String repairFlag = CustomConst.RepairFlagMap.get(equipmentDto.getRepairFlag());//获取维修标志的转化值
 				equipmentDto.setRepairFlag(repairFlag);
 			}
-			if(equipmentDto.getUseDeptCode() != null){
-				DeptInfo deptnew = new DeptInfo();
-				deptnew.setDeptNam(equipmentDto.getUseDeptCode());
-				DeptInfo deptInfo = this.searchEntity(deptnew);
-				equipmentDto.setUseDeptCode(deptInfo.getDeptCode());
-			}
-			if(equipmentDto.getbDeptCode() != null){
-				DeptInfo deptnew = new DeptInfo();
-				deptnew.setDeptNam(equipmentDto.getbDeptCode());
-				DeptInfo deptInfo = this.searchEntity(deptnew);
-				equipmentDto.setbDeptCode(deptInfo.getDeptCode());
-			}
+//			if(equipmentDto.getUseDeptCode() != null){
+//				DeptInfo deptnew = new DeptInfo();
+//				deptnew.setDeptNam(equipmentDto.getUseDeptCode());
+//				DeptInfo deptInfo = this.searchEntity(deptnew);
+//				equipmentDto.setUseDeptCode(deptInfo.getDeptCode());
+//			}
+//			if(equipmentDto.getbDeptCode() != null){
+//				DeptInfo deptnew = new DeptInfo();
+//				deptnew.setDeptNam(equipmentDto.getbDeptCode());
+//				DeptInfo deptInfo = this.searchEntity(deptnew);
+//				equipmentDto.setbDeptCode(deptInfo.getDeptCode());
+//			}
 			//生成资产编号
-			String zcCode = procedureService.callSpGetBill(Long.valueOf(orgId),"资产编码", "AS", null);// 调用生成资产编码的存储过程
+//			String zcCode = procedureService.callSpGetBill(Long.valueOf(orgId),"资产编码", "AS", 5);// 调用生成资产编码的存储过程
 			//生成二维码
-			String qrCode = procedureService.callSpGetQrBill(orgId, "AS", null);// 调用生成二维码的存储过程
-			equipmentDto.setAssetsRecord(zcCode);
+			String qrCode = procedureService.callSpGetQrBill(orgId, "AS", 5);// 调用生成二维码的存储过程
+			equipmentDto.setAssetsRecord(qrCode);
 			equipmentDto.setQrCode(qrCode);
 			eList.add(equipmentDto);
 		}

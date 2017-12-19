@@ -15,12 +15,14 @@ import org.apache.poi.POIXMLDocument;
 import org.apache.poi.hssf.usermodel.HSSFCell;
 import org.apache.poi.hssf.usermodel.HSSFDataFormatter;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
+import org.apache.poi.openxml4j.opc.OPCPackage;
 import org.apache.poi.poifs.filesystem.POIFSFileSystem;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.DateUtil;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.util.Assert;
@@ -89,7 +91,7 @@ public class ExcelUtils {
 		if (POIFSFileSystem.hasPOIFSHeader(is)) {
 			workbook = new HSSFWorkbook(is);
 		} else if (POIXMLDocument.hasOOXMLHeader(is)) {
-//			workbook = new XSSFWorkbook(OPCPackage.open(is));
+			workbook = new XSSFWorkbook(OPCPackage.open(is));
 		} else {
 			throw new ValidationException("不支持的表格文档类型");
 		}

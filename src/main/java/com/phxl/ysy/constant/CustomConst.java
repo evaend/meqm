@@ -1186,8 +1186,11 @@ public class CustomConst {
      * 资产分类
      */
     public final static Map<String,String> ProductTypeMap = new HashMap<String, String>() {{
-        put("01", "固定资产"); 
-        put("02", "医疗设备");
-        put("03", "其他");
+        put("01", "通用设备"); 
+        put("02", "电气设备");
+        put("03", "电子产品及通信设备");
+        put("04", "仪器仪表及其他");
+        put("05", "专业设备");
+        put("06", "其他");
     }};
 }
