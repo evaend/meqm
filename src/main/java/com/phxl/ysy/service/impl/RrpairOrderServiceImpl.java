@@ -209,29 +209,27 @@ public class RrpairOrderServiceImpl extends BaseService implements RrpairOrderSe
 			argument.put("keyword4", "");
 		}
         if (map.get("orderFstate")!=null) {
-        	switch (map.get("orderFstate").toString()) {
-    		case "10":
+        	if(map.get("orderFstate").toString().equals("10")) {
     			argument.put("keyword5","待维修");
-    			break;
-    		case "30":
-    			argument.put("keyword5","维修中");
-    			break;
-			case "50":
+        	}
+			else if(map.get("orderFstate").toString().equals("30")) {
+				argument.put("keyword5","维修中");
+			}
+			else if(map.get("orderFstate").toString().equals("50")) {
 				argument.put("keyword5","待验收");
-				break;
-			case "80":
+			}
+			else if (map.get("orderFstate").toString().equals("80")) {
 				argument.put("keyword5","已关闭");
-				break;
-    		default:
-				argument.put("keyword5","");
-    			break;
-    		}
+			}
+        }else {
+        	argument.put("keyword5","");
 		}
         
         
         argument.put("remark","所属科室："+map.get("useDept"));
         String message = imessageService.getMessageJsonContent(argument,
-        		"A6C68D5EFF5E4D55B5D8396CB3232DE0","www.baidu.com ","1");
+        		"A6C68D5EFF5E4D55B5D8396CB3232DE0",
+        		"http://:mobile.medqcc.com/#/equipment/equipmentDetail?rrpairOrder="+rrpairOrder,"1");
         imessageService.pushMessages(message);
 	}
 }

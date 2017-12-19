@@ -8,6 +8,7 @@ import org.springframework.core.annotation.Order;
 import com.phxl.core.base.entity.Pager;
 import com.phxl.core.base.exception.ValidationException;
 import com.phxl.core.base.service.IBaseService;
+import com.phxl.ysy.entity.RrpairOrder;
 
 public interface RrpairOrderService extends IBaseService {
 	//查询设备维修列表
@@ -27,5 +28,5 @@ public interface RrpairOrderService extends IBaseService {
 	
 	//微信推送消息(修改维修信息)
 	void pushMessage(String rrpairOrder);
-	
+
 }
