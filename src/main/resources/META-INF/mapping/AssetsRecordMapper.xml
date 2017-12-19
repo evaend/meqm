@@ -58,7 +58,7 @@
 		a.fmodel "fmodel" , 
 		a.use_fstate "useFstate" , 
 		a.product_type "productType" ,
-		e.cert_guid "certGuid" ,
+		e.register_no "certGuid" ,
 		a.product "product" ,
 		a.use_dept_code "useDeptCode" , 
 		(select dept_nam from td_dept_info where dept_code = a.use_dept_code) "useDept" , 
