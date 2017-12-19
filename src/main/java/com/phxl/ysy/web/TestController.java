@@ -58,7 +58,7 @@ public class TestController {
 	@RequestMapping(value = "/test.html", method = RequestMethod.GET)
     public void testPage(Model model,HttpServletRequest request,HttpServletResponse response) throws Exception {
 
-        String url = "http://hsms.com.cn/test/test.html";
+        String url = "http://69pbn9.natappfree.cc/test/test.html";
         WxJsUtils jsUtils = new WxJsUtils();
 		final String appId = SystemConfig.getProperty("wechat.config.appid");
         Map<String, String> ret = jsUtils.sign(url);
@@ -66,8 +66,27 @@ public class TestController {
         for (Map.Entry entry : ret.entrySet()) {
             System.out.println(entry.getKey() + "=" + entry.getValue());
             request.setAttribute(entry.getKey().toString(), entry.getValue());
+            session.setAttribute(entry.getKey().toString(), entry.getValue());
         }
         request.getRequestDispatcher("/index.jsp").forward(request, response);
+    }
+	
+	
+	@RequestMapping(value = "/testScan", method = RequestMethod.GET)
+	@ResponseBody
+    public Map<String, String> testScan(Model model,HttpServletRequest request,HttpServletResponse response) throws Exception {
+		System.out.println("..............");
+        String url = "http://hsms.com.cn/test/testScan";
+        WxJsUtils jsUtils = new WxJsUtils();
+		final String appId = SystemConfig.getProperty("wechat.config.appid");
+        Map<String, String> ret = jsUtils.sign(url);
+        ret.put("appId", appId);
+        for (Map.Entry entry : ret.entrySet()) {
+            System.out.println(entry.getKey() + "=" + entry.getValue());
+            request.setAttribute(entry.getKey().toString(), entry.getValue());
+            session.setAttribute(entry.getKey().toString(), entry.getValue());
+        }
+        return ret;
     }
 	
 	@RequestMapping("/luyinTest")
@@ -217,16 +236,19 @@ public class TestController {
 	@RequestMapping("/pushMessage")
 	@ResponseBody
 	public void pushMessage(
-			@RequestParam(value="code",required = false) String code ,
+			@RequestParam(value="id",required = false) String id,
 			HttpServletRequest request ,HttpServletResponse response) {
 		Map<String,Object> argument = new HashMap<String,Object>(); 
-        argument.put("first", "123456");
+        argument.put("first", id);
         argument.put("keyword1", "IT78922");
         argument.put("keyword2","维修中");
         argument.put("keyword3",new Date());
         argument.put("keyword4","陶悠");
         argument.put("keyword5","维修中");
         argument.put("remark","所属科室：设备科");
+//		System.out.println("resultStr = "+resultStr);
+//		System.out.println("errMsg = "+errMsg);
+		System.out.println("1111");
 
         String message = imessageService.getMessageJsonContent(argument,
         		"A6C68D5EFF5E4D55B5D8396CB3232DE0","www.baidu.com ","1");

@@ -24,4 +24,8 @@ public interface RrpairOrderService extends IBaseService {
 	
 	//生成单号
 	String callSpGetBill(Long billOrgId, String billName, String billPrefix, Integer asLen) throws ValidationException ;
+	
+	//微信推送消息(修改维修信息)
+	void pushMessage(String rrpairOrder);
+	
 }

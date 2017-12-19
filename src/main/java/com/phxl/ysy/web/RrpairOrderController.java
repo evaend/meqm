@@ -105,6 +105,7 @@ public class RrpairOrderController {
 			throw new ValidationException("当前维修记录不存在");
 		}
 		rrpairOrderService.updateRrpairContent(rrpairOrder,type,value);
+		rrpairOrderService.pushMessage(rrpairOrder);
 		str = "success";
 		return str;
 	}
@@ -140,7 +141,9 @@ public class RrpairOrderController {
 					//填写备注为验证不通过
 				}
 			}
+			rrpair.setCompletTime(new Date());
 			rrpairOrderService.updateInfo(rrpair);
+			rrpairOrderService.pushMessage(rrpairOrder);
 		}
 		str = "success";
 		return str;
@@ -187,13 +190,13 @@ public class RrpairOrderController {
 		rrpair.setRrpairUsername("11");
 		rrpair.setRrpairPhone("027-59566545");//医商云客服电话
 		rrpair.setRepairContentTyp(repairContentTyp);
-		String fault = null;
-		if (faultAccessory!=null) {
+		String fault = "";
+		if (faultAccessory!=null && faultAccessory.length!=0) {
 			for (int i = 0; i < faultAccessory.length; i++) {
 				 //获取文件类型
 		        int beginIndex = faultAccessory[i].indexOf("/");
 		        int endIndex = faultAccessory[i].indexOf(";");
-		        String filename = faultAccessory[i].substring(beginIndex+1,endIndex);
+		        String filename = faultAccessory[i].substring(beginIndex+1,endIndex==-1 ? faultAccessory[i].length() : endIndex);
 		        StringBuffer buf = new StringBuffer(".");
 		        if(StringUtils.isNotBlank(filename)){
 		            filename = buf.append(filename).toString();
@@ -214,17 +217,20 @@ public class RrpairOrderController {
 		        
 		        String configKey="resource.ftp.ysyFile.organization.cert.product";
 		        String rCertGuid = rrpairOrder+i;
+		        System.out.println("rCertGuid = "+rCertGuid);
 		        String[] args=new String[]{rCertGuid};//证件注册GUID
-		        
+
+		        System.out.println("args = "+args);
 		        String directory=MessageFormat.format(SystemConfig.getProperty(configKey), args);//目录位置
-				
+				System.out.println("configKey = "+SystemConfig.getProperty(configKey));
+				System.out.println("directory = "+directory);
 		        //确定存储文件名
 		        int index = filename.lastIndexOf(".");
 		        if(index<0){
 		            throw new ValidationException("未知的上传文件类型!");
 		        }
 		        String fileName=rCertGuid+filename.substring(index);
-		        
+		        System.out.println("filename = "+filename);
 		        String filePath=directory+fileName;
 		        FTPUtils.upload(directory, fileName, in);
 		        fault += filePath+";";
@@ -234,9 +240,10 @@ public class RrpairOrderController {
 		rrpair.setFaultAccessory(fault);
 		rrpair.setFaultWords(faultWords);
 		rrpair.setRrpairOrderGuid(IdentifieUtil.getGuId());
-		
+
+		rrpair.setCompletTime(new Date());
 		rrpairOrderService.insertInfo(rrpair);
-		
+		rrpairOrderService.pushMessage(rrpairOrder);
 		str = "success";
 		return str;
 	}
@@ -264,7 +271,9 @@ public class RrpairOrderController {
 			rrpair.setUrgentFlag(urgentFlag);
 			rrpair.setSpare(spare);
 			rrpair.setCompletTime(completTime);
+			rrpair.setCompletTime(new Date());
 			rrpairOrderService.updateInfo(rrpair);
+			rrpairOrderService.pushMessage(rrpairOrder);
 		}
 		str = "success";
 		return str;
@@ -287,7 +296,9 @@ public class RrpairOrderController {
 				rrpair.setQuotedPrice(BigDecimal.valueOf(Double.valueOf(quoredPrice)));
 			}
 			rrpair.setCostDetail(costDetail);
+			rrpair.setCompletTime(new Date());
 			rrpairOrderService.updateInfo(rrpair);
+			rrpairOrderService.pushMessage(rrpairOrder);
 		}
 		str = "success";
 		return str;
@@ -311,13 +322,13 @@ public class RrpairOrderController {
 		}else{
 			rrpair.setFaultDescribe(faultDescribe);
 			rrpair.setFaultWords(faultWords);
-			String fault = null;
-			if (faultAccessory!=null) {
+			String fault = "";
+			if (faultAccessory!=null && faultAccessory.length!=0) {
 				for (int i = 0; i < faultAccessory.length; i++) {
 					 //获取文件类型
 			        int beginIndex = faultAccessory[i].indexOf("/");
 			        int endIndex = faultAccessory[i].indexOf(";");
-			        String filename = faultAccessory[i].substring(beginIndex+1,endIndex);
+			        String filename = faultAccessory[i].substring(beginIndex+1,endIndex==-1 ? faultAccessory[i].length() : endIndex);
 			        StringBuffer buf = new StringBuffer(".");
 			        if(StringUtils.isNotBlank(filename)){
 			            filename = buf.append(filename).toString();
@@ -338,17 +349,19 @@ public class RrpairOrderController {
 			        
 			        String configKey="resource.ftp.ysyFile.organization.cert.product";
 			        String rCertGuid = rrpairOrder+i;
+			        System.out.println("rCertGuid = "+rCertGuid);
 			        String[] args=new String[]{rCertGuid};//证件注册GUID
-			        
+			        System.out.println("args = "+args);
 			        String directory=MessageFormat.format(SystemConfig.getProperty(configKey), args);//目录位置
-					
+					System.out.println("configKey = "+SystemConfig.getProperty(configKey));
+					System.out.println("directory = "+directory);
 			        //确定存储文件名
 			        int index = filename.lastIndexOf(".");
 			        if(index<0){
 			            throw new ValidationException("未知的上传文件类型!");
 			        }
 			        String fileName=rCertGuid+filename.substring(index);
-			        
+			        System.out.println("filename = "+filename);
 			        String filePath=directory+fileName;
 			        FTPUtils.upload(directory, fileName, in);
 			        fault += filePath+";";
@@ -357,7 +370,9 @@ public class RrpairOrderController {
 			rrpair.setFaultAccessory(fault);
 			rrpair.setRepairContentType(repairContentType);
 			rrpair.setRepairContentTyp(repairContentTyp);
+			rrpair.setCompletTime(new Date());
 			rrpairOrderService.updateInfo(rrpair);
+			rrpairOrderService.pushMessage(rrpairOrder);
 		}
 		str = "success";
 		return str;
