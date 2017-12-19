@@ -7,7 +7,58 @@ String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.
 <!DOCTYPE HTML>
 <html>
 <head>
-
+	<meta charset="UTF-8">
+	<title>扫一扫</title>
+		<link rel="stylesheet" type="text/css" href="http://at.alicdn.com/t/font_514194_drxaixti8gp66r.css">
+	<style type="text/css">
+		*{
+			margin: 0;
+			padding: 0;
+		}
+		a{
+			text-decoration: none;
+		}
+		body{
+			background: #f5f5f9;
+		}
+		.iconfont{
+		   font-size: 30vw;
+		}
+		.flex{display: -webkit-box;}
+		.centerv{-webkit-box-align: center;}
+		.centerh{-webkit-box-pack: center;}  
+		.header{
+			display: flex;
+			align-items: center;
+			width:100%;
+			height: 11vw;
+			font-size:5vw;
+			background: #108ee9;
+		}
+		.header .iconfont{
+			font-size:5vw;
+			color: #fff;
+			padding: 1vw 0 0 1vw;
+			background: #108ee9;
+		}
+		.header span{
+			color: #fff;
+			display: inline-block;
+			width: 85%;
+			text-align: center;
+		}
+		.content p{
+			width: 100%;
+			padding-top: 20vw;
+		}
+		.content p a{
+			display: inline-block;
+			color: #333;
+		}
+		.text{
+			font-size:5vw;
+		}
+	</style>
 <script src="http://apps.bdimg.com/libs/jquery/2.1.4/jquery.min.js" type="text/javascript"></script>
 <script src="http://res.wx.qq.com/open/js/jweixin-1.0.0.js"></script>
 <script type="text/javascript">
@@ -40,38 +91,45 @@ String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.
 			        }
 			    });
 		    })
-/* 	     setTimeout(function(){
-	    	scanCode();
-	    }, 200)  */
+ 	     setTimeout(function(){
+			$('.wrapper').show();
+	    }, 3000)  
 	});
 </script>
 </head>
 
 <body>
+	<div class="wrapper" style='display: none;'  id="scanQRCode">
+		<div class="header centerv">
+			<a href='#'><i class="iconfont icon-i-left"></i></a>
+			<span>医商云</span>
+		</div>
+		<div class="content">
+			<p class="flex centerh"><a href='#'><i class="iconfont icon-erweima"></i></a></p>
+			<p class="text flex centerh">点击图标扫一扫</p>
+		</div>
+	</div>
     <input id="appId" type="hidden" value="${sessionScope.appId}" />
     <input id="timestamp" type="hidden" value="${sessionScope.timestamp}" />
     <input id="nonceStr" type="hidden" value="${sessionScope.nonceStr}" />
     <input id="signature" type="hidden" value="${sessionScope.signature}" />
-    
-    <input id="id_securityCode_input">
-	<button id="scanQRCode">扫码</button>
 	
-<script type="text/javascript">
-	$("#scanQRCode").click(function() {
-		   wx.scanQRCode({
-		        // 默认为0，扫描结果由微信处理，1则直接返回扫描结果
-		        needResult : 1,
-		        desc : 'scanQRCode desc',
-		        success : function(res) {
-// 					alert(res);
-					window.location.href = 'http://mobile.medqcc.com/#/equipment/applyRepair?assetsRecord='+res.resultStr
-		        },
-		        error: function(err){
-		        	console.log(err)
-		        }
-		    });
-	});
-</script>
+	<script type="text/javascript">
+		$("#scanQRCode").click(function() {
+			   wx.scanQRCode({
+			        // 默认为0，扫描结果由微信处理，1则直接返回扫描结果
+			        needResult : 1,
+			        desc : 'scanQRCode desc',
+			        success : function(res) {
+	// 					alert(res);
+						window.location.href = 'http://mobile.medqcc.com/#/equipment/applyRepair?assetsRecord='+res.resultStr
+			        },
+			        error: function(err){
+			        	console.log(err)
+			        }
+			    });
+		});
+	</script>
 	
 </body>
 </html>
