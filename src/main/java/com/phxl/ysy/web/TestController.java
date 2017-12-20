@@ -30,7 +30,10 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.servlet.ModelAndView;
+import org.springframework.web.servlet.view.RedirectView;
 
+import com.phxl.core.base.exception.ValidationException;
 import com.phxl.core.base.util.SystemConfig;
 import com.phxl.ysy.entity.UserInfo;
 import com.phxl.ysy.entity.WeixinOpenUser;
@@ -210,18 +213,20 @@ public class TestController {
 	@RequestMapping("/permission")
 	@ResponseBody
 	public String permission(HttpServletRequest request ,HttpServletResponse response) throws Exception{
-		return "https://open.weixin.qq.com/connect/oauth2/authorize?appid=wxa0d673d35aab0631&redirect_uri=http%3A%2F%2Fhsms.com.cn%2Ftest%2FgetPermission&response_type=code&scope=snsapi_base&state=binding#wechat_redirect";
+		return "https://open.weixin.qq.com/connect/oauth2/authorize?appid=wxe1ba6ec9765d99ac&redirect_uri=http%3A%2F%2F69pbn9.natappfree.cc%2Ftest%2FgetPermission&response_type=code&scope=snsapi_base&state=binding#wechat_redirect";
 	}
 
 	@RequestMapping("/getPermission")
 	@ResponseBody
-	public WeixinOpenUser getPermission(HttpServletRequest request ,HttpServletResponse response) throws Exception{
+	public ModelAndView getPermission(HttpServletRequest request ,HttpServletResponse response) throws Exception{
 		String code = request.getParameter("code");
 		String appid = SystemConfig.getProperty("wechat.config.appid");// appid
 		String secret = SystemConfig.getProperty("wechat.config.secret");// secret
 		String openid = weixinAPIInterface.getOpenid(appid, secret, code);
 		System.out.println("openid = "+openid);
 		session.setAttribute("openid", openid);
+		request.setCharacterEncoding("UTF-8");
+		response.setCharacterEncoding("UTF-8");
 		if (request.getSession().getAttribute("wxUser")==null) {
 			WeixinOpenUser wxUser = weixinAPIInterface.getUserInfo(openid);
 			
@@ -233,10 +238,13 @@ public class TestController {
 			System.out.println(wxUser.getUserName());
 			System.out.println(wxUser.getHeadimgurl());
 			request.getSession().setAttribute("wxUser", wxUser);
-			return wxUser;
+			ModelAndView m = new ModelAndView(new RedirectView("http://mobile.medqcc.com/#/equipment"
+//					+ "?userName="+wxUser.getUserName()+
+//					"&headimgurl="+wxUser.getHeadimgurl()
+					));
+			return m;
 		}else{
 			WeixinOpenUser wxUser = (WeixinOpenUser)request.getSession().getAttribute("wxUser");
-
 			System.out.println("City = "+wxUser.getCity());
 			System.out.println("getLanguage = "+wxUser.getLanguage());
 			System.out.println("getOpenUserId = "+wxUser.getOpenUserId());
@@ -244,8 +252,24 @@ public class TestController {
 			System.out.println("getState = "+wxUser.getState());
 			System.out.println("getUserName = "+wxUser.getUserName());
 			System.out.println("getHeadimgurl = "+wxUser.getHeadimgurl());
-			return wxUser;
+			ModelAndView m = new ModelAndView(new RedirectView("http://mobile.medqcc.com/#/equipment"
+//					+ "?userName="+wxUser.getUserName()+
+//					"&headimgurl="+wxUser.getHeadimgurl()
+					));
+			return m;
 		}
+	}
+	
+	@RequestMapping("/getWxUser")
+	@ResponseBody
+	public WeixinOpenUser getWxUser(HttpServletRequest request ,HttpServletResponse response) throws ValidationException {
+		WeixinOpenUser wxUser = null;
+		if (request.getSession().getAttribute("wxUser")!=null) {
+			wxUser = (WeixinOpenUser)request.getSession().getAttribute("wxUser");
+		}else{
+			throw new ValidationException("用户session过期，请重新登录");
+		}
+		return wxUser;
 	}
 	
 	@RequestMapping("/pushMessage")
