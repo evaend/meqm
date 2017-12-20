@@ -1,11 +1,14 @@
 package com.phxl.ysy.service.impl;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import javax.servlet.http.HttpSession;
 import javax.sound.midi.MidiChannel;
 
 import org.apache.commons.collections.CollectionUtils;
@@ -24,6 +27,7 @@ import com.phxl.ysy.dao.AssetsRecordMapper;
 import com.phxl.ysy.dao.CallprocedureMapper;
 import com.phxl.ysy.dao.RrpairOrderMapper;
 import com.phxl.ysy.entity.RrpairOrder;
+import com.phxl.ysy.entity.WeixinOpenUser;
 import com.phxl.ysy.service.IMessageService;
 import com.phxl.ysy.service.RrpairOrderService;
 
@@ -34,6 +38,9 @@ public class RrpairOrderServiceImpl extends BaseService implements RrpairOrderSe
 	
 	@Autowired
 	IMessageService imessageService;
+	
+	@Autowired
+	HttpSession session;
 	
 	@Autowired
 	AssetsRecordMapper assetsRecordMapper;
@@ -196,8 +203,25 @@ public class RrpairOrderServiceImpl extends BaseService implements RrpairOrderSe
 		Map<String,Object> argument = new HashMap<String,Object>(); 
         argument.put("first", rrpairOrder);
         argument.put("keyword1", map.get("equipmentCode"));
-        argument.put("keyword2", map.get("orderFstate"));
-        argument.put("keyword3", new Date());
+        if (map.get("orderFstate")!=null) {
+        	if(map.get("orderFstate").toString().equals("10")) {
+    	        argument.put("keyword2","待维修");
+        	}
+			else if(map.get("orderFstate").toString().equals("30")) {
+		        argument.put("keyword2","维修中");
+			}
+			else if(map.get("orderFstate").toString().equals("50")) {
+		        argument.put("keyword2","待验收");
+			}
+			else if (map.get("orderFstate").toString().equals("80")) {
+		        argument.put("keyword2","已关闭");
+			}
+        }else {
+            argument.put("keyword2","");
+		}
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd 24HH:mi:ss");
+        Calendar cal = Calendar.getInstance();
+        argument.put("keyword3", cal.getTime());
         RrpairOrder rrpair = find(RrpairOrder.class, rrpairOrder);
         if(map.get("rrpairType")==null){
         	argument.put("keyword4", "");
@@ -208,28 +232,22 @@ public class RrpairOrderServiceImpl extends BaseService implements RrpairOrderSe
 		}else{
 			argument.put("keyword4", "");
 		}
-        if (map.get("orderFstate")!=null) {
-        	if(map.get("orderFstate").toString().equals("10")) {
-    			argument.put("keyword5","待维修");
-        	}
-			else if(map.get("orderFstate").toString().equals("30")) {
-				argument.put("keyword5","维修中");
-			}
-			else if(map.get("orderFstate").toString().equals("50")) {
-				argument.put("keyword5","待验收");
-			}
-			else if (map.get("orderFstate").toString().equals("80")) {
-				argument.put("keyword5","已关闭");
-			}
-        }else {
-        	argument.put("keyword5","");
+		argument.put("keyword5",map.get("spec"));
+		
+        argument.put("remark","所属科室："+map.get("useDept"));
+        
+        if (session.getAttribute("userId") != null) {
+        	String message = imessageService.getMessageJsonContent(argument,
+            		"A6C68D5EFF5E4D55B5D8396CB3232DE0",
+            		"http://mobile.medqcc.com/#/equipment/equipmentDetail?rrpairOrder="+rrpairOrder,
+            		session.getAttribute("userId").toString());
+            imessageService.pushMessages(message);
+		}else{
+			String message = imessageService.getMessageJsonContent(argument,
+	        		"A6C68D5EFF5E4D55B5D8396CB3232DE0",
+	        		"http://mobile.medqcc.com/#/equipment/equipmentDetail?rrpairOrder="+rrpairOrder,"1");
+	        imessageService.pushMessages(message);
 		}
         
-        
-        argument.put("remark","所属科室："+map.get("useDept"));
-        String message = imessageService.getMessageJsonContent(argument,
-        		"A6C68D5EFF5E4D55B5D8396CB3232DE0",
-        		"http://:mobile.medqcc.com/#/equipment/equipmentDetail?rrpairOrder="+rrpairOrder,"1");
-        imessageService.pushMessages(message);
 	}
 }
