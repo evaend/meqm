@@ -2,6 +2,7 @@ package com.phxl.ysy.service.impl.weixin;
 
 import java.nio.charset.Charset;
 import java.text.MessageFormat;
+
 import org.apache.http.RequestLine;
 import org.apache.http.client.ResponseHandler;
 import org.apache.http.client.methods.HttpPost;
@@ -16,6 +17,7 @@ import com.alibaba.druid.support.logging.Log;
 import com.alibaba.druid.support.logging.LogFactory;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.phxl.core.base.exception.ValidationException;
 import com.phxl.ysy.entity.WeixinOpenUser;
 import com.phxl.ysy.service.weixin.WeixinAPIInterface;
 import com.phxl.ysy.util.WebConnect;
@@ -139,7 +141,10 @@ public class WeixinAPIImpl implements WeixinAPIInterface
             //log.info("getOpenId start.{appid=" + appid + ",secret:" + secret + ",code:" + code + "}");
             String url = MessageFormat.format(this.getUserOpenIdUrl, appid, secret,code);
             String response = webConnect.executeHttpGet(url);
-            JSONObject obj = JSONObject.fromObject(response);  
+            JSONObject obj = JSONObject.fromObject(response); 
+            if (obj == null) {
+				throw new ValidationException("当前网络较弱，请退出重新进入");
+			}
             userOpenId = obj.getString("openid"); 
         } catch (Exception e) {
             log.error("get openid exception", e);
