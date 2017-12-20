@@ -52,6 +52,7 @@ public class UserInfo {
     
     private String groups;
     
+    private String headImgUrl;
     //外加属性
     private Integer unreadMessage;//未读消息数
 
@@ -183,14 +184,6 @@ public class UserInfo {
         this.wechatOpenid = wechatOpenid;
     }
 
-    public String getWechatNo() {
-        return wechatNo;
-    }
-
-    public void setWechatNo(String wechatNo) {
-        this.wechatNo = wechatNo;
-    }
-
 	public String getOrgType() {
 		return orgType;
 	}
@@ -238,5 +231,21 @@ public class UserInfo {
     public void setUnreadMessage(Integer unreadMessage) {
         this.unreadMessage = unreadMessage;
     }
+
+	public String getWechatNo() {
+		return wechatNo;
+	}
+
+	public void setWechatNo(String wechatNo) {
+		this.wechatNo = wechatNo;
+	}
+
+	public String getHeadImgUrl() {
+		return headImgUrl;
+	}
+
+	public void setHeadImgUrl(String headImgUrl) {
+		this.headImgUrl = headImgUrl;
+	}
 
 }

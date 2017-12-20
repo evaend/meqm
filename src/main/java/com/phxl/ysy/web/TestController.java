@@ -34,6 +34,7 @@ import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.view.RedirectView;
 
 import com.phxl.core.base.exception.ValidationException;
+import com.phxl.core.base.util.IdentifieUtil;
 import com.phxl.core.base.util.SystemConfig;
 import com.phxl.ysy.entity.UserInfo;
 import com.phxl.ysy.entity.WeixinOpenUser;
@@ -230,29 +231,35 @@ public class TestController {
 		if (request.getSession().getAttribute("wxUser")==null) {
 			WeixinOpenUser wxUser = weixinAPIInterface.getUserInfo(openid);
 			
-			System.out.println(wxUser.getCity());
-			System.out.println(wxUser.getLanguage());
 			System.out.println(wxUser.getOpenUserId());
-			System.out.println(wxUser.getSex());
-			System.out.println(wxUser.getState());
 			System.out.println(wxUser.getUserName());
 			System.out.println(wxUser.getHeadimgurl());
-			request.getSession().setAttribute("wxUser", wxUser);
-			ModelAndView m = new ModelAndView(new RedirectView("http://mobile.medqcc.com/#/equipment"
+			UserInfo u = new UserInfo();
+			u.setWechatOpenid(wxUser.getOpenUserId());
+			UserInfo userInfo = imessageService.searchEntity(u);
+			if(userInfo != null){
+				userInfo.setUserName(wxUser.getUserName());
+				userInfo.setWechatNo(wxUser.getUserName());
+				userInfo.setHeadImgUrl(wxUser.getHeadimgurl());
+				imessageService.updateInfo(userInfo);
+			}else{
+				UserInfo newU = new UserInfo();
+				newU.setUserId(IdentifieUtil.getGuId());
+				newU.setWechatOpenid(wxUser.getOpenUserId());
+				newU.setUserName(wxUser.getUserName());
+				newU.setWechatNo(wxUser.getUserName());
+				newU.setHeadImgUrl(wxUser.getHeadimgurl());
+				imessageService.insertInfo(newU);
+			}
+//			request.getSession().setAttribute("wxUser", wxUser);
+			ModelAndView m = new ModelAndView(new RedirectView("http://mobile.medqcc.com/#/equipment?openid="+wxUser.getOpenUserId()
 //					+ "?userName="+wxUser.getUserName()+
 //					"&headimgurl="+wxUser.getHeadimgurl()
 					));
 			return m;
 		}else{
 			WeixinOpenUser wxUser = (WeixinOpenUser)request.getSession().getAttribute("wxUser");
-			System.out.println("City = "+wxUser.getCity());
-			System.out.println("getLanguage = "+wxUser.getLanguage());
-			System.out.println("getOpenUserId = "+wxUser.getOpenUserId());
-			System.out.println("getSex"+wxUser.getSex());
-			System.out.println("getState = "+wxUser.getState());
-			System.out.println("getUserName = "+wxUser.getUserName());
-			System.out.println("getHeadimgurl = "+wxUser.getHeadimgurl());
-			ModelAndView m = new ModelAndView(new RedirectView("http://mobile.medqcc.com/#/equipment"
+			ModelAndView m = new ModelAndView(new RedirectView("http://mobile.medqcc.com/#/equipment?openid="+wxUser.getOpenUserId()
 //					+ "?userName="+wxUser.getUserName()+
 //					"&headimgurl="+wxUser.getHeadimgurl()
 					));
@@ -262,13 +269,17 @@ public class TestController {
 	
 	@RequestMapping("/getWxUser")
 	@ResponseBody
-	public WeixinOpenUser getWxUser(HttpServletRequest request ,HttpServletResponse response) throws ValidationException {
+	public WeixinOpenUser getWxUser(@RequestParam(value="openid",required = false) String openid,
+			HttpServletRequest request ,HttpServletResponse response) throws ValidationException {
+		UserInfo u = new UserInfo();
+		u.setWechatOpenid(openid);
+		UserInfo userInfo = imessageService.searchEntity(u);
 		WeixinOpenUser wxUser = null;
-		if (request.getSession().getAttribute("wxUser")!=null) {
-			wxUser = (WeixinOpenUser)request.getSession().getAttribute("wxUser");
-		}else{
-			throw new ValidationException("用户session过期，请重新登录");
-		}
+		if(userInfo != null){
+			wxUser = new WeixinOpenUser();
+			wxUser.setUserName(userInfo.getWechatNo());
+			wxUser.setHeadimgurl(userInfo.getHeadImgUrl());
+		}		
 		return wxUser;
 	}
 	

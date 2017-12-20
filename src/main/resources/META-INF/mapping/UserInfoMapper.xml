@@ -22,6 +22,7 @@
 		<result column="WECHAT_NO" property="wechatNo" jdbcType="DECIMAL" />
 		<result column="ORG_TYPE" property="orgType" jdbcType="VARCHAR" />
 		<result column="JOB_NUM" property="jobNum" jdbcType="VARCHAR" />
+		<result column="HEAD_IMG_URL" property="headImgUrl" jdbcType="VARCHAR" />
 	</resultMap>
 	
 	<sql id="Base_Column_List">
