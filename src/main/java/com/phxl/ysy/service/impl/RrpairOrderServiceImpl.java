@@ -219,9 +219,9 @@ public class RrpairOrderServiceImpl extends BaseService implements RrpairOrderSe
         }else {
             argument.put("keyword2","");
 		}
-        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd 24HH:mi:ss");
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss");
         Calendar cal = Calendar.getInstance();
-        argument.put("keyword3", cal.getTime());
+        argument.put("keyword3", sdf.format(cal.getTime()));
         RrpairOrder rrpair = find(RrpairOrder.class, rrpairOrder);
         if(map.get("rrpairType")==null){
         	argument.put("keyword4", "");
