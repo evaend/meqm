@@ -276,6 +276,7 @@ public class TestController {
 		UserInfo userInfo = imessageService.searchEntity(u);
 		WeixinOpenUser wxUser = null;
 		if(userInfo != null){
+			request.getSession().setAttribute("userId", userInfo.getUserId());
 			wxUser = new WeixinOpenUser();
 			wxUser.setUserName(userInfo.getWechatNo());
 			wxUser.setHeadimgurl(userInfo.getHeadImgUrl());
