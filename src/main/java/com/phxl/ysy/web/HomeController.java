@@ -52,6 +52,7 @@ public class HomeController {
 	@RequestMapping("/wechatBinding")
 	public ModelAndView forwardBinging(HttpServletRequest request, HttpServletResponse response) 
 			throws Exception{
+	
 		String code = request.getParameter("code");
 		UserInfo u = new UserInfo();
 		String appid = SystemConfig.getProperty("wechat.config.appid");// appid
