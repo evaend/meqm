@@ -13,7 +13,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * 常量定义类: 用于定义系统中用到的常量值或者码值Hello1
+ * 常量定义类: 用于定义系统中用到的常量值或者码值Hello
  * @date	2015年9月25日 下午3:15:42
  * @author	黄文君
  * @version	1.0
