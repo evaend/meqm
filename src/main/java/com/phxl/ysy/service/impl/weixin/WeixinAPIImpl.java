@@ -1,9 +1,11 @@
 package com.phxl.ysy.service.impl.weixin;
 
+import java.io.IOException;
 import java.nio.charset.Charset;
 import java.text.MessageFormat;
 
 import org.apache.http.RequestLine;
+import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.ResponseHandler;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.client.methods.HttpUriRequest;
@@ -132,12 +134,14 @@ public class WeixinAPIImpl implements WeixinAPIInterface
     
     /**
      * 获取关注者的openid
+     * @throws IOException 
+     * @throws ClientProtocolException 
+     * @throws ValidationException 
      */
-    public String getOpenid(String appid, String secret, String code) {
+    public String getOpenid(String appid, String secret, String code) throws ClientProtocolException, IOException, ValidationException {
 		String userOpenId = null;
 		WebConnect webConnect = new WebConnect();//发起http请求的对象 
 		webConnect.initWebClient();
-        try {
             //log.info("getOpenId start.{appid=" + appid + ",secret:" + secret + ",code:" + code + "}");
             String url = MessageFormat.format(this.getUserOpenIdUrl, appid, secret,code);
             String response = webConnect.executeHttpGet(url);
@@ -146,9 +150,6 @@ public class WeixinAPIImpl implements WeixinAPIInterface
 				throw new ValidationException("当前网络较弱，请退出重新进入");
 			}
             userOpenId = obj.getString("openid"); 
-        } catch (Exception e) {
-            log.error("get openid exception", e);
-        }
         return userOpenId;
 	}
  

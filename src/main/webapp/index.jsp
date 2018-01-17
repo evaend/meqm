@@ -38,7 +38,7 @@ String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.
 		.header .iconfont{
 			font-size:5vw;
 			color: #fff;
-			padding: 1vw 0 0 1vw;
+			padding: 1vw 0 0 3vw;
 			background: #108ee9;
 		}
 		.header span{
@@ -99,12 +99,12 @@ String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.
 </head>
 
 <body>
-	<div class="wrapper" style='display: none;'  id="scanQRCode">
+	<div class="wrapper" style='display: none;'>
 		<div class="header centerv">
-			<a href='#'><i class="iconfont icon-i-left"></i></a>
+			<a href=javascript:history.go(-1)><i class="iconfont icon-i-left"></i></a>
 			<span>医商云</span>
 		</div>
-		<div class="content">
+		<div class="content" id="scanQRCode">
 			<p class="flex centerh"><a href='#'><i class="iconfont icon-erweima"></i></a></p>
 			<p class="text flex centerh">点击图标扫一扫</p>
 		</div>
