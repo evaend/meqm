@@ -41,6 +41,20 @@ public class RrpairOrderController {
 	@Autowired
 	HttpSession session;
 	
+	/**
+	 * 查询设备维修列表 
+	 * @param rrpairOrder 维修单号
+	 * @param orderFstate 维修状态（10待接修，30维修中，50待验收，80已关闭）
+	 * @param urgentFlag 紧急度（10紧急，20急，30一般）
+	 * @param time 时间
+	 * @param sort 排序（正序esc，倒序desc）
+	 * @param equipmentCode 设备编号
+	 * @param pagesize
+	 * @param page
+	 * @param request
+	 * @param response
+	 * @return
+	 */
 	@RequestMapping("/selectRrpairList")
 	@ResponseBody
 	public List<Map<String, Object>> selectRrpairList(
@@ -70,6 +84,12 @@ public class RrpairOrderController {
 		return list;
 	}
 	
+	/**
+	 * 查询设备维修各状态数量
+	 * @param request
+	 * @param response
+	 * @return
+	 */
 	@RequestMapping("/selectRrpairFstateNum")
 	@ResponseBody
 	public List<Map<String, Object>> selectRrpairFstateNum(
@@ -78,6 +98,14 @@ public class RrpairOrderController {
 		return list;
 	}
 	
+	/**
+	 * 维修单详情——查询备注/评价
+	 * @param rrpairOrder 维修单号
+	 * @param type 备注/评价（备注0 ，评价1）
+	 * @param request
+	 * @param response
+	 * @return
+	 */
 	@RequestMapping("/selectRrpairEvaluate")
 	@ResponseBody
 	public Map<String, Object> selectRrpairEvaluate(
@@ -91,7 +119,16 @@ public class RrpairOrderController {
 		return map;
 	}
 	
-	
+	/**
+	 * 维修单详情——添加备注/评价 
+	 * @param rrpairOrder 维修单号
+	 * @param type 备注/评价（备注0 ，评价1）
+	 * @param value 备注内容
+	 * @param request
+	 * @param response
+	 * @return
+	 * @throws ValidationException
+	 */
 	@RequestMapping("/updateRrpairContent")
 	@ResponseBody
 	public String updateRrpairContent(
@@ -110,6 +147,18 @@ public class RrpairOrderController {
 		return str;
 	}
 
+	/**
+	 * 维修单详情——修改状态
+	 * @param rrpairOrder 维修单号
+	 * @param assersNowRecord 维修单当前状态（10待接修，30维修中，50待验收，80已关闭）
+	 * @param rrpairType 维修单类型转变（维修中）（00内修，01外修）
+	 * @param assersNextRecord 维修单状态转变（10待接修，30维修中，50待验收，80已关闭）
+	 * @param isPass 验收是否通过（待验收）（0通过，1不通过）
+	 * @param request
+	 * @param response
+	 * @return
+	 * @throws Exception
+	 */
 	@RequestMapping("/updateRrpairFstate")
 	@ResponseBody
 	public String updateRrpairFstate(
@@ -149,7 +198,24 @@ public class RrpairOrderController {
 		return str;
 	}
 	
-
+	/**
+	 * 维修单详情——报修
+	 * @param equipmentCode 设备编号
+	 * @param equipmentName 设备名称
+	 * @param address 地址
+	 * @param useDeptCode 科室
+	 * @param useFstate 设备状态
+	 * @param urgentFlag 紧急度（10紧急，20急，30一般）
+	 * @param spare 是否有备用（00无，01有）
+	 * @param repairContentTyp 故障现象
+	 * @param faultWords 补充说明
+	 * @param faultAccessory 图片
+	 * @param assetsRecord 资产编号
+	 * @param request
+	 * @param response
+	 * @return
+	 * @throws Exception
+	 */
 	@RequestMapping("/insertRrpair")
 	@ResponseBody
 	public String insertRrpair(
@@ -248,7 +314,20 @@ public class RrpairOrderController {
 		return str;
 	}
 	
-	//修改维修工单信息
+	/**
+	 * 修改维修工单信息
+	 * @param rrpairOrder 维修单号
+	 * @param orderType 维修性质
+	 * @param rrpairType 维修类型
+	 * @param rrpairFlag 是否返修
+	 * @param urgentFlag 
+	 * @param spare 是否有备用（00无，01有）
+	 * @param completTime 预计完成时间
+	 * @param request 
+	 * @param response
+	 * @return
+	 * @throws ValidationException
+	 */
 	@RequestMapping("/updateRrpairInfo")
 	@ResponseBody
 	public String updateRrpairInfo(

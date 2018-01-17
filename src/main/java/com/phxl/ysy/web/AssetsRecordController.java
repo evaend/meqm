@@ -21,6 +21,12 @@ public class AssetsRecordController {
 	@Autowired
 	AssetsRecordService assetsRecordService;
 	
+	/**
+	 * 查询资产总量
+	 * @param request
+	 * @param response
+	 * @return
+	 */
 	@RequestMapping("/selectAssetsRecordCount")
 	@ResponseBody
 	public Integer selectAssetsRecordCount(
@@ -29,6 +35,25 @@ public class AssetsRecordController {
 		return count;
 	}
 	
+	/**
+	 * 查询资产档案列表（包含资产详情基本信息）
+	 * @param assetsRecord 资产编号
+	 * @param equipmetStandarName 资产名称
+	 * @param useFstate 状态
+	 * @param productType 设备分类
+	 * @param spec 设备型号
+	 * @param product 厂商
+	 * @param useDeptCode 使用科室
+	 * @param bDept 管理科室
+	 * @param custodian 责任人
+	 * @param mobile 资产名称/编号
+	 * @param assetsRecordOne 资产编号（查询详情传值）
+	 * @param pagesize
+	 * @param page
+	 * @param request
+	 * @param response
+	 * @return
+	 */
 	@RequestMapping("/selectAssetsList")
 	@ResponseBody
 	public List<Map<String, Object>> selectAssetsList(
