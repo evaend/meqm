@@ -2,9 +2,6 @@ package com.phxl.ysy.entity;
 
 import java.util.Date;
 
-import com.phxl.core.base.annotation.BaseSql;
-
-@BaseSql(tableName="TS_MENU", resultName="com.phxl.ysy.dao.MenuMapper.BaseResultMap")
 public class Menu {
     private String menuId;
 
@@ -35,7 +32,7 @@ public class Menu {
     }
 
     public void setMenuId(String menuId) {
-        this.menuId = menuId;
+        this.menuId = menuId == null ? null : menuId.trim();
     }
 
     public String getMenuName() {
@@ -43,7 +40,7 @@ public class Menu {
     }
 
     public void setMenuName(String menuName) {
-        this.menuName = menuName;
+        this.menuName = menuName == null ? null : menuName.trim();
     }
 
     public String getMenuUrl() {
@@ -51,7 +48,7 @@ public class Menu {
     }
 
     public void setMenuUrl(String menuUrl) {
-        this.menuUrl = menuUrl;
+        this.menuUrl = menuUrl == null ? null : menuUrl.trim();
     }
 
     public String getFstate() {
@@ -59,7 +56,7 @@ public class Menu {
     }
 
     public void setFstate(String fstate) {
-        this.fstate = fstate;
+        this.fstate = fstate == null ? null : fstate.trim();
     }
 
     public String getTfRemark() {
@@ -67,7 +64,7 @@ public class Menu {
     }
 
     public void setTfRemark(String tfRemark) {
-        this.tfRemark = tfRemark;
+        this.tfRemark = tfRemark == null ? null : tfRemark.trim();
     }
 
     public Date getModifyTime() {
@@ -91,31 +88,31 @@ public class Menu {
     }
 
     public void setCreateUserid(String createUserid) {
-        this.createUserid = createUserid;
+        this.createUserid = createUserid == null ? null : createUserid.trim();
     }
 
-    public void setParentMenuid(String parentMenuid) {
-        this.parentMenuid = parentMenuid;
+    public String getModifyUserid() {
+        return modifyUserid;
     }
-    
+
+    public void setModifyUserid(String modifyUserid) {
+        this.modifyUserid = modifyUserid == null ? null : modifyUserid.trim();
+    }
+
     public String getParentMenuid() {
         return parentMenuid;
     }
 
-	public String getModifyUserid() {
-		return modifyUserid;
-	}
-
-	public void setModifyUserid(String modifyUserid) {
-		this.modifyUserid = modifyUserid;
-	}
+    public void setParentMenuid(String parentMenuid) {
+        this.parentMenuid = parentMenuid == null ? null : parentMenuid.trim();
+    }
 
     public String getFsort() {
         return fsort;
     }
 
     public void setFsort(String fsort) {
-        this.fsort = fsort;
+        this.fsort = fsort == null ? null : fsort.trim();
     }
 
     public String getMenuCode() {
@@ -123,6 +120,6 @@ public class Menu {
     }
 
     public void setMenuCode(String menuCode) {
-        this.menuCode = menuCode;
+        this.menuCode = menuCode == null ? null : menuCode.trim();
     }
 }

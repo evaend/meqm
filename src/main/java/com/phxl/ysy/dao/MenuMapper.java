@@ -1,7 +1,7 @@
 package com.phxl.ysy.dao;
 
-import java.util.Map;
 import java.util.List;
+import java.util.Map;
 
 import org.apache.ibatis.annotations.Param;
 
@@ -9,7 +9,6 @@ import com.phxl.core.base.entity.Pager;
 import com.phxl.ysy.entity.Menu;
 
 public interface MenuMapper {
-	
 	/**
 	 * 查询系统所有菜单列表
 	 * @author	黄文君
@@ -43,4 +42,5 @@ public interface MenuMapper {
 	 * @return	int
 	 */
 	public int deleteGroupMenuByMenuId(String menuId);
+
 }

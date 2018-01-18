@@ -2,7 +2,6 @@ package com.phxl.ysy.entity;
 
 import java.util.Date;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.phxl.core.base.annotation.BaseSql;
 
 @BaseSql(tableName="TS_USER_INFO", resultName="com.phxl.ysy.dao.UserInfoMapper.BaseResultMap")
@@ -13,7 +12,6 @@ public class UserInfo {
 
     private String userName;
 
-    @JsonIgnore
     private String pwd;
 
     private String fstate;
@@ -41,27 +39,21 @@ public class UserInfo {
     private String wechatOpenid;
 
     private String wechatNo;
-    
+
     private String orgType;
-    
+
     private String jobNum;
+
+    private String headImgUrl;
     
     private String orgName;
-    
-    private Integer selected;
-    
-    private String groups;
-    
-    private String headImgUrl;
-    //外加属性
-    private Integer unreadMessage;//未读消息数
 
     public String getUserId() {
         return userId;
     }
 
     public void setUserId(String userId) {
-        this.userId = userId;
+        this.userId = userId == null ? null : userId.trim();
     }
 
     public String getUserNo() {
@@ -69,7 +61,7 @@ public class UserInfo {
     }
 
     public void setUserNo(String userNo) {
-        this.userNo = userNo;
+        this.userNo = userNo == null ? null : userNo.trim();
     }
 
     public String getUserName() {
@@ -77,7 +69,7 @@ public class UserInfo {
     }
 
     public void setUserName(String userName) {
-        this.userName = userName;
+        this.userName = userName == null ? null : userName.trim();
     }
 
     public String getPwd() {
@@ -85,23 +77,23 @@ public class UserInfo {
     }
 
     public void setPwd(String pwd) {
-        this.pwd = pwd;
+        this.pwd = pwd == null ? null : pwd.trim();
     }
 
     public String getFstate() {
-		return fstate;
-	}
+        return fstate;
+    }
 
-	public void setFstate(String fstate) {
-		this.fstate = fstate;
-	}
+    public void setFstate(String fstate) {
+        this.fstate = fstate == null ? null : fstate.trim();
+    }
 
-	public String getTfRemark() {
+    public String getTfRemark() {
         return tfRemark;
     }
 
     public void setTfRemark(String tfRemark) {
-        this.tfRemark = tfRemark;
+        this.tfRemark = tfRemark == null ? null : tfRemark.trim();
     }
 
     public Date getModifyTime() {
@@ -125,7 +117,7 @@ public class UserInfo {
     }
 
     public void setCreateUserid(String createUserid) {
-        this.createUserid = createUserid;
+        this.createUserid = createUserid == null ? null : createUserid.trim();
     }
 
     public String getModifyUserid() {
@@ -133,7 +125,7 @@ public class UserInfo {
     }
 
     public void setModifyUserid(String modifyUserid) {
-        this.modifyUserid = modifyUserid;
+        this.modifyUserid = modifyUserid == null ? null : modifyUserid.trim();
     }
 
     public String getUserLevel() {
@@ -141,7 +133,7 @@ public class UserInfo {
     }
 
     public void setUserLevel(String userLevel) {
-        this.userLevel = userLevel;
+        this.userLevel = userLevel == null ? null : userLevel.trim();
     }
 
     public String getMobilePhone() {
@@ -149,7 +141,7 @@ public class UserInfo {
     }
 
     public void setMobilePhone(String mobilePhone) {
-        this.mobilePhone = mobilePhone;
+        this.mobilePhone = mobilePhone == null ? null : mobilePhone.trim();
     }
 
     public String geteMail() {
@@ -157,7 +149,7 @@ public class UserInfo {
     }
 
     public void seteMail(String eMail) {
-        this.eMail = eMail;
+        this.eMail = eMail == null ? null : eMail.trim();
     }
 
     public String getQq() {
@@ -165,7 +157,7 @@ public class UserInfo {
     }
 
     public void setQq(String qq) {
-        this.qq = qq;
+        this.qq = qq == null ? null : qq.trim();
     }
 
     public Long getOrgId() {
@@ -181,24 +173,40 @@ public class UserInfo {
     }
 
     public void setWechatOpenid(String wechatOpenid) {
-        this.wechatOpenid = wechatOpenid;
+        this.wechatOpenid = wechatOpenid == null ? null : wechatOpenid.trim();
     }
 
-	public String getOrgType() {
-		return orgType;
-	}
+    public String getWechatNo() {
+        return wechatNo;
+    }
 
-	public void setOrgType(String orgType) {
-		this.orgType = orgType;
-	}
+    public void setWechatNo(String wechatNo) {
+        this.wechatNo = wechatNo == null ? null : wechatNo.trim();
+    }
 
-	public String getJobNum() {
-		return jobNum;
-	}
+    public String getOrgType() {
+        return orgType;
+    }
 
-	public void setJobNum(String jobNum) {
-		this.jobNum = jobNum;
-	}
+    public void setOrgType(String orgType) {
+        this.orgType = orgType == null ? null : orgType.trim();
+    }
+
+    public String getJobNum() {
+        return jobNum;
+    }
+
+    public void setJobNum(String jobNum) {
+        this.jobNum = jobNum == null ? null : jobNum.trim();
+    }
+
+    public String getHeadImgUrl() {
+        return headImgUrl;
+    }
+
+    public void setHeadImgUrl(String headImgUrl) {
+        this.headImgUrl = headImgUrl == null ? null : headImgUrl.trim();
+    }
 
 	public String getOrgName() {
 		return orgName;
@@ -207,45 +215,5 @@ public class UserInfo {
 	public void setOrgName(String orgName) {
 		this.orgName = orgName;
 	}
-
-	public Integer getSelected() {
-		return selected;
-	}
-
-	public void setSelected(Integer selected) {
-		this.selected = selected;
-	}
-
-	public String getGroups() {
-		return groups;
-	}
-
-	public void setGroups(String groups) {
-		this.groups = groups;
-	}
-	
-	public Integer getUnreadMessage() {
-        return unreadMessage;
-    }
-
-    public void setUnreadMessage(Integer unreadMessage) {
-        this.unreadMessage = unreadMessage;
-    }
-
-	public String getWechatNo() {
-		return wechatNo;
-	}
-
-	public void setWechatNo(String wechatNo) {
-		this.wechatNo = wechatNo;
-	}
-
-	public String getHeadImgUrl() {
-		return headImgUrl;
-	}
-
-	public void setHeadImgUrl(String headImgUrl) {
-		this.headImgUrl = headImgUrl;
-	}
-
+    
 }

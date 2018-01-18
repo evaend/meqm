@@ -20,5 +20,169 @@
     MODULE_ID, MODULE_NAME, FSTATE, TF_REMARK, MODIFY_TIME, CREATE_TIME, CREATE_USERID, 
     MODIFY_USERID, PARENT_MODULEID, FLAG, FSORT, MODULE_CODE, MODULE_URL
   </sql>
- 
+  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.String" >
+    select 
+    <include refid="Base_Column_List" />
+    from GDZC.TS_MODULE
+    where MODULE_ID = #{moduleId,jdbcType=VARCHAR}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.String" >
+    delete from GDZC.TS_MODULE
+    where MODULE_ID = #{moduleId,jdbcType=VARCHAR}
+  </delete>
+  <insert id="insert" parameterType="com.phxl.ysy.entity.Module" >
+    insert into GDZC.TS_MODULE (MODULE_ID, MODULE_NAME, FSTATE, 
+      TF_REMARK, MODIFY_TIME, CREATE_TIME, 
+      CREATE_USERID, MODIFY_USERID, PARENT_MODULEID, 
+      FLAG, FSORT, MODULE_CODE, 
+      MODULE_URL)
+    values (#{moduleId,jdbcType=VARCHAR}, #{moduleName,jdbcType=VARCHAR}, #{fstate,jdbcType=VARCHAR}, 
+      #{tfRemark,jdbcType=VARCHAR}, #{modifyTime,jdbcType=DATE}, #{createTime,jdbcType=DATE}, 
+      #{createUserid,jdbcType=VARCHAR}, #{modifyUserid,jdbcType=VARCHAR}, #{parentModuleid,jdbcType=VARCHAR}, 
+      #{flag,jdbcType=VARCHAR}, #{fsort,jdbcType=VARCHAR}, #{moduleCode,jdbcType=VARCHAR}, 
+      #{moduleUrl,jdbcType=VARCHAR})
+  </insert>
+  <insert id="insertSelective" parameterType="com.phxl.ysy.entity.Module" >
+    insert into GDZC.TS_MODULE
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="moduleId != null" >
+        MODULE_ID,
+      </if>
+      <if test="moduleName != null" >
+        MODULE_NAME,
+      </if>
+      <if test="fstate != null" >
+        FSTATE,
+      </if>
+      <if test="tfRemark != null" >
+        TF_REMARK,
+      </if>
+      <if test="modifyTime != null" >
+        MODIFY_TIME,
+      </if>
+      <if test="createTime != null" >
+        CREATE_TIME,
+      </if>
+      <if test="createUserid != null" >
+        CREATE_USERID,
+      </if>
+      <if test="modifyUserid != null" >
+        MODIFY_USERID,
+      </if>
+      <if test="parentModuleid != null" >
+        PARENT_MODULEID,
+      </if>
+      <if test="flag != null" >
+        FLAG,
+      </if>
+      <if test="fsort != null" >
+        FSORT,
+      </if>
+      <if test="moduleCode != null" >
+        MODULE_CODE,
+      </if>
+      <if test="moduleUrl != null" >
+        MODULE_URL,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="moduleId != null" >
+        #{moduleId,jdbcType=VARCHAR},
+      </if>
+      <if test="moduleName != null" >
+        #{moduleName,jdbcType=VARCHAR},
+      </if>
+      <if test="fstate != null" >
+        #{fstate,jdbcType=VARCHAR},
+      </if>
+      <if test="tfRemark != null" >
+        #{tfRemark,jdbcType=VARCHAR},
+      </if>
+      <if test="modifyTime != null" >
+        #{modifyTime,jdbcType=DATE},
+      </if>
+      <if test="createTime != null" >
+        #{createTime,jdbcType=DATE},
+      </if>
+      <if test="createUserid != null" >
+        #{createUserid,jdbcType=VARCHAR},
+      </if>
+      <if test="modifyUserid != null" >
+        #{modifyUserid,jdbcType=VARCHAR},
+      </if>
+      <if test="parentModuleid != null" >
+        #{parentModuleid,jdbcType=VARCHAR},
+      </if>
+      <if test="flag != null" >
+        #{flag,jdbcType=VARCHAR},
+      </if>
+      <if test="fsort != null" >
+        #{fsort,jdbcType=VARCHAR},
+      </if>
+      <if test="moduleCode != null" >
+        #{moduleCode,jdbcType=VARCHAR},
+      </if>
+      <if test="moduleUrl != null" >
+        #{moduleUrl,jdbcType=VARCHAR},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="com.phxl.ysy.entity.Module" >
+    update GDZC.TS_MODULE
+    <set >
+      <if test="moduleName != null" >
+        MODULE_NAME = #{moduleName,jdbcType=VARCHAR},
+      </if>
+      <if test="fstate != null" >
+        FSTATE = #{fstate,jdbcType=VARCHAR},
+      </if>
+      <if test="tfRemark != null" >
+        TF_REMARK = #{tfRemark,jdbcType=VARCHAR},
+      </if>
+      <if test="modifyTime != null" >
+        MODIFY_TIME = #{modifyTime,jdbcType=DATE},
+      </if>
+      <if test="createTime != null" >
+        CREATE_TIME = #{createTime,jdbcType=DATE},
+      </if>
+      <if test="createUserid != null" >
+        CREATE_USERID = #{createUserid,jdbcType=VARCHAR},
+      </if>
+      <if test="modifyUserid != null" >
+        MODIFY_USERID = #{modifyUserid,jdbcType=VARCHAR},
+      </if>
+      <if test="parentModuleid != null" >
+        PARENT_MODULEID = #{parentModuleid,jdbcType=VARCHAR},
+      </if>
+      <if test="flag != null" >
+        FLAG = #{flag,jdbcType=VARCHAR},
+      </if>
+      <if test="fsort != null" >
+        FSORT = #{fsort,jdbcType=VARCHAR},
+      </if>
+      <if test="moduleCode != null" >
+        MODULE_CODE = #{moduleCode,jdbcType=VARCHAR},
+      </if>
+      <if test="moduleUrl != null" >
+        MODULE_URL = #{moduleUrl,jdbcType=VARCHAR},
+      </if>
+    </set>
+    where MODULE_ID = #{moduleId,jdbcType=VARCHAR}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.phxl.ysy.entity.Module" >
+    update GDZC.TS_MODULE
+    set MODULE_NAME = #{moduleName,jdbcType=VARCHAR},
+      FSTATE = #{fstate,jdbcType=VARCHAR},
+      TF_REMARK = #{tfRemark,jdbcType=VARCHAR},
+      MODIFY_TIME = #{modifyTime,jdbcType=DATE},
+      CREATE_TIME = #{createTime,jdbcType=DATE},
+      CREATE_USERID = #{createUserid,jdbcType=VARCHAR},
+      MODIFY_USERID = #{modifyUserid,jdbcType=VARCHAR},
+      PARENT_MODULEID = #{parentModuleid,jdbcType=VARCHAR},
+      FLAG = #{flag,jdbcType=VARCHAR},
+      FSORT = #{fsort,jdbcType=VARCHAR},
+      MODULE_CODE = #{moduleCode,jdbcType=VARCHAR},
+      MODULE_URL = #{moduleUrl,jdbcType=VARCHAR}
+    where MODULE_ID = #{moduleId,jdbcType=VARCHAR}
+  </update>
 </mapper>

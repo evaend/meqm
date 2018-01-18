@@ -1,6 +1,5 @@
 package com.phxl.ysy.dao;
 
-
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -10,8 +9,8 @@ import org.apache.ibatis.annotations.Param;
 import com.phxl.core.base.entity.Pager;
 import com.phxl.ysy.entity.UserInfo;
 
-public interface UserInfoMapper{
-	
+public interface UserInfoMapper {
+
 	/**
      * 
      * findUserNoExist:(验证用户登录账号的唯一性). <br/> 

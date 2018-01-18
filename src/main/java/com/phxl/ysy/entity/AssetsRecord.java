@@ -4,6 +4,8 @@ import java.math.BigDecimal;
 import java.util.Date;
 
 public class AssetsRecord {
+    private String assetsRecordM;
+
     private String assetsRecord;
 
     private String contractNo;
@@ -14,7 +16,7 @@ public class AssetsRecord {
 
     private String spec;
 
-    private String aOrg;
+    private Long orgId;
 
     private String productCountry;
 
@@ -22,7 +24,7 @@ public class AssetsRecord {
 
     private String productType;
 
-    private String originalValue;
+    private BigDecimal originalValue;
 
     private String sourceFunds;
 
@@ -30,13 +32,19 @@ public class AssetsRecord {
 
     private String deposit;
 
+    private String depositA;
+
+    private String depositB;
+
+    private String depositC;
+
+    private String depositD;
+
     private String aDeptCode;
 
     private Date productionDate;
 
-    private Date enableDate;
-
-    private BigDecimal useLimit;
+    private Short useLimit;
 
     private String maintainDay;
 
@@ -44,15 +52,17 @@ public class AssetsRecord {
 
     private String qaLevel;
 
+    private Date buyDate;
+
     private Date acctDate;
 
     private String depreciationType;
 
     private BigDecimal depreciationLimit;
 
-    private BigDecimal totalDepreciationPrice;
+    private BigDecimal monthDepreciationPrice;
 
-    private String repairFlag;
+    private BigDecimal totalDepreciationPrice;
 
     private String useFstate;
 
@@ -60,7 +70,7 @@ public class AssetsRecord {
 
     private String createUserid;
 
-    private String residualValue;
+    private BigDecimal residualValue;
 
     private String custodian;
 
@@ -68,22 +78,39 @@ public class AssetsRecord {
 
     private String moneyType;
 
-    private String tfAccessory;
-
-    private String certGuid;
-
-    private String tfBrand;
+    private String outRrpairOrg;
 
     private String outRrpairUsername;
 
     private String outRrpairPhone;
-    
-    private String useDeptCode;
-    private String aaOrg;
-    private String buyPrice;
-    private Long orgId;
-    private Date buyDate;
 
+    private String useDeptCode;
+
+    private BigDecimal buyPrice;
+
+    private String tfAccessory;
+
+    private String qrcode;
+
+    private String mDeptCode;
+
+    private BigDecimal carryingAmount;
+
+    private BigDecimal residualValueV;
+
+    private Date inDate;
+
+    private String rrpairType;
+
+    private String maintainType;
+
+    public String getAssetsRecordM() {
+        return assetsRecordM;
+    }
+
+    public void setAssetsRecordM(String assetsRecordM) {
+        this.assetsRecordM = assetsRecordM == null ? null : assetsRecordM.trim();
+    }
 
     public String getAssetsRecord() {
         return assetsRecord;
@@ -125,12 +152,12 @@ public class AssetsRecord {
         this.spec = spec == null ? null : spec.trim();
     }
 
-    public String getaOrg() {
-        return aOrg;
+    public Long getOrgId() {
+        return orgId;
     }
 
-    public void setaOrg(String aOrg) {
-        this.aOrg = aOrg == null ? null : aOrg.trim();
+    public void setOrgId(Long orgId) {
+        this.orgId = orgId;
     }
 
     public String getProductCountry() {
@@ -157,12 +184,12 @@ public class AssetsRecord {
         this.productType = productType == null ? null : productType.trim();
     }
 
-    public String getOriginalValue() {
+    public BigDecimal getOriginalValue() {
         return originalValue;
     }
 
-    public void setOriginalValue(String originalValue) {
-        this.originalValue = originalValue == null ? null : originalValue.trim();
+    public void setOriginalValue(BigDecimal originalValue) {
+        this.originalValue = originalValue;
     }
 
     public String getSourceFunds() {
@@ -189,6 +216,38 @@ public class AssetsRecord {
         this.deposit = deposit == null ? null : deposit.trim();
     }
 
+    public String getDepositA() {
+        return depositA;
+    }
+
+    public void setDepositA(String depositA) {
+        this.depositA = depositA == null ? null : depositA.trim();
+    }
+
+    public String getDepositB() {
+        return depositB;
+    }
+
+    public void setDepositB(String depositB) {
+        this.depositB = depositB == null ? null : depositB.trim();
+    }
+
+    public String getDepositC() {
+        return depositC;
+    }
+
+    public void setDepositC(String depositC) {
+        this.depositC = depositC == null ? null : depositC.trim();
+    }
+
+    public String getDepositD() {
+        return depositD;
+    }
+
+    public void setDepositD(String depositD) {
+        this.depositD = depositD == null ? null : depositD.trim();
+    }
+
     public String getaDeptCode() {
         return aDeptCode;
     }
@@ -205,19 +264,11 @@ public class AssetsRecord {
         this.productionDate = productionDate;
     }
 
-    public Date getEnableDate() {
-        return enableDate;
-    }
-
-    public void setEnableDate(Date enableDate) {
-        this.enableDate = enableDate;
-    }
-
-    public BigDecimal getUseLimit() {
+    public Short getUseLimit() {
         return useLimit;
     }
 
-    public void setUseLimit(BigDecimal useLimit) {
+    public void setUseLimit(Short useLimit) {
         this.useLimit = useLimit;
     }
 
@@ -245,6 +296,14 @@ public class AssetsRecord {
         this.qaLevel = qaLevel == null ? null : qaLevel.trim();
     }
 
+    public Date getBuyDate() {
+        return buyDate;
+    }
+
+    public void setBuyDate(Date buyDate) {
+        this.buyDate = buyDate;
+    }
+
     public Date getAcctDate() {
         return acctDate;
     }
@@ -269,20 +328,20 @@ public class AssetsRecord {
         this.depreciationLimit = depreciationLimit;
     }
 
+    public BigDecimal getMonthDepreciationPrice() {
+        return monthDepreciationPrice;
+    }
+
+    public void setMonthDepreciationPrice(BigDecimal monthDepreciationPrice) {
+        this.monthDepreciationPrice = monthDepreciationPrice;
+    }
+
     public BigDecimal getTotalDepreciationPrice() {
         return totalDepreciationPrice;
     }
 
     public void setTotalDepreciationPrice(BigDecimal totalDepreciationPrice) {
         this.totalDepreciationPrice = totalDepreciationPrice;
-    }
-
-    public String getRepairFlag() {
-        return repairFlag;
-    }
-
-    public void setRepairFlag(String repairFlag) {
-        this.repairFlag = repairFlag == null ? null : repairFlag.trim();
     }
 
     public String getUseFstate() {
@@ -309,12 +368,12 @@ public class AssetsRecord {
         this.createUserid = createUserid == null ? null : createUserid.trim();
     }
 
-    public String getResidualValue() {
+    public BigDecimal getResidualValue() {
         return residualValue;
     }
 
-    public void setResidualValue(String residualValue) {
-        this.residualValue = residualValue == null ? null : residualValue.trim();
+    public void setResidualValue(BigDecimal residualValue) {
+        this.residualValue = residualValue;
     }
 
     public String getCustodian() {
@@ -341,28 +400,12 @@ public class AssetsRecord {
         this.moneyType = moneyType == null ? null : moneyType.trim();
     }
 
-    public String getTfAccessory() {
-        return tfAccessory;
+    public String getOutRrpairOrg() {
+        return outRrpairOrg;
     }
 
-    public void setTfAccessory(String tfAccessory) {
-        this.tfAccessory = tfAccessory == null ? null : tfAccessory.trim();
-    }
-
-    public String getCertGuid() {
-        return certGuid;
-    }
-
-    public void setCertGuid(String certGuid) {
-        this.certGuid = certGuid == null ? null : certGuid.trim();
-    }
-
-    public String getTfBrand() {
-        return tfBrand;
-    }
-
-    public void setTfBrand(String tfBrand) {
-        this.tfBrand = tfBrand == null ? null : tfBrand.trim();
+    public void setOutRrpairOrg(String outRrpairOrg) {
+        this.outRrpairOrg = outRrpairOrg == null ? null : outRrpairOrg.trim();
     }
 
     public String getOutRrpairUsername() {
@@ -381,45 +424,83 @@ public class AssetsRecord {
         this.outRrpairPhone = outRrpairPhone == null ? null : outRrpairPhone.trim();
     }
 
-	public String getUseDeptCode() {
-		return useDeptCode;
-	}
+    public String getUseDeptCode() {
+        return useDeptCode;
+    }
 
-	public void setUseDeptCode(String useDeptCode) {
-		this.useDeptCode = useDeptCode;
-	}
+    public void setUseDeptCode(String useDeptCode) {
+        this.useDeptCode = useDeptCode == null ? null : useDeptCode.trim();
+    }
 
-	public String getAaOrg() {
-		return aaOrg;
-	}
+    public BigDecimal getBuyPrice() {
+        return buyPrice;
+    }
 
-	public void setAaOrg(String aaOrg) {
-		this.aaOrg = aaOrg;
-	}
+    public void setBuyPrice(BigDecimal buyPrice) {
+        this.buyPrice = buyPrice;
+    }
 
-	public String getBuyPrice() {
-		return buyPrice;
-	}
+    public String getTfAccessory() {
+        return tfAccessory;
+    }
 
-	public void setBuyPrice(String buyPrice) {
-		this.buyPrice = buyPrice;
-	}
+    public void setTfAccessory(String tfAccessory) {
+        this.tfAccessory = tfAccessory == null ? null : tfAccessory.trim();
+    }
 
-	public Long getOrgId() {
-		return orgId;
-	}
+    public String getQrcode() {
+        return qrcode;
+    }
 
-	public void setOrgId(Long orgId) {
-		this.orgId = orgId;
-	}
+    public void setQrcode(String qrcode) {
+        this.qrcode = qrcode == null ? null : qrcode.trim();
+    }
 
-	public Date getBuyDate() {
-		return buyDate;
-	}
+    public String getmDeptCode() {
+        return mDeptCode;
+    }
 
-	public void setBuyDate(Date buyDate) {
-		this.buyDate = buyDate;
-	}
-	
-    
+    public void setmDeptCode(String mDeptCode) {
+        this.mDeptCode = mDeptCode == null ? null : mDeptCode.trim();
+    }
+
+    public BigDecimal getCarryingAmount() {
+        return carryingAmount;
+    }
+
+    public void setCarryingAmount(BigDecimal carryingAmount) {
+        this.carryingAmount = carryingAmount;
+    }
+
+    public BigDecimal getResidualValueV() {
+        return residualValueV;
+    }
+
+    public void setResidualValueV(BigDecimal residualValueV) {
+        this.residualValueV = residualValueV;
+    }
+
+    public Date getInDate() {
+        return inDate;
+    }
+
+    public void setInDate(Date inDate) {
+        this.inDate = inDate;
+    }
+
+    public String getRrpairType() {
+        return rrpairType;
+    }
+
+    public void setRrpairType(String rrpairType) {
+        this.rrpairType = rrpairType == null ? null : rrpairType.trim();
+    }
+
+    public String getMaintainType() {
+        return maintainType;
+    }
+
+    public void setMaintainType(String maintainType) {
+        this.maintainType = maintainType == null ? null : maintainType.trim();
+    }
 }

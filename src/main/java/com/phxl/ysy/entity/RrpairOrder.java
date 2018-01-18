@@ -3,9 +3,6 @@ package com.phxl.ysy.entity;
 import java.math.BigDecimal;
 import java.util.Date;
 
-import com.phxl.core.base.annotation.BaseSql;
-
-@BaseSql(tableName="td_rrpair_order", resultName="com.phxl.ysy.dao.RrpairOrderMapper.BaseResultMap")
 public class RrpairOrder {
     private String rrpairOrder;
 
@@ -28,6 +25,8 @@ public class RrpairOrder {
     private String address;
 
     private String orderFstate;
+
+    private String equipmentRrpairRecordGuid;
 
     private String urgentFlag;
 
@@ -61,8 +60,6 @@ public class RrpairOrder {
 
     private String faultDescribe;
 
-    private String faultAccessory;
-
     private String faultAccessoryAudio;
 
     private String faultWords;
@@ -77,31 +74,29 @@ public class RrpairOrder {
 
     private String costDetail;
 
-    private String evaluate;
+    private String tfComment;
 
     private String tfRemark;
-    
+
     private String rrpairOrderGuid;
-    
-    private String tfComment;
-    
-    public String getTfComment() {
-		return tfComment;
-	}
 
-	public void setTfComment(String tfComment) {
-		this.tfComment = tfComment;
-	}
+    private String faultAccessory;
 
-	public String getRrpairOrderGuid() {
-		return rrpairOrderGuid;
-	}
+    private String tfAccessory;
 
-	public void setRrpairOrderGuid(String rrpairOrderGuid) {
-		this.rrpairOrderGuid = rrpairOrderGuid;
-	}
+    private String rrpairOrderNo;
 
-	public String getRrpairOrder() {
+    private String rrpairSend;
+
+    private String callUserid;
+
+    private String outOrg;
+
+    private String failCause;
+
+    private Date createDate;
+
+    public String getRrpairOrder() {
         return rrpairOrder;
     }
 
@@ -187,6 +182,14 @@ public class RrpairOrder {
 
     public void setOrderFstate(String orderFstate) {
         this.orderFstate = orderFstate == null ? null : orderFstate.trim();
+    }
+
+    public String getEquipmentRrpairRecordGuid() {
+        return equipmentRrpairRecordGuid;
+    }
+
+    public void setEquipmentRrpairRecordGuid(String equipmentRrpairRecordGuid) {
+        this.equipmentRrpairRecordGuid = equipmentRrpairRecordGuid == null ? null : equipmentRrpairRecordGuid.trim();
     }
 
     public String getUrgentFlag() {
@@ -317,14 +320,6 @@ public class RrpairOrder {
         this.faultDescribe = faultDescribe == null ? null : faultDescribe.trim();
     }
 
-    public String getFaultAccessory() {
-        return faultAccessory;
-    }
-
-    public void setFaultAccessory(String faultAccessory) {
-        this.faultAccessory = faultAccessory == null ? null : faultAccessory.trim();
-    }
-
     public String getFaultAccessoryAudio() {
         return faultAccessoryAudio;
     }
@@ -381,12 +376,12 @@ public class RrpairOrder {
         this.costDetail = costDetail == null ? null : costDetail.trim();
     }
 
-    public String getEvaluate() {
-        return evaluate;
+    public String getTfComment() {
+        return tfComment;
     }
 
-    public void setEvaluate(String evaluate) {
-        this.evaluate = evaluate == null ? null : evaluate.trim();
+    public void setTfComment(String tfComment) {
+        this.tfComment = tfComment == null ? null : tfComment.trim();
     }
 
     public String getTfRemark() {
@@ -395,5 +390,77 @@ public class RrpairOrder {
 
     public void setTfRemark(String tfRemark) {
         this.tfRemark = tfRemark == null ? null : tfRemark.trim();
+    }
+
+    public String getRrpairOrderGuid() {
+        return rrpairOrderGuid;
+    }
+
+    public void setRrpairOrderGuid(String rrpairOrderGuid) {
+        this.rrpairOrderGuid = rrpairOrderGuid == null ? null : rrpairOrderGuid.trim();
+    }
+
+    public String getFaultAccessory() {
+        return faultAccessory;
+    }
+
+    public void setFaultAccessory(String faultAccessory) {
+        this.faultAccessory = faultAccessory == null ? null : faultAccessory.trim();
+    }
+
+    public String getTfAccessory() {
+        return tfAccessory;
+    }
+
+    public void setTfAccessory(String tfAccessory) {
+        this.tfAccessory = tfAccessory == null ? null : tfAccessory.trim();
+    }
+
+    public String getRrpairOrderNo() {
+        return rrpairOrderNo;
+    }
+
+    public void setRrpairOrderNo(String rrpairOrderNo) {
+        this.rrpairOrderNo = rrpairOrderNo == null ? null : rrpairOrderNo.trim();
+    }
+
+    public String getRrpairSend() {
+        return rrpairSend;
+    }
+
+    public void setRrpairSend(String rrpairSend) {
+        this.rrpairSend = rrpairSend == null ? null : rrpairSend.trim();
+    }
+
+    public String getCallUserid() {
+        return callUserid;
+    }
+
+    public void setCallUserid(String callUserid) {
+        this.callUserid = callUserid == null ? null : callUserid.trim();
+    }
+
+    public String getOutOrg() {
+        return outOrg;
+    }
+
+    public void setOutOrg(String outOrg) {
+        this.outOrg = outOrg == null ? null : outOrg.trim();
+    }
+
+    public String getFailCause() {
+        return failCause;
+    }
+
+    public void setFailCause(String failCause) {
+        this.failCause = failCause == null ? null : failCause.trim();
+    }
+
+    public Date getCreateDate() {
+        return createDate;
+    }
+
+    public void setCreateDate(Date createDate) {
+        this.createDate = createDate;
     }
 }

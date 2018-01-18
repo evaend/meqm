@@ -26,7 +26,7 @@ import com.phxl.ysy.constant.CustomConst.GroupType;
 import com.phxl.ysy.constant.CustomConst.UserLevel;
 import com.phxl.ysy.dao.UserInfoMapper;
 import com.phxl.ysy.entity.Group;
-import com.phxl.ysy.entity.GroupUser;
+import com.phxl.ysy.entity.GroupUserKey;
 import com.phxl.ysy.entity.UserInfo;
 import com.phxl.ysy.service.MenuService;
 import com.phxl.ysy.service.UserService;
@@ -345,7 +345,7 @@ public class UserServiceImpl extends BaseService implements UserService {
 				}else if(CollectionUtils.isNotEmpty(gList) && gList.size()>1){
 					throw new ValidationException("数据错误: 该用户的机构（orgId: "+user.getOrgId()+"）有多个核心组！");
 				}else{
-					GroupUser gu = new GroupUser();
+					GroupUserKey gu = new GroupUserKey();
 					gu.setGroupId( gList.get(0).getGroupId());
 					gu.setUserId(user.getUserId());
 					//机构的核心组添加用户

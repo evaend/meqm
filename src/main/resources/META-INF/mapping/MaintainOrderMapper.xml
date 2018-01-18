@@ -19,5 +19,121 @@
     <result column="REMARK" property="remark" jdbcType="VARCHAR" />
     <result column="TF_ACCESSORY" property="tfAccessory" jdbcType="VARCHAR" />
   </resultMap>
-  
+  <insert id="insert" parameterType="com.phxl.ysy.entity.MaintainOrder" >
+    insert into GDZC.TD_MAINTAIN_ORDER (RRPAIR_ORDER, ASSETS_RECORD, EQUIPMENT_CODE, 
+      U_ORG, USE_DEPT_CODE, LAST_MAINTAIN_DATE, 
+      MAINTAIN_DATE, ENGINEER_USERID, ENGINEER_NAME, 
+      MAINTAIN_PRICE, MAINTAIN_METHOD, EQUIPMENT_FSTATE, 
+      MAINTAIN_REASON, MAINTAIN_CYCLE, REMARK, 
+      TF_ACCESSORY)
+    values (#{rrpairOrder,jdbcType=VARCHAR}, #{assetsRecord,jdbcType=VARCHAR}, #{equipmentCode,jdbcType=VARCHAR}, 
+      #{uOrg,jdbcType=VARCHAR}, #{useDeptCode,jdbcType=VARCHAR}, #{lastMaintainDate,jdbcType=DATE}, 
+      #{maintainDate,jdbcType=DATE}, #{engineerUserid,jdbcType=VARCHAR}, #{engineerName,jdbcType=VARCHAR}, 
+      #{maintainPrice,jdbcType=DECIMAL}, #{maintainMethod,jdbcType=VARCHAR}, #{equipmentFstate,jdbcType=VARCHAR}, 
+      #{maintainReason,jdbcType=VARCHAR}, #{maintainCycle,jdbcType=VARCHAR}, #{remark,jdbcType=VARCHAR}, 
+      #{tfAccessory,jdbcType=VARCHAR})
+  </insert>
+  <insert id="insertSelective" parameterType="com.phxl.ysy.entity.MaintainOrder" >
+    insert into GDZC.TD_MAINTAIN_ORDER
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="rrpairOrder != null" >
+        RRPAIR_ORDER,
+      </if>
+      <if test="assetsRecord != null" >
+        ASSETS_RECORD,
+      </if>
+      <if test="equipmentCode != null" >
+        EQUIPMENT_CODE,
+      </if>
+      <if test="uOrg != null" >
+        U_ORG,
+      </if>
+      <if test="useDeptCode != null" >
+        USE_DEPT_CODE,
+      </if>
+      <if test="lastMaintainDate != null" >
+        LAST_MAINTAIN_DATE,
+      </if>
+      <if test="maintainDate != null" >
+        MAINTAIN_DATE,
+      </if>
+      <if test="engineerUserid != null" >
+        ENGINEER_USERID,
+      </if>
+      <if test="engineerName != null" >
+        ENGINEER_NAME,
+      </if>
+      <if test="maintainPrice != null" >
+        MAINTAIN_PRICE,
+      </if>
+      <if test="maintainMethod != null" >
+        MAINTAIN_METHOD,
+      </if>
+      <if test="equipmentFstate != null" >
+        EQUIPMENT_FSTATE,
+      </if>
+      <if test="maintainReason != null" >
+        MAINTAIN_REASON,
+      </if>
+      <if test="maintainCycle != null" >
+        MAINTAIN_CYCLE,
+      </if>
+      <if test="remark != null" >
+        REMARK,
+      </if>
+      <if test="tfAccessory != null" >
+        TF_ACCESSORY,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="rrpairOrder != null" >
+        #{rrpairOrder,jdbcType=VARCHAR},
+      </if>
+      <if test="assetsRecord != null" >
+        #{assetsRecord,jdbcType=VARCHAR},
+      </if>
+      <if test="equipmentCode != null" >
+        #{equipmentCode,jdbcType=VARCHAR},
+      </if>
+      <if test="uOrg != null" >
+        #{uOrg,jdbcType=VARCHAR},
+      </if>
+      <if test="useDeptCode != null" >
+        #{useDeptCode,jdbcType=VARCHAR},
+      </if>
+      <if test="lastMaintainDate != null" >
+        #{lastMaintainDate,jdbcType=DATE},
+      </if>
+      <if test="maintainDate != null" >
+        #{maintainDate,jdbcType=DATE},
+      </if>
+      <if test="engineerUserid != null" >
+        #{engineerUserid,jdbcType=VARCHAR},
+      </if>
+      <if test="engineerName != null" >
+        #{engineerName,jdbcType=VARCHAR},
+      </if>
+      <if test="maintainPrice != null" >
+        #{maintainPrice,jdbcType=DECIMAL},
+      </if>
+      <if test="maintainMethod != null" >
+        #{maintainMethod,jdbcType=VARCHAR},
+      </if>
+      <if test="equipmentFstate != null" >
+        #{equipmentFstate,jdbcType=VARCHAR},
+      </if>
+      <if test="maintainReason != null" >
+        #{maintainReason,jdbcType=VARCHAR},
+      </if>
+      <if test="maintainCycle != null" >
+        #{maintainCycle,jdbcType=VARCHAR},
+      </if>
+      <if test="remark != null" >
+        #{remark,jdbcType=VARCHAR},
+      </if>
+      <if test="tfAccessory != null" >
+        #{tfAccessory,jdbcType=VARCHAR},
+      </if>
+    </trim>
+  </insert>
 </mapper>

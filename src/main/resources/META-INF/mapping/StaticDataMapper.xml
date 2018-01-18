@@ -11,5 +11,67 @@
     <result column="STATIC_ID" property="staticId" jdbcType="VARCHAR" />
     <result column="FSORT" property="fsort" jdbcType="DECIMAL" />
   </resultMap>
-  
+  <insert id="insert" parameterType="com.phxl.ysy.entity.StaticData" >
+    insert into GDZC.TD_STATIC_DATA (STATIC_DATA_GUID, TF_CLO_CODE, TF_CLO_NAME, 
+      CREATE_USERID, CREATE_TIME, TF_REMARK, 
+      STATIC_ID, FSORT)
+    values (#{staticDataGuid,jdbcType=VARCHAR}, #{tfCloCode,jdbcType=VARCHAR}, #{tfCloName,jdbcType=VARCHAR}, 
+      #{createUserid,jdbcType=VARCHAR}, #{createTime,jdbcType=DATE}, #{tfRemark,jdbcType=VARCHAR}, 
+      #{staticId,jdbcType=VARCHAR}, #{fsort,jdbcType=DECIMAL})
+  </insert>
+  <insert id="insertSelective" parameterType="com.phxl.ysy.entity.StaticData" >
+    insert into GDZC.TD_STATIC_DATA
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="staticDataGuid != null" >
+        STATIC_DATA_GUID,
+      </if>
+      <if test="tfCloCode != null" >
+        TF_CLO_CODE,
+      </if>
+      <if test="tfCloName != null" >
+        TF_CLO_NAME,
+      </if>
+      <if test="createUserid != null" >
+        CREATE_USERID,
+      </if>
+      <if test="createTime != null" >
+        CREATE_TIME,
+      </if>
+      <if test="tfRemark != null" >
+        TF_REMARK,
+      </if>
+      <if test="staticId != null" >
+        STATIC_ID,
+      </if>
+      <if test="fsort != null" >
+        FSORT,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="staticDataGuid != null" >
+        #{staticDataGuid,jdbcType=VARCHAR},
+      </if>
+      <if test="tfCloCode != null" >
+        #{tfCloCode,jdbcType=VARCHAR},
+      </if>
+      <if test="tfCloName != null" >
+        #{tfCloName,jdbcType=VARCHAR},
+      </if>
+      <if test="createUserid != null" >
+        #{createUserid,jdbcType=VARCHAR},
+      </if>
+      <if test="createTime != null" >
+        #{createTime,jdbcType=DATE},
+      </if>
+      <if test="tfRemark != null" >
+        #{tfRemark,jdbcType=VARCHAR},
+      </if>
+      <if test="staticId != null" >
+        #{staticId,jdbcType=VARCHAR},
+      </if>
+      <if test="fsort != null" >
+        #{fsort,jdbcType=DECIMAL},
+      </if>
+    </trim>
+  </insert>
 </mapper>

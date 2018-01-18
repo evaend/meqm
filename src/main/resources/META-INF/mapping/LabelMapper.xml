@@ -7,5 +7,76 @@
     <result column="MULTI_NAME" property="multiName" jdbcType="VARCHAR" />
     <result column="LABEL_TYPE" property="labelType" jdbcType="VARCHAR" />
   </resultMap>
-
+  <sql id="Base_Column_List" >
+    LABEL_GUID, MULTI_ID, MULTI_NAME, LABEL_TYPE
+  </sql>
+  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="com.phxl.ysy.entity.LabelKey" >
+    select 
+    <include refid="Base_Column_List" />
+    from GDZC.TD_LABEL
+    where LABEL_GUID = #{labelGuid,jdbcType=VARCHAR}
+      and MULTI_ID = #{multiId,jdbcType=VARCHAR}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="com.phxl.ysy.entity.LabelKey" >
+    delete from GDZC.TD_LABEL
+    where LABEL_GUID = #{labelGuid,jdbcType=VARCHAR}
+      and MULTI_ID = #{multiId,jdbcType=VARCHAR}
+  </delete>
+  <insert id="insert" parameterType="com.phxl.ysy.entity.Label" >
+    insert into GDZC.TD_LABEL (LABEL_GUID, MULTI_ID, MULTI_NAME, 
+      LABEL_TYPE)
+    values (#{labelGuid,jdbcType=VARCHAR}, #{multiId,jdbcType=VARCHAR}, #{multiName,jdbcType=VARCHAR}, 
+      #{labelType,jdbcType=VARCHAR})
+  </insert>
+  <insert id="insertSelective" parameterType="com.phxl.ysy.entity.Label" >
+    insert into GDZC.TD_LABEL
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="labelGuid != null" >
+        LABEL_GUID,
+      </if>
+      <if test="multiId != null" >
+        MULTI_ID,
+      </if>
+      <if test="multiName != null" >
+        MULTI_NAME,
+      </if>
+      <if test="labelType != null" >
+        LABEL_TYPE,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="labelGuid != null" >
+        #{labelGuid,jdbcType=VARCHAR},
+      </if>
+      <if test="multiId != null" >
+        #{multiId,jdbcType=VARCHAR},
+      </if>
+      <if test="multiName != null" >
+        #{multiName,jdbcType=VARCHAR},
+      </if>
+      <if test="labelType != null" >
+        #{labelType,jdbcType=VARCHAR},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="com.phxl.ysy.entity.Label" >
+    update GDZC.TD_LABEL
+    <set >
+      <if test="multiName != null" >
+        MULTI_NAME = #{multiName,jdbcType=VARCHAR},
+      </if>
+      <if test="labelType != null" >
+        LABEL_TYPE = #{labelType,jdbcType=VARCHAR},
+      </if>
+    </set>
+    where LABEL_GUID = #{labelGuid,jdbcType=VARCHAR}
+      and MULTI_ID = #{multiId,jdbcType=VARCHAR}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.phxl.ysy.entity.Label" >
+    update GDZC.TD_LABEL
+    set MULTI_NAME = #{multiName,jdbcType=VARCHAR},
+      LABEL_TYPE = #{labelType,jdbcType=VARCHAR}
+    where LABEL_GUID = #{labelGuid,jdbcType=VARCHAR}
+      and MULTI_ID = #{multiId,jdbcType=VARCHAR}
+  </update>
 </mapper>

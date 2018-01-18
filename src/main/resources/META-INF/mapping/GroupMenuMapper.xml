@@ -5,5 +5,32 @@
     <id column="GROUP_ID" property="groupId" jdbcType="VARCHAR" />
     <id column="MENU_ID" property="menuId" jdbcType="VARCHAR" />
   </resultMap>
-  
+  <delete id="deleteByPrimaryKey" parameterType="com.phxl.ysy.entity.GroupMenuKey" >
+    delete from GDZC.TS_GROUP_MENU
+    where GROUP_ID = #{groupId,jdbcType=VARCHAR}
+      and MENU_ID = #{menuId,jdbcType=VARCHAR}
+  </delete>
+  <insert id="insert" parameterType="com.phxl.ysy.entity.GroupMenuKey" >
+    insert into GDZC.TS_GROUP_MENU (GROUP_ID, MENU_ID)
+    values (#{groupId,jdbcType=VARCHAR}, #{menuId,jdbcType=VARCHAR})
+  </insert>
+  <insert id="insertSelective" parameterType="com.phxl.ysy.entity.GroupMenuKey" >
+    insert into GDZC.TS_GROUP_MENU
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="groupId != null" >
+        GROUP_ID,
+      </if>
+      <if test="menuId != null" >
+        MENU_ID,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="groupId != null" >
+        #{groupId,jdbcType=VARCHAR},
+      </if>
+      <if test="menuId != null" >
+        #{menuId,jdbcType=VARCHAR},
+      </if>
+    </trim>
+  </insert>
 </mapper>

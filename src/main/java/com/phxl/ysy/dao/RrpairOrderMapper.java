@@ -3,9 +3,8 @@ package com.phxl.ysy.dao;
 import java.util.List;
 import java.util.Map;
 
-
-
 import com.phxl.core.base.entity.Pager;
+import com.phxl.ysy.entity.RrpairOrder;
 
 public interface RrpairOrderMapper {
 	//查询设备维修列表

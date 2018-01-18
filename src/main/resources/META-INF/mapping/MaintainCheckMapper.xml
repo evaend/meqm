@@ -9,5 +9,55 @@
     <result column="CALIBRATION" property="calibration" jdbcType="VARCHAR" />
     <result column="CURRENT_CHECK" property="currentCheck" jdbcType="VARCHAR" />
   </resultMap>
- 
+  <insert id="insert" parameterType="com.phxl.ysy.entity.MaintainCheck" >
+    insert into GDZC.TD_MAINTAIN_CHECK (RRPAIR_ORDER, RESISTANCE_CHECK, EXTERIOR_CHECK, 
+      SURFACE_CHECK, CALIBRATION, CURRENT_CHECK
+      )
+    values (#{rrpairOrder,jdbcType=VARCHAR}, #{resistanceCheck,jdbcType=VARCHAR}, #{exteriorCheck,jdbcType=VARCHAR}, 
+      #{surfaceCheck,jdbcType=VARCHAR}, #{calibration,jdbcType=VARCHAR}, #{currentCheck,jdbcType=VARCHAR}
+      )
+  </insert>
+  <insert id="insertSelective" parameterType="com.phxl.ysy.entity.MaintainCheck" >
+    insert into GDZC.TD_MAINTAIN_CHECK
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="rrpairOrder != null" >
+        RRPAIR_ORDER,
+      </if>
+      <if test="resistanceCheck != null" >
+        RESISTANCE_CHECK,
+      </if>
+      <if test="exteriorCheck != null" >
+        EXTERIOR_CHECK,
+      </if>
+      <if test="surfaceCheck != null" >
+        SURFACE_CHECK,
+      </if>
+      <if test="calibration != null" >
+        CALIBRATION,
+      </if>
+      <if test="currentCheck != null" >
+        CURRENT_CHECK,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="rrpairOrder != null" >
+        #{rrpairOrder,jdbcType=VARCHAR},
+      </if>
+      <if test="resistanceCheck != null" >
+        #{resistanceCheck,jdbcType=VARCHAR},
+      </if>
+      <if test="exteriorCheck != null" >
+        #{exteriorCheck,jdbcType=VARCHAR},
+      </if>
+      <if test="surfaceCheck != null" >
+        #{surfaceCheck,jdbcType=VARCHAR},
+      </if>
+      <if test="calibration != null" >
+        #{calibration,jdbcType=VARCHAR},
+      </if>
+      <if test="currentCheck != null" >
+        #{currentCheck,jdbcType=VARCHAR},
+      </if>
+    </trim>
+  </insert>
 </mapper>

@@ -15,5 +15,95 @@
     <result column="TF_TABLE_CLO" property="tfTableClo" jdbcType="VARCHAR" />
     <result column="FSORT" property="fsort" jdbcType="VARCHAR" />
   </resultMap>
-  
+  <insert id="insert" parameterType="com.phxl.ysy.entity.StaticInfo" >
+    insert into GDZC.TD_STATIC_INFO (STATIC_ID, STATIC_TYPE, PARENT_STATIC_ID, 
+      ORG_ID, CREATE_USERID, CREATE_TIME, 
+      MODIFY_TIME, TF_TABLE, TF_CLO, 
+      TF_COMMENT, TF_TABLE_CLO, FSORT
+      )
+    values (#{staticId,jdbcType=VARCHAR}, #{staticType,jdbcType=VARCHAR}, #{parentStaticId,jdbcType=VARCHAR}, 
+      #{orgId,jdbcType=DECIMAL}, #{createUserid,jdbcType=VARCHAR}, #{createTime,jdbcType=DATE}, 
+      #{modifyTime,jdbcType=DATE}, #{tfTable,jdbcType=VARCHAR}, #{tfClo,jdbcType=VARCHAR}, 
+      #{tfComment,jdbcType=VARCHAR}, #{tfTableClo,jdbcType=VARCHAR}, #{fsort,jdbcType=VARCHAR}
+      )
+  </insert>
+  <insert id="insertSelective" parameterType="com.phxl.ysy.entity.StaticInfo" >
+    insert into GDZC.TD_STATIC_INFO
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="staticId != null" >
+        STATIC_ID,
+      </if>
+      <if test="staticType != null" >
+        STATIC_TYPE,
+      </if>
+      <if test="parentStaticId != null" >
+        PARENT_STATIC_ID,
+      </if>
+      <if test="orgId != null" >
+        ORG_ID,
+      </if>
+      <if test="createUserid != null" >
+        CREATE_USERID,
+      </if>
+      <if test="createTime != null" >
+        CREATE_TIME,
+      </if>
+      <if test="modifyTime != null" >
+        MODIFY_TIME,
+      </if>
+      <if test="tfTable != null" >
+        TF_TABLE,
+      </if>
+      <if test="tfClo != null" >
+        TF_CLO,
+      </if>
+      <if test="tfComment != null" >
+        TF_COMMENT,
+      </if>
+      <if test="tfTableClo != null" >
+        TF_TABLE_CLO,
+      </if>
+      <if test="fsort != null" >
+        FSORT,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="staticId != null" >
+        #{staticId,jdbcType=VARCHAR},
+      </if>
+      <if test="staticType != null" >
+        #{staticType,jdbcType=VARCHAR},
+      </if>
+      <if test="parentStaticId != null" >
+        #{parentStaticId,jdbcType=VARCHAR},
+      </if>
+      <if test="orgId != null" >
+        #{orgId,jdbcType=DECIMAL},
+      </if>
+      <if test="createUserid != null" >
+        #{createUserid,jdbcType=VARCHAR},
+      </if>
+      <if test="createTime != null" >
+        #{createTime,jdbcType=DATE},
+      </if>
+      <if test="modifyTime != null" >
+        #{modifyTime,jdbcType=DATE},
+      </if>
+      <if test="tfTable != null" >
+        #{tfTable,jdbcType=VARCHAR},
+      </if>
+      <if test="tfClo != null" >
+        #{tfClo,jdbcType=VARCHAR},
+      </if>
+      <if test="tfComment != null" >
+        #{tfComment,jdbcType=VARCHAR},
+      </if>
+      <if test="tfTableClo != null" >
+        #{tfTableClo,jdbcType=VARCHAR},
+      </if>
+      <if test="fsort != null" >
+        #{fsort,jdbcType=VARCHAR},
+      </if>
+    </trim>
+  </insert>
 </mapper>

@@ -56,10 +56,10 @@ public class EquipmentAdditionalServiceImpl  extends BaseService implements Equi
 				String depreciationType = CustomConst.DepreciationTypeMap.get(equipmentDto.getDepreciationType());//获取折旧算法的转化值
 				equipmentDto.setDepreciationType(depreciationType);
 			}
-			if(equipmentDto.getRepairFlag() != null){
-				String repairFlag = CustomConst.RepairFlagMap.get(equipmentDto.getRepairFlag());//获取维修标志的转化值
-				equipmentDto.setRepairFlag(repairFlag);
-			}
+//			if(equipmentDto.getRepairFlag() != null){
+//				String repairFlag = CustomConst.RepairFlagMap.get(equipmentDto.getRepairFlag());//获取维修标志的转化值
+//				equipmentDto.setRepairFlag(repairFlag);
+//			}
 //			if(equipmentDto.getUseDeptCode() != null){
 //				DeptInfo deptnew = new DeptInfo();
 //				deptnew.setDeptNam(equipmentDto.getUseDeptCode());

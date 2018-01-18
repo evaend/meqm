@@ -122,7 +122,7 @@ public class WeixinAPIImpl implements WeixinAPIInterface
                     user.setSex(json.get("sex").asText());
                     user.setCity(json.get("city").asText());
                     user.setLanguage(json.get("language").asText());
-                    user.setHeadimgurl(json.get("headimgurl").asText());
+//                    user.setHeadimgurl(json.get("headimgurl").asText());
                 }
                 return user;
             }

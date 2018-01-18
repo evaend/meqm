@@ -2,15 +2,10 @@ package com.phxl.ysy.entity;
 
 import java.util.Date;
 
-import com.phxl.core.base.annotation.BaseSql;
-
-@BaseSql(tableName="TS_GROUP", resultName="com.phxl.ysy.dao.GroupMapper.BaseResultMap")
 public class Group {
     private String groupId;
-    
+
     private String groupName;
-    
-    private Long orgId;
 
     private String tfRemark;
 
@@ -25,18 +20,17 @@ public class Group {
     private String groupType;
 
     private String groupCode;
-    
-    private String sourceGroupId;
 
-    /**是否机构核心组*/
-    private Boolean isOrgCoreGroup;
-    
+    private Long orgId;
+
+    private String sourceGroupid;
+
     public String getGroupId() {
         return groupId;
     }
 
     public void setGroupId(String groupId) {
-        this.groupId = groupId;
+        this.groupId = groupId == null ? null : groupId.trim();
     }
 
     public String getGroupName() {
@@ -44,7 +38,7 @@ public class Group {
     }
 
     public void setGroupName(String groupName) {
-        this.groupName = groupName;
+        this.groupName = groupName == null ? null : groupName.trim();
     }
 
     public String getTfRemark() {
@@ -52,7 +46,7 @@ public class Group {
     }
 
     public void setTfRemark(String tfRemark) {
-        this.tfRemark = tfRemark;
+        this.tfRemark = tfRemark == null ? null : tfRemark.trim();
     }
 
     public Date getModifyTime() {
@@ -76,7 +70,7 @@ public class Group {
     }
 
     public void setCreateUserid(String createUserid) {
-        this.createUserid = createUserid;
+        this.createUserid = createUserid == null ? null : createUserid.trim();
     }
 
     public String getModifyUserid() {
@@ -84,7 +78,7 @@ public class Group {
     }
 
     public void setModifyUserid(String modifyUserid) {
-        this.modifyUserid = modifyUserid;
+        this.modifyUserid = modifyUserid == null ? null : modifyUserid.trim();
     }
 
     public String getGroupType() {
@@ -92,7 +86,7 @@ public class Group {
     }
 
     public void setGroupType(String groupType) {
-        this.groupType = groupType;
+        this.groupType = groupType == null ? null : groupType.trim();
     }
 
     public String getGroupCode() {
@@ -100,31 +94,22 @@ public class Group {
     }
 
     public void setGroupCode(String groupCode) {
-        this.groupCode = groupCode;
+        this.groupCode = groupCode == null ? null : groupCode.trim();
     }
 
-	public Long getOrgId() {
-		return orgId;
-	}
+    public Long getOrgId() {
+        return orgId;
+    }
 
-	public void setOrgId(Long orgId) {
-		this.orgId = orgId;
-	}
+    public void setOrgId(Long orgId) {
+        this.orgId = orgId;
+    }
 
-	public String getSourceGroupId() {
-		return sourceGroupId;
-	}
+    public String getSourceGroupid() {
+        return sourceGroupid;
+    }
 
-	public void setSourceGroupId(String sourceGroupId) {
-		this.sourceGroupId = sourceGroupId;
-	}
-
-	public Boolean getIsOrgCoreGroup() {
-		return isOrgCoreGroup;
-	}
-
-	public void setIsOrgCoreGroup(Boolean isOrgCoreGroup) {
-		this.isOrgCoreGroup = isOrgCoreGroup;
-	}
-
+    public void setSourceGroupid(String sourceGroupid) {
+        this.sourceGroupid = sourceGroupid == null ? null : sourceGroupid.trim();
+    }
 }

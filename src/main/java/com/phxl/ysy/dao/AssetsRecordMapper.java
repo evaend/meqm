@@ -8,7 +8,7 @@ import com.phxl.ysy.entity.AssetsRecord;
 import com.phxl.ysy.web.dto.EquipmentDto;
 
 public interface AssetsRecordMapper {
-    //查询资产总量
+	//查询资产总量
 	Integer selectAssetsRecordCount();
 	
 	//查询资产档案信息列表

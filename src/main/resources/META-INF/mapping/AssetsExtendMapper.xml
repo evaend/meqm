@@ -6,11 +6,159 @@
     <id column="PROJECT_NO" property="projectNo" jdbcType="VARCHAR" />
     <result column="EQUIPMENT_CODE" property="equipmentCode" jdbcType="VARCHAR" />
     <result column="EQUIPMENT_SPEC" property="equipmentSpec" jdbcType="VARCHAR" />
-    <result column="SUM" property="sum" jdbcType="DECIMAL" />
     <result column="PRICE" property="price" jdbcType="DECIMAL" />
+    <result column="CREATE_USERID" property="createUserid" jdbcType="VARCHAR" />
+    <result column="CREATE_USERNAME" property="createUsername" jdbcType="VARCHAR" />
+    <result column="CREATE_DATE" property="createDate" jdbcType="DATE" />
+    <result column="EXTEND_SUM" property="extendSum" jdbcType="DECIMAL" />
+    <result column="QRCODE" property="qrcode" jdbcType="VARCHAR" />
+    <result column="ASSETS_RECORD_M" property="assetsRecordM" jdbcType="VARCHAR" />
   </resultMap>
   <sql id="Base_Column_List" >
-    ASSETS_RECORD, PROJECT_NO, EQUIPMENT_CODE, EQUIPMENT_SPEC, SUM, PRICE
+    ASSETS_RECORD, PROJECT_NO, EQUIPMENT_CODE, EQUIPMENT_SPEC, PRICE, CREATE_USERID, 
+    CREATE_USERNAME, CREATE_DATE, EXTEND_SUM, QRCODE, ASSETS_RECORD_M
   </sql>
-  
+  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="com.phxl.ysy.entity.AssetsExtendKey" >
+    select 
+    <include refid="Base_Column_List" />
+    from GDZC.TD_ASSETS_EXTEND
+    where ASSETS_RECORD = #{assetsRecord,jdbcType=VARCHAR}
+      and PROJECT_NO = #{projectNo,jdbcType=VARCHAR}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="com.phxl.ysy.entity.AssetsExtendKey" >
+    delete from GDZC.TD_ASSETS_EXTEND
+    where ASSETS_RECORD = #{assetsRecord,jdbcType=VARCHAR}
+      and PROJECT_NO = #{projectNo,jdbcType=VARCHAR}
+  </delete>
+  <insert id="insert" parameterType="com.phxl.ysy.entity.AssetsExtend" >
+    insert into GDZC.TD_ASSETS_EXTEND (ASSETS_RECORD, PROJECT_NO, EQUIPMENT_CODE, 
+      EQUIPMENT_SPEC, PRICE, CREATE_USERID, 
+      CREATE_USERNAME, CREATE_DATE, EXTEND_SUM, 
+      QRCODE, ASSETS_RECORD_M)
+    values (#{assetsRecord,jdbcType=VARCHAR}, #{projectNo,jdbcType=VARCHAR}, #{equipmentCode,jdbcType=VARCHAR}, 
+      #{equipmentSpec,jdbcType=VARCHAR}, #{price,jdbcType=DECIMAL}, #{createUserid,jdbcType=VARCHAR}, 
+      #{createUsername,jdbcType=VARCHAR}, #{createDate,jdbcType=DATE}, #{extendSum,jdbcType=DECIMAL}, 
+      #{qrcode,jdbcType=VARCHAR}, #{assetsRecordM,jdbcType=VARCHAR})
+  </insert>
+  <insert id="insertSelective" parameterType="com.phxl.ysy.entity.AssetsExtend" >
+    insert into GDZC.TD_ASSETS_EXTEND
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="assetsRecord != null" >
+        ASSETS_RECORD,
+      </if>
+      <if test="projectNo != null" >
+        PROJECT_NO,
+      </if>
+      <if test="equipmentCode != null" >
+        EQUIPMENT_CODE,
+      </if>
+      <if test="equipmentSpec != null" >
+        EQUIPMENT_SPEC,
+      </if>
+      <if test="price != null" >
+        PRICE,
+      </if>
+      <if test="createUserid != null" >
+        CREATE_USERID,
+      </if>
+      <if test="createUsername != null" >
+        CREATE_USERNAME,
+      </if>
+      <if test="createDate != null" >
+        CREATE_DATE,
+      </if>
+      <if test="extendSum != null" >
+        EXTEND_SUM,
+      </if>
+      <if test="qrcode != null" >
+        QRCODE,
+      </if>
+      <if test="assetsRecordM != null" >
+        ASSETS_RECORD_M,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="assetsRecord != null" >
+        #{assetsRecord,jdbcType=VARCHAR},
+      </if>
+      <if test="projectNo != null" >
+        #{projectNo,jdbcType=VARCHAR},
+      </if>
+      <if test="equipmentCode != null" >
+        #{equipmentCode,jdbcType=VARCHAR},
+      </if>
+      <if test="equipmentSpec != null" >
+        #{equipmentSpec,jdbcType=VARCHAR},
+      </if>
+      <if test="price != null" >
+        #{price,jdbcType=DECIMAL},
+      </if>
+      <if test="createUserid != null" >
+        #{createUserid,jdbcType=VARCHAR},
+      </if>
+      <if test="createUsername != null" >
+        #{createUsername,jdbcType=VARCHAR},
+      </if>
+      <if test="createDate != null" >
+        #{createDate,jdbcType=DATE},
+      </if>
+      <if test="extendSum != null" >
+        #{extendSum,jdbcType=DECIMAL},
+      </if>
+      <if test="qrcode != null" >
+        #{qrcode,jdbcType=VARCHAR},
+      </if>
+      <if test="assetsRecordM != null" >
+        #{assetsRecordM,jdbcType=VARCHAR},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="com.phxl.ysy.entity.AssetsExtend" >
+    update GDZC.TD_ASSETS_EXTEND
+    <set >
+      <if test="equipmentCode != null" >
+        EQUIPMENT_CODE = #{equipmentCode,jdbcType=VARCHAR},
+      </if>
+      <if test="equipmentSpec != null" >
+        EQUIPMENT_SPEC = #{equipmentSpec,jdbcType=VARCHAR},
+      </if>
+      <if test="price != null" >
+        PRICE = #{price,jdbcType=DECIMAL},
+      </if>
+      <if test="createUserid != null" >
+        CREATE_USERID = #{createUserid,jdbcType=VARCHAR},
+      </if>
+      <if test="createUsername != null" >
+        CREATE_USERNAME = #{createUsername,jdbcType=VARCHAR},
+      </if>
+      <if test="createDate != null" >
+        CREATE_DATE = #{createDate,jdbcType=DATE},
+      </if>
+      <if test="extendSum != null" >
+        EXTEND_SUM = #{extendSum,jdbcType=DECIMAL},
+      </if>
+      <if test="qrcode != null" >
+        QRCODE = #{qrcode,jdbcType=VARCHAR},
+      </if>
+      <if test="assetsRecordM != null" >
+        ASSETS_RECORD_M = #{assetsRecordM,jdbcType=VARCHAR},
+      </if>
+    </set>
+    where ASSETS_RECORD = #{assetsRecord,jdbcType=VARCHAR}
+      and PROJECT_NO = #{projectNo,jdbcType=VARCHAR}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.phxl.ysy.entity.AssetsExtend" >
+    update GDZC.TD_ASSETS_EXTEND
+    set EQUIPMENT_CODE = #{equipmentCode,jdbcType=VARCHAR},
+      EQUIPMENT_SPEC = #{equipmentSpec,jdbcType=VARCHAR},
+      PRICE = #{price,jdbcType=DECIMAL},
+      CREATE_USERID = #{createUserid,jdbcType=VARCHAR},
+      CREATE_USERNAME = #{createUsername,jdbcType=VARCHAR},
+      CREATE_DATE = #{createDate,jdbcType=DATE},
+      EXTEND_SUM = #{extendSum,jdbcType=DECIMAL},
+      QRCODE = #{qrcode,jdbcType=VARCHAR},
+      ASSETS_RECORD_M = #{assetsRecordM,jdbcType=VARCHAR}
+    where ASSETS_RECORD = #{assetsRecord,jdbcType=VARCHAR}
+      and PROJECT_NO = #{projectNo,jdbcType=VARCHAR}
+  </update>
 </mapper>

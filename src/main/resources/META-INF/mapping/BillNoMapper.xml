@@ -14,5 +14,115 @@
   <sql id="Base_Column_List" >
     BILL_GUID, ORG_ID, STORAGE_GUID, BILL_NAME, BILL_PREFIX, YEAR_MONTH, NOW_ID, ID_LEN
   </sql>
-  
+  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.String" >
+    select 
+    <include refid="Base_Column_List" />
+    from GDZC.TD_BILL_NO
+    where BILL_GUID = #{billGuid,jdbcType=VARCHAR}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.String" >
+    delete from GDZC.TD_BILL_NO
+    where BILL_GUID = #{billGuid,jdbcType=VARCHAR}
+  </delete>
+  <insert id="insert" parameterType="com.phxl.ysy.entity.BillNo" >
+    insert into GDZC.TD_BILL_NO (BILL_GUID, ORG_ID, STORAGE_GUID, 
+      BILL_NAME, BILL_PREFIX, YEAR_MONTH, 
+      NOW_ID, ID_LEN)
+    values (#{billGuid,jdbcType=VARCHAR}, #{orgId,jdbcType=DECIMAL}, #{storageGuid,jdbcType=VARCHAR}, 
+      #{billName,jdbcType=VARCHAR}, #{billPrefix,jdbcType=VARCHAR}, #{yearMonth,jdbcType=VARCHAR}, 
+      #{nowId,jdbcType=DECIMAL}, #{idLen,jdbcType=DECIMAL})
+  </insert>
+  <insert id="insertSelective" parameterType="com.phxl.ysy.entity.BillNo" >
+    insert into GDZC.TD_BILL_NO
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="billGuid != null" >
+        BILL_GUID,
+      </if>
+      <if test="orgId != null" >
+        ORG_ID,
+      </if>
+      <if test="storageGuid != null" >
+        STORAGE_GUID,
+      </if>
+      <if test="billName != null" >
+        BILL_NAME,
+      </if>
+      <if test="billPrefix != null" >
+        BILL_PREFIX,
+      </if>
+      <if test="yearMonth != null" >
+        YEAR_MONTH,
+      </if>
+      <if test="nowId != null" >
+        NOW_ID,
+      </if>
+      <if test="idLen != null" >
+        ID_LEN,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="billGuid != null" >
+        #{billGuid,jdbcType=VARCHAR},
+      </if>
+      <if test="orgId != null" >
+        #{orgId,jdbcType=DECIMAL},
+      </if>
+      <if test="storageGuid != null" >
+        #{storageGuid,jdbcType=VARCHAR},
+      </if>
+      <if test="billName != null" >
+        #{billName,jdbcType=VARCHAR},
+      </if>
+      <if test="billPrefix != null" >
+        #{billPrefix,jdbcType=VARCHAR},
+      </if>
+      <if test="yearMonth != null" >
+        #{yearMonth,jdbcType=VARCHAR},
+      </if>
+      <if test="nowId != null" >
+        #{nowId,jdbcType=DECIMAL},
+      </if>
+      <if test="idLen != null" >
+        #{idLen,jdbcType=DECIMAL},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="com.phxl.ysy.entity.BillNo" >
+    update GDZC.TD_BILL_NO
+    <set >
+      <if test="orgId != null" >
+        ORG_ID = #{orgId,jdbcType=DECIMAL},
+      </if>
+      <if test="storageGuid != null" >
+        STORAGE_GUID = #{storageGuid,jdbcType=VARCHAR},
+      </if>
+      <if test="billName != null" >
+        BILL_NAME = #{billName,jdbcType=VARCHAR},
+      </if>
+      <if test="billPrefix != null" >
+        BILL_PREFIX = #{billPrefix,jdbcType=VARCHAR},
+      </if>
+      <if test="yearMonth != null" >
+        YEAR_MONTH = #{yearMonth,jdbcType=VARCHAR},
+      </if>
+      <if test="nowId != null" >
+        NOW_ID = #{nowId,jdbcType=DECIMAL},
+      </if>
+      <if test="idLen != null" >
+        ID_LEN = #{idLen,jdbcType=DECIMAL},
+      </if>
+    </set>
+    where BILL_GUID = #{billGuid,jdbcType=VARCHAR}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.phxl.ysy.entity.BillNo" >
+    update GDZC.TD_BILL_NO
+    set ORG_ID = #{orgId,jdbcType=DECIMAL},
+      STORAGE_GUID = #{storageGuid,jdbcType=VARCHAR},
+      BILL_NAME = #{billName,jdbcType=VARCHAR},
+      BILL_PREFIX = #{billPrefix,jdbcType=VARCHAR},
+      YEAR_MONTH = #{yearMonth,jdbcType=VARCHAR},
+      NOW_ID = #{nowId,jdbcType=DECIMAL},
+      ID_LEN = #{idLen,jdbcType=DECIMAL}
+    where BILL_GUID = #{billGuid,jdbcType=VARCHAR}
+  </update>
 </mapper>

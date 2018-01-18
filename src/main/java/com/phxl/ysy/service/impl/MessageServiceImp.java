@@ -12,7 +12,7 @@ import org.springframework.stereotype.Service;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.phxl.core.base.service.impl.BaseService;
 import com.phxl.core.base.util.JSONUtils;
-import com.phxl.ysy.entity.MessageWeChat;
+import com.phxl.ysy.entity.Messagewechat;
 import com.phxl.ysy.entity.UserInfo;
 import com.phxl.ysy.service.IMessageService;
 import com.phxl.ysy.service.weixin.WeixinAPIInterface;
@@ -36,7 +36,7 @@ public class MessageServiceImp extends BaseService implements IMessageService{
 		String WeChatContent = "";
 		JSONUtils json = new JSONUtils();
 		/** 查询微信模板信息 **/
-		MessageWeChat mwc = this.find(MessageWeChat.class, messageWechatId);
+		Messagewechat mwc = this.find(Messagewechat.class, messageWechatId);
 		Map<String,Object> map = new HashMap<String, Object>();
 		UserInfo userInfo = this.find(UserInfo.class, userid);
 		if(StringUtils.isNotBlank(userInfo.getWechatOpenid())){

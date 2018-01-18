@@ -9,5 +9,55 @@
     <result column="USER_NAME" property="userName" jdbcType="VARCHAR" />
     <result column="INPUT_CODE" property="inputCode" jdbcType="VARCHAR" />
   </resultMap>
-  
+  <insert id="insert" parameterType="com.phxl.ysy.entity.WorkerInfo" >
+    insert into GDZC.TD_WORKER_INFO (USER_ID, USER_NO, PWD, 
+      DEPT_CODE, USER_NAME, INPUT_CODE
+      )
+    values (#{userId,jdbcType=VARCHAR}, #{userNo,jdbcType=VARCHAR}, #{pwd,jdbcType=VARCHAR}, 
+      #{deptCode,jdbcType=VARCHAR}, #{userName,jdbcType=VARCHAR}, #{inputCode,jdbcType=VARCHAR}
+      )
+  </insert>
+  <insert id="insertSelective" parameterType="com.phxl.ysy.entity.WorkerInfo" >
+    insert into GDZC.TD_WORKER_INFO
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="userId != null" >
+        USER_ID,
+      </if>
+      <if test="userNo != null" >
+        USER_NO,
+      </if>
+      <if test="pwd != null" >
+        PWD,
+      </if>
+      <if test="deptCode != null" >
+        DEPT_CODE,
+      </if>
+      <if test="userName != null" >
+        USER_NAME,
+      </if>
+      <if test="inputCode != null" >
+        INPUT_CODE,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="userId != null" >
+        #{userId,jdbcType=VARCHAR},
+      </if>
+      <if test="userNo != null" >
+        #{userNo,jdbcType=VARCHAR},
+      </if>
+      <if test="pwd != null" >
+        #{pwd,jdbcType=VARCHAR},
+      </if>
+      <if test="deptCode != null" >
+        #{deptCode,jdbcType=VARCHAR},
+      </if>
+      <if test="userName != null" >
+        #{userName,jdbcType=VARCHAR},
+      </if>
+      <if test="inputCode != null" >
+        #{inputCode,jdbcType=VARCHAR},
+      </if>
+    </trim>
+  </insert>
 </mapper>

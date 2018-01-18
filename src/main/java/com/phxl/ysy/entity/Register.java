@@ -9,6 +9,7 @@ import com.phxl.core.base.annotation.SearchField;
 
 import java.util.Date;
 
+@BaseSql(tableName = "TD_REGISTER", resultName = "com.phxl.ysy.basicDataModule.dao.RegisterMapper.BaseResultMap")
 public class Register {
 	private String certGuid;
 

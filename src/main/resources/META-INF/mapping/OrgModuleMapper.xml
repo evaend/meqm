@@ -5,5 +5,32 @@
     <id column="ORG_ID" property="orgId" jdbcType="DECIMAL" />
     <id column="MODULE_ID" property="moduleId" jdbcType="VARCHAR" />
   </resultMap>
-  
+  <delete id="deleteByPrimaryKey" parameterType="com.phxl.ysy.entity.OrgModuleKey" >
+    delete from GDZC.TD_ORG_MODULE
+    where ORG_ID = #{orgId,jdbcType=DECIMAL}
+      and MODULE_ID = #{moduleId,jdbcType=VARCHAR}
+  </delete>
+  <insert id="insert" parameterType="com.phxl.ysy.entity.OrgModuleKey" >
+    insert into GDZC.TD_ORG_MODULE (ORG_ID, MODULE_ID)
+    values (#{orgId,jdbcType=DECIMAL}, #{moduleId,jdbcType=VARCHAR})
+  </insert>
+  <insert id="insertSelective" parameterType="com.phxl.ysy.entity.OrgModuleKey" >
+    insert into GDZC.TD_ORG_MODULE
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="orgId != null" >
+        ORG_ID,
+      </if>
+      <if test="moduleId != null" >
+        MODULE_ID,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="orgId != null" >
+        #{orgId,jdbcType=DECIMAL},
+      </if>
+      <if test="moduleId != null" >
+        #{moduleId,jdbcType=VARCHAR},
+      </if>
+    </trim>
+  </insert>
 </mapper>

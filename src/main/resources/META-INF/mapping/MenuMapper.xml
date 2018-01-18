@@ -1,27 +1,25 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
-<mapper namespace="com.phxl.ysy.dao.MenuMapper">
-	
-	<resultMap id="BaseResultMap" type="com.phxl.ysy.entity.Menu">
-		<id column="MENU_ID" property="menuId" jdbcType="VARCHAR" />
-		<result column="MENU_NAME" property="menuName" jdbcType="VARCHAR" />
-		<result column="MENU_URL" property="menuUrl" jdbcType="VARCHAR" />
-		<result column="FSTATE" property="fstate" jdbcType="VARCHAR" />
-		<result column="TF_REMARK" property="tfRemark" jdbcType="VARCHAR" />
-		<result column="CREATE_USERID" property="createUserid" jdbcType="VARCHAR" />
-		<result column="CREATE_TIME" property="createTime" jdbcType="TIMESTAMP" />
-		<result column="MODIFY_USERID" property="modifyUserid" jdbcType="VARCHAR" />
-		<result column="MODIFY_TIME" property="modifyTime" jdbcType="TIMESTAMP" />
-		<result column="PARENT_MENUID" property="parentMenuid" jdbcType="VARCHAR" />
-		<result column="FSORT" property="fsort" jdbcType="VARCHAR" />
-		<result column="MENU_CODE" property="menuCode" jdbcType="VARCHAR" />
-	</resultMap>
-	
-	<sql id="Base_Column_List">
-		MENU_ID, MENU_NAME, MENU_URL, FSTATE, TF_REMARK, MODIFY_TIME, CREATE_TIME, CREATE_USERID,
-		MODIFY_USERID, PARENT_MENUID, FSORT, MENU_CODE
-	</sql>
-	
+<mapper namespace="com.phxl.ysy.dao.MenuMapper" >
+  <resultMap id="BaseResultMap" type="com.phxl.ysy.entity.Menu" >
+    <id column="MENU_ID" property="menuId" jdbcType="VARCHAR" />
+    <result column="MENU_NAME" property="menuName" jdbcType="VARCHAR" />
+    <result column="MENU_URL" property="menuUrl" jdbcType="VARCHAR" />
+    <result column="FSTATE" property="fstate" jdbcType="VARCHAR" />
+    <result column="TF_REMARK" property="tfRemark" jdbcType="VARCHAR" />
+    <result column="MODIFY_TIME" property="modifyTime" jdbcType="DATE" />
+    <result column="CREATE_TIME" property="createTime" jdbcType="DATE" />
+    <result column="CREATE_USERID" property="createUserid" jdbcType="VARCHAR" />
+    <result column="MODIFY_USERID" property="modifyUserid" jdbcType="VARCHAR" />
+    <result column="PARENT_MENUID" property="parentMenuid" jdbcType="VARCHAR" />
+    <result column="FSORT" property="fsort" jdbcType="VARCHAR" />
+    <result column="MENU_CODE" property="menuCode" jdbcType="VARCHAR" />
+  </resultMap>
+  <sql id="Base_Column_List" >
+    MENU_ID, MENU_NAME, MENU_URL, FSTATE, TF_REMARK, MODIFY_TIME, CREATE_TIME, CREATE_USERID, 
+    MODIFY_USERID, PARENT_MENUID, FSORT, MENU_CODE
+  </sql>
+  
 	<sql id="Base_Column_List_With_Prefix">
 		m.MENU_ID, m.MENU_NAME, m.MENU_URL, m.FSTATE, m.TF_REMARK, m.MODIFY_TIME, m.CREATE_TIME, m.CREATE_USERID,
 		m.MODIFY_USERID, m.PARENT_MENUID, m.FSORT, m.MENU_CODE
@@ -100,5 +98,4 @@
 	<delete id="deleteGroupMenuByMenuId" parameterType="string">
 		DELETE FROM TS_GROUP_MENU WHERE MENU_ID = #{menuId}
 	</delete>
-	
 </mapper>

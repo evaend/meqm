@@ -10,5 +10,61 @@
     <result column="MODIFY_USERGUID" property="modifyUserguid" jdbcType="VARCHAR" />
     <result column="DEPRECIATION_TYPE" property="depreciationType" jdbcType="VARCHAR" />
   </resultMap>
-  
+  <insert id="insert" parameterType="com.phxl.ysy.entity.EquipmentDepreciation" >
+    insert into GDZC.TD_EQUIPMENT_DEPRECIATION (ASSETS_RECORD, DEPT_CODE, DEPRECIATION_DATE, 
+      DEPRECIATION_PRICE, CREATE_USERGUID, MODIFY_USERGUID, 
+      DEPRECIATION_TYPE)
+    values (#{assetsRecord,jdbcType=VARCHAR}, #{deptCode,jdbcType=VARCHAR}, #{depreciationDate,jdbcType=DATE}, 
+      #{depreciationPrice,jdbcType=DECIMAL}, #{createUserguid,jdbcType=VARCHAR}, #{modifyUserguid,jdbcType=VARCHAR}, 
+      #{depreciationType,jdbcType=VARCHAR})
+  </insert>
+  <insert id="insertSelective" parameterType="com.phxl.ysy.entity.EquipmentDepreciation" >
+    insert into GDZC.TD_EQUIPMENT_DEPRECIATION
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="assetsRecord != null" >
+        ASSETS_RECORD,
+      </if>
+      <if test="deptCode != null" >
+        DEPT_CODE,
+      </if>
+      <if test="depreciationDate != null" >
+        DEPRECIATION_DATE,
+      </if>
+      <if test="depreciationPrice != null" >
+        DEPRECIATION_PRICE,
+      </if>
+      <if test="createUserguid != null" >
+        CREATE_USERGUID,
+      </if>
+      <if test="modifyUserguid != null" >
+        MODIFY_USERGUID,
+      </if>
+      <if test="depreciationType != null" >
+        DEPRECIATION_TYPE,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="assetsRecord != null" >
+        #{assetsRecord,jdbcType=VARCHAR},
+      </if>
+      <if test="deptCode != null" >
+        #{deptCode,jdbcType=VARCHAR},
+      </if>
+      <if test="depreciationDate != null" >
+        #{depreciationDate,jdbcType=DATE},
+      </if>
+      <if test="depreciationPrice != null" >
+        #{depreciationPrice,jdbcType=DECIMAL},
+      </if>
+      <if test="createUserguid != null" >
+        #{createUserguid,jdbcType=VARCHAR},
+      </if>
+      <if test="modifyUserguid != null" >
+        #{modifyUserguid,jdbcType=VARCHAR},
+      </if>
+      <if test="depreciationType != null" >
+        #{depreciationType,jdbcType=VARCHAR},
+      </if>
+    </trim>
+  </insert>
 </mapper>

@@ -11,8 +11,9 @@
     <result column="GUARANTEE_DATE" property="guaranteeDate" jdbcType="DATE" />
     <result column="ORDER_TYPE" property="orderType" jdbcType="VARCHAR" />
     <result column="MODIFY_TIME" property="modifyTime" jdbcType="DATE" />
-    <result column="ADD" property="add" jdbcType="VARCHAR" />
+    <result column="ADDRESS" property="address" jdbcType="VARCHAR" />
     <result column="ORDER_FSTATE" property="orderFstate" jdbcType="VARCHAR" />
+    <result column="EQUIPMENT_RRPAIR_RECORD_GUID" property="equipmentRrpairRecordGuid" jdbcType="VARCHAR" />
     <result column="URGENT_FLAG" property="urgentFlag" jdbcType="VARCHAR" />
     <result column="GUARANTEE_FLAG" property="guaranteeFlag" jdbcType="VARCHAR" />
     <result column="RRPAIR_TYPE" property="rrpairType" jdbcType="VARCHAR" />
@@ -29,7 +30,6 @@
     <result column="OUT_RRPAIR_USERNAME" property="outRrpairUsername" jdbcType="VARCHAR" />
     <result column="OUT_RRPAIR_PHONE" property="outRrpairPhone" jdbcType="VARCHAR" />
     <result column="FAULT_DESCRIBE" property="faultDescribe" jdbcType="VARCHAR" />
-    <result column="FAULT_ACCESSORY" property="faultAccessory" jdbcType="VARCHAR" />
     <result column="FAULT_ACCESSORY_AUDIO" property="faultAccessoryAudio" jdbcType="VARCHAR" />
     <result column="FAULT_WORDS" property="faultWords" jdbcType="VARCHAR" />
     <result column="REPAIR_CONTENT_TYPE" property="repairContentType" jdbcType="VARCHAR" />
@@ -37,10 +37,28 @@
     <result column="QUOTED_PRICE" property="quotedPrice" jdbcType="DECIMAL" />
     <result column="ACTUAL_PRICE" property="actualPrice" jdbcType="DECIMAL" />
     <result column="COST_DETAIL" property="costDetail" jdbcType="VARCHAR" />
-    <result column="EVALUATE" property="evaluate" jdbcType="VARCHAR" />
+    <result column="TF_COMMENT" property="tfComment" jdbcType="VARCHAR" />
     <result column="TF_REMARK" property="tfRemark" jdbcType="VARCHAR" />
-    <result column="rrpair_order_guid" property="rrpairOrderGuid" jdbcType="VARCHAR" />
+    <result column="RRPAIR_ORDER_GUID" property="rrpairOrderGuid" jdbcType="VARCHAR" />
+    <result column="FAULT_ACCESSORY" property="faultAccessory" jdbcType="VARCHAR" />
+    <result column="TF_ACCESSORY" property="tfAccessory" jdbcType="VARCHAR" />
+    <result column="RRPAIR_ORDER_NO" property="rrpairOrderNo" jdbcType="VARCHAR" />
+    <result column="RRPAIR_SEND" property="rrpairSend" jdbcType="VARCHAR" />
+    <result column="CALL_USERID" property="callUserid" jdbcType="VARCHAR" />
+    <result column="OUT_ORG" property="outOrg" jdbcType="VARCHAR" />
+    <result column="FAIL_CAUSE" property="failCause" jdbcType="VARCHAR" />
+    <result column="CREATE_DATE" property="createDate" jdbcType="DATE" />
   </resultMap>
+  <sql id="Base_Column_List" >
+    RRPAIR_ORDER, ASSETS_RECORD, EQUIPMENT_CODE, U_ORG, USE_DEPT_CODE, ACCT_DATE, GUARANTEE_DATE, 
+    ORDER_TYPE, MODIFY_TIME, ADDRESS, ORDER_FSTATE, EQUIPMENT_RRPAIR_RECORD_GUID, URGENT_FLAG, 
+    GUARANTEE_FLAG, RRPAIR_TYPE, LABEL_GUID, SPARE, RRPAIR_FLAG, RRPAIR_USERID, RRPAIR_USERNAME, 
+    RRPAIR_PHONE, COMPLET_TIME, RRPAIR_DATE, IN_RRPAIR_USERID, IN_RRPAIR_USERNAME, OUT_RRPAIR_USERNAME, 
+    OUT_RRPAIR_PHONE, FAULT_DESCRIBE, FAULT_ACCESSORY_AUDIO, FAULT_WORDS, REPAIR_CONTENT_TYPE, 
+    REPAIR_CONTENT_TYP, QUOTED_PRICE, ACTUAL_PRICE, COST_DETAIL, TF_COMMENT, TF_REMARK, 
+    RRPAIR_ORDER_GUID, FAULT_ACCESSORY, TF_ACCESSORY, RRPAIR_ORDER_NO, RRPAIR_SEND, CALL_USERID, 
+    OUT_ORG, FAIL_CAUSE, CREATE_DATE
+  </sql>
   
   <!-- 查询设备维修列表 -->
   <select id="selectRrpairList" resultType="java.util.HashMap" parameterType="com.phxl.core.base.entity.Pager">
