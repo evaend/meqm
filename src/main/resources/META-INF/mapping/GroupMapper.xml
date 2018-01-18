@@ -1,0 +1,164 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.phxl.ysy.dao.GroupMapper" >
+  <resultMap id="BaseResultMap" type="com.phxl.ysy.entity.Group" >
+    <id column="GROUP_ID" property="groupId" jdbcType="VARCHAR" />
+    <result column="GROUP_NAME" property="groupName" jdbcType="VARCHAR" />
+    <result column="TF_REMARK" property="tfRemark" jdbcType="VARCHAR" />
+    <result column="MODIFY_TIME" property="modifyTime" jdbcType="DATE" />
+    <result column="CREATE_TIME" property="createTime" jdbcType="DATE" />
+    <result column="CREATE_USERID" property="createUserid" jdbcType="VARCHAR" />
+    <result column="MODIFY_USERID" property="modifyUserid" jdbcType="VARCHAR" />
+    <result column="GROUP_TYPE" property="groupType" jdbcType="VARCHAR" />
+    <result column="GROUP_CODE" property="groupCode" jdbcType="VARCHAR" />
+    <result column="ORG_ID" property="orgId" jdbcType="DECIMAL" />
+    <result column="SOURCE_GROUPID" property="sourceGroupid" jdbcType="VARCHAR" />
+  </resultMap>
+  <sql id="Base_Column_List" >
+    GROUP_ID, GROUP_NAME, TF_REMARK, MODIFY_TIME, CREATE_TIME, CREATE_USERID, MODIFY_USERID, 
+    GROUP_TYPE, GROUP_CODE, ORG_ID, SOURCE_GROUPID
+  </sql>
+  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.String" >
+    select 
+    <include refid="Base_Column_List" />
+    from GDZC.TS_GROUP
+    where GROUP_ID = #{groupId,jdbcType=VARCHAR}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.String" >
+    delete from GDZC.TS_GROUP
+    where GROUP_ID = #{groupId,jdbcType=VARCHAR}
+  </delete>
+  <insert id="insert" parameterType="com.phxl.ysy.entity.Group" >
+    insert into GDZC.TS_GROUP (GROUP_ID, GROUP_NAME, TF_REMARK, 
+      MODIFY_TIME, CREATE_TIME, CREATE_USERID, 
+      MODIFY_USERID, GROUP_TYPE, GROUP_CODE, 
+      ORG_ID, SOURCE_GROUPID)
+    values (#{groupId,jdbcType=VARCHAR}, #{groupName,jdbcType=VARCHAR}, #{tfRemark,jdbcType=VARCHAR}, 
+      #{modifyTime,jdbcType=DATE}, #{createTime,jdbcType=DATE}, #{createUserid,jdbcType=VARCHAR}, 
+      #{modifyUserid,jdbcType=VARCHAR}, #{groupType,jdbcType=VARCHAR}, #{groupCode,jdbcType=VARCHAR}, 
+      #{orgId,jdbcType=DECIMAL}, #{sourceGroupid,jdbcType=VARCHAR})
+  </insert>
+  <insert id="insertSelective" parameterType="com.phxl.ysy.entity.Group" >
+    insert into GDZC.TS_GROUP
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="groupId != null" >
+        GROUP_ID,
+      </if>
+      <if test="groupName != null" >
+        GROUP_NAME,
+      </if>
+      <if test="tfRemark != null" >
+        TF_REMARK,
+      </if>
+      <if test="modifyTime != null" >
+        MODIFY_TIME,
+      </if>
+      <if test="createTime != null" >
+        CREATE_TIME,
+      </if>
+      <if test="createUserid != null" >
+        CREATE_USERID,
+      </if>
+      <if test="modifyUserid != null" >
+        MODIFY_USERID,
+      </if>
+      <if test="groupType != null" >
+        GROUP_TYPE,
+      </if>
+      <if test="groupCode != null" >
+        GROUP_CODE,
+      </if>
+      <if test="orgId != null" >
+        ORG_ID,
+      </if>
+      <if test="sourceGroupid != null" >
+        SOURCE_GROUPID,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="groupId != null" >
+        #{groupId,jdbcType=VARCHAR},
+      </if>
+      <if test="groupName != null" >
+        #{groupName,jdbcType=VARCHAR},
+      </if>
+      <if test="tfRemark != null" >
+        #{tfRemark,jdbcType=VARCHAR},
+      </if>
+      <if test="modifyTime != null" >
+        #{modifyTime,jdbcType=DATE},
+      </if>
+      <if test="createTime != null" >
+        #{createTime,jdbcType=DATE},
+      </if>
+      <if test="createUserid != null" >
+        #{createUserid,jdbcType=VARCHAR},
+      </if>
+      <if test="modifyUserid != null" >
+        #{modifyUserid,jdbcType=VARCHAR},
+      </if>
+      <if test="groupType != null" >
+        #{groupType,jdbcType=VARCHAR},
+      </if>
+      <if test="groupCode != null" >
+        #{groupCode,jdbcType=VARCHAR},
+      </if>
+      <if test="orgId != null" >
+        #{orgId,jdbcType=DECIMAL},
+      </if>
+      <if test="sourceGroupid != null" >
+        #{sourceGroupid,jdbcType=VARCHAR},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="com.phxl.ysy.entity.Group" >
+    update GDZC.TS_GROUP
+    <set >
+      <if test="groupName != null" >
+        GROUP_NAME = #{groupName,jdbcType=VARCHAR},
+      </if>
+      <if test="tfRemark != null" >
+        TF_REMARK = #{tfRemark,jdbcType=VARCHAR},
+      </if>
+      <if test="modifyTime != null" >
+        MODIFY_TIME = #{modifyTime,jdbcType=DATE},
+      </if>
+      <if test="createTime != null" >
+        CREATE_TIME = #{createTime,jdbcType=DATE},
+      </if>
+      <if test="createUserid != null" >
+        CREATE_USERID = #{createUserid,jdbcType=VARCHAR},
+      </if>
+      <if test="modifyUserid != null" >
+        MODIFY_USERID = #{modifyUserid,jdbcType=VARCHAR},
+      </if>
+      <if test="groupType != null" >
+        GROUP_TYPE = #{groupType,jdbcType=VARCHAR},
+      </if>
+      <if test="groupCode != null" >
+        GROUP_CODE = #{groupCode,jdbcType=VARCHAR},
+      </if>
+      <if test="orgId != null" >
+        ORG_ID = #{orgId,jdbcType=DECIMAL},
+      </if>
+      <if test="sourceGroupid != null" >
+        SOURCE_GROUPID = #{sourceGroupid,jdbcType=VARCHAR},
+      </if>
+    </set>
+    where GROUP_ID = #{groupId,jdbcType=VARCHAR}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.phxl.ysy.entity.Group" >
+    update GDZC.TS_GROUP
+    set GROUP_NAME = #{groupName,jdbcType=VARCHAR},
+      TF_REMARK = #{tfRemark,jdbcType=VARCHAR},
+      MODIFY_TIME = #{modifyTime,jdbcType=DATE},
+      CREATE_TIME = #{createTime,jdbcType=DATE},
+      CREATE_USERID = #{createUserid,jdbcType=VARCHAR},
+      MODIFY_USERID = #{modifyUserid,jdbcType=VARCHAR},
+      GROUP_TYPE = #{groupType,jdbcType=VARCHAR},
+      GROUP_CODE = #{groupCode,jdbcType=VARCHAR},
+      ORG_ID = #{orgId,jdbcType=DECIMAL},
+      SOURCE_GROUPID = #{sourceGroupid,jdbcType=VARCHAR}
+    where GROUP_ID = #{groupId,jdbcType=VARCHAR}
+  </update>
+</mapper>

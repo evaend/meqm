@@ -1,0 +1,153 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.phxl.ysy.dao.RrpairOrderAcceMapper" >
+  <resultMap id="BaseResultMap" type="com.phxl.ysy.entity.RrpairOrderAcce" >
+    <id column="RRPAIR_ORDER_ACCE" property="rrpairOrderAcce" jdbcType="VARCHAR" />
+    <result column="RRPAIR_ORDER" property="rrpairOrder" jdbcType="VARCHAR" />
+    <result column="RR_ACCE_USERID" property="rrAcceUserid" jdbcType="VARCHAR" />
+    <result column="RR_ACCE_USERNAME" property="rrAcceUsername" jdbcType="VARCHAR" />
+    <result column="RR_ACCE_PHONE" property="rrAccePhone" jdbcType="VARCHAR" />
+    <result column="DEPT_CODE" property="deptCode" jdbcType="VARCHAR" />
+    <result column="RR_ACCE_DATE" property="rrAcceDate" jdbcType="DATE" />
+    <result column="RR_ACCE_FSTATE" property="rrAcceFstate" jdbcType="VARCHAR" />
+    <result column="TF_REMARK" property="tfRemark" jdbcType="VARCHAR" />
+    <result column="CREATE_DATE" property="createDate" jdbcType="DATE" />
+  </resultMap>
+  <sql id="Base_Column_List" >
+    RRPAIR_ORDER_ACCE, RRPAIR_ORDER, RR_ACCE_USERID, RR_ACCE_USERNAME, RR_ACCE_PHONE, 
+    DEPT_CODE, RR_ACCE_DATE, RR_ACCE_FSTATE, TF_REMARK, CREATE_DATE
+  </sql>
+  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.String" >
+    select 
+    <include refid="Base_Column_List" />
+    from GDZC.TB_RRPAIR_ORDER_ACCE
+    where RRPAIR_ORDER_ACCE = #{rrpairOrderAcce,jdbcType=VARCHAR}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.String" >
+    delete from GDZC.TB_RRPAIR_ORDER_ACCE
+    where RRPAIR_ORDER_ACCE = #{rrpairOrderAcce,jdbcType=VARCHAR}
+  </delete>
+  <insert id="insert" parameterType="com.phxl.ysy.entity.RrpairOrderAcce" >
+    insert into GDZC.TB_RRPAIR_ORDER_ACCE (RRPAIR_ORDER_ACCE, RRPAIR_ORDER, RR_ACCE_USERID, 
+      RR_ACCE_USERNAME, RR_ACCE_PHONE, DEPT_CODE, 
+      RR_ACCE_DATE, RR_ACCE_FSTATE, TF_REMARK, 
+      CREATE_DATE)
+    values (#{rrpairOrderAcce,jdbcType=VARCHAR}, #{rrpairOrder,jdbcType=VARCHAR}, #{rrAcceUserid,jdbcType=VARCHAR}, 
+      #{rrAcceUsername,jdbcType=VARCHAR}, #{rrAccePhone,jdbcType=VARCHAR}, #{deptCode,jdbcType=VARCHAR}, 
+      #{rrAcceDate,jdbcType=DATE}, #{rrAcceFstate,jdbcType=VARCHAR}, #{tfRemark,jdbcType=VARCHAR}, 
+      #{createDate,jdbcType=DATE})
+  </insert>
+  <insert id="insertSelective" parameterType="com.phxl.ysy.entity.RrpairOrderAcce" >
+    insert into GDZC.TB_RRPAIR_ORDER_ACCE
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="rrpairOrderAcce != null" >
+        RRPAIR_ORDER_ACCE,
+      </if>
+      <if test="rrpairOrder != null" >
+        RRPAIR_ORDER,
+      </if>
+      <if test="rrAcceUserid != null" >
+        RR_ACCE_USERID,
+      </if>
+      <if test="rrAcceUsername != null" >
+        RR_ACCE_USERNAME,
+      </if>
+      <if test="rrAccePhone != null" >
+        RR_ACCE_PHONE,
+      </if>
+      <if test="deptCode != null" >
+        DEPT_CODE,
+      </if>
+      <if test="rrAcceDate != null" >
+        RR_ACCE_DATE,
+      </if>
+      <if test="rrAcceFstate != null" >
+        RR_ACCE_FSTATE,
+      </if>
+      <if test="tfRemark != null" >
+        TF_REMARK,
+      </if>
+      <if test="createDate != null" >
+        CREATE_DATE,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="rrpairOrderAcce != null" >
+        #{rrpairOrderAcce,jdbcType=VARCHAR},
+      </if>
+      <if test="rrpairOrder != null" >
+        #{rrpairOrder,jdbcType=VARCHAR},
+      </if>
+      <if test="rrAcceUserid != null" >
+        #{rrAcceUserid,jdbcType=VARCHAR},
+      </if>
+      <if test="rrAcceUsername != null" >
+        #{rrAcceUsername,jdbcType=VARCHAR},
+      </if>
+      <if test="rrAccePhone != null" >
+        #{rrAccePhone,jdbcType=VARCHAR},
+      </if>
+      <if test="deptCode != null" >
+        #{deptCode,jdbcType=VARCHAR},
+      </if>
+      <if test="rrAcceDate != null" >
+        #{rrAcceDate,jdbcType=DATE},
+      </if>
+      <if test="rrAcceFstate != null" >
+        #{rrAcceFstate,jdbcType=VARCHAR},
+      </if>
+      <if test="tfRemark != null" >
+        #{tfRemark,jdbcType=VARCHAR},
+      </if>
+      <if test="createDate != null" >
+        #{createDate,jdbcType=DATE},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="com.phxl.ysy.entity.RrpairOrderAcce" >
+    update GDZC.TB_RRPAIR_ORDER_ACCE
+    <set >
+      <if test="rrpairOrder != null" >
+        RRPAIR_ORDER = #{rrpairOrder,jdbcType=VARCHAR},
+      </if>
+      <if test="rrAcceUserid != null" >
+        RR_ACCE_USERID = #{rrAcceUserid,jdbcType=VARCHAR},
+      </if>
+      <if test="rrAcceUsername != null" >
+        RR_ACCE_USERNAME = #{rrAcceUsername,jdbcType=VARCHAR},
+      </if>
+      <if test="rrAccePhone != null" >
+        RR_ACCE_PHONE = #{rrAccePhone,jdbcType=VARCHAR},
+      </if>
+      <if test="deptCode != null" >
+        DEPT_CODE = #{deptCode,jdbcType=VARCHAR},
+      </if>
+      <if test="rrAcceDate != null" >
+        RR_ACCE_DATE = #{rrAcceDate,jdbcType=DATE},
+      </if>
+      <if test="rrAcceFstate != null" >
+        RR_ACCE_FSTATE = #{rrAcceFstate,jdbcType=VARCHAR},
+      </if>
+      <if test="tfRemark != null" >
+        TF_REMARK = #{tfRemark,jdbcType=VARCHAR},
+      </if>
+      <if test="createDate != null" >
+        CREATE_DATE = #{createDate,jdbcType=DATE},
+      </if>
+    </set>
+    where RRPAIR_ORDER_ACCE = #{rrpairOrderAcce,jdbcType=VARCHAR}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.phxl.ysy.entity.RrpairOrderAcce" >
+    update GDZC.TB_RRPAIR_ORDER_ACCE
+    set RRPAIR_ORDER = #{rrpairOrder,jdbcType=VARCHAR},
+      RR_ACCE_USERID = #{rrAcceUserid,jdbcType=VARCHAR},
+      RR_ACCE_USERNAME = #{rrAcceUsername,jdbcType=VARCHAR},
+      RR_ACCE_PHONE = #{rrAccePhone,jdbcType=VARCHAR},
+      DEPT_CODE = #{deptCode,jdbcType=VARCHAR},
+      RR_ACCE_DATE = #{rrAcceDate,jdbcType=DATE},
+      RR_ACCE_FSTATE = #{rrAcceFstate,jdbcType=VARCHAR},
+      TF_REMARK = #{tfRemark,jdbcType=VARCHAR},
+      CREATE_DATE = #{createDate,jdbcType=DATE}
+    where RRPAIR_ORDER_ACCE = #{rrpairOrderAcce,jdbcType=VARCHAR}
+  </update>
+</mapper>

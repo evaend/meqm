@@ -1,0 +1,142 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.phxl.ysy.dao.CertInfoMapper" >
+  <resultMap id="BaseResultMap" type="com.phxl.ysy.entity.CertInfo" >
+    <id column="CERT_ID" property="certId" jdbcType="VARCHAR" />
+    <result column="ORG_ID" property="orgId" jdbcType="DECIMAL" />
+    <result column="CERT_NO" property="certNo" jdbcType="VARCHAR" />
+    <result column="TF_ACCESSORY" property="tfAccessory" jdbcType="VARCHAR" />
+    <result column="TF_REMARK" property="tfRemark" jdbcType="VARCHAR" />
+    <result column="CERT_CODE" property="certCode" jdbcType="VARCHAR" />
+    <result column="TF_ACCESSORY_FILE" property="tfAccessoryFile" jdbcType="VARCHAR" />
+    <result column="CREATE_USERID" property="createUserid" jdbcType="VARCHAR" />
+    <result column="CREATE_TIME" property="createTime" jdbcType="DATE" />
+  </resultMap>
+  <sql id="Base_Column_List" >
+    CERT_ID, ORG_ID, CERT_NO, TF_ACCESSORY, TF_REMARK, CERT_CODE, TF_ACCESSORY_FILE, 
+    CREATE_USERID, CREATE_TIME
+  </sql>
+  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.String" >
+    select 
+    <include refid="Base_Column_List" />
+    from GDZC.TD_CERT_INFO
+    where CERT_ID = #{certId,jdbcType=VARCHAR}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.String" >
+    delete from GDZC.TD_CERT_INFO
+    where CERT_ID = #{certId,jdbcType=VARCHAR}
+  </delete>
+  <insert id="insert" parameterType="com.phxl.ysy.entity.CertInfo" >
+    insert into GDZC.TD_CERT_INFO (CERT_ID, ORG_ID, CERT_NO, 
+      TF_ACCESSORY, TF_REMARK, CERT_CODE, 
+      TF_ACCESSORY_FILE, CREATE_USERID, CREATE_TIME
+      )
+    values (#{certId,jdbcType=VARCHAR}, #{orgId,jdbcType=DECIMAL}, #{certNo,jdbcType=VARCHAR}, 
+      #{tfAccessory,jdbcType=VARCHAR}, #{tfRemark,jdbcType=VARCHAR}, #{certCode,jdbcType=VARCHAR}, 
+      #{tfAccessoryFile,jdbcType=VARCHAR}, #{createUserid,jdbcType=VARCHAR}, #{createTime,jdbcType=DATE}
+      )
+  </insert>
+  <insert id="insertSelective" parameterType="com.phxl.ysy.entity.CertInfo" >
+    insert into GDZC.TD_CERT_INFO
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="certId != null" >
+        CERT_ID,
+      </if>
+      <if test="orgId != null" >
+        ORG_ID,
+      </if>
+      <if test="certNo != null" >
+        CERT_NO,
+      </if>
+      <if test="tfAccessory != null" >
+        TF_ACCESSORY,
+      </if>
+      <if test="tfRemark != null" >
+        TF_REMARK,
+      </if>
+      <if test="certCode != null" >
+        CERT_CODE,
+      </if>
+      <if test="tfAccessoryFile != null" >
+        TF_ACCESSORY_FILE,
+      </if>
+      <if test="createUserid != null" >
+        CREATE_USERID,
+      </if>
+      <if test="createTime != null" >
+        CREATE_TIME,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="certId != null" >
+        #{certId,jdbcType=VARCHAR},
+      </if>
+      <if test="orgId != null" >
+        #{orgId,jdbcType=DECIMAL},
+      </if>
+      <if test="certNo != null" >
+        #{certNo,jdbcType=VARCHAR},
+      </if>
+      <if test="tfAccessory != null" >
+        #{tfAccessory,jdbcType=VARCHAR},
+      </if>
+      <if test="tfRemark != null" >
+        #{tfRemark,jdbcType=VARCHAR},
+      </if>
+      <if test="certCode != null" >
+        #{certCode,jdbcType=VARCHAR},
+      </if>
+      <if test="tfAccessoryFile != null" >
+        #{tfAccessoryFile,jdbcType=VARCHAR},
+      </if>
+      <if test="createUserid != null" >
+        #{createUserid,jdbcType=VARCHAR},
+      </if>
+      <if test="createTime != null" >
+        #{createTime,jdbcType=DATE},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="com.phxl.ysy.entity.CertInfo" >
+    update GDZC.TD_CERT_INFO
+    <set >
+      <if test="orgId != null" >
+        ORG_ID = #{orgId,jdbcType=DECIMAL},
+      </if>
+      <if test="certNo != null" >
+        CERT_NO = #{certNo,jdbcType=VARCHAR},
+      </if>
+      <if test="tfAccessory != null" >
+        TF_ACCESSORY = #{tfAccessory,jdbcType=VARCHAR},
+      </if>
+      <if test="tfRemark != null" >
+        TF_REMARK = #{tfRemark,jdbcType=VARCHAR},
+      </if>
+      <if test="certCode != null" >
+        CERT_CODE = #{certCode,jdbcType=VARCHAR},
+      </if>
+      <if test="tfAccessoryFile != null" >
+        TF_ACCESSORY_FILE = #{tfAccessoryFile,jdbcType=VARCHAR},
+      </if>
+      <if test="createUserid != null" >
+        CREATE_USERID = #{createUserid,jdbcType=VARCHAR},
+      </if>
+      <if test="createTime != null" >
+        CREATE_TIME = #{createTime,jdbcType=DATE},
+      </if>
+    </set>
+    where CERT_ID = #{certId,jdbcType=VARCHAR}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.phxl.ysy.entity.CertInfo" >
+    update GDZC.TD_CERT_INFO
+    set ORG_ID = #{orgId,jdbcType=DECIMAL},
+      CERT_NO = #{certNo,jdbcType=VARCHAR},
+      TF_ACCESSORY = #{tfAccessory,jdbcType=VARCHAR},
+      TF_REMARK = #{tfRemark,jdbcType=VARCHAR},
+      CERT_CODE = #{certCode,jdbcType=VARCHAR},
+      TF_ACCESSORY_FILE = #{tfAccessoryFile,jdbcType=VARCHAR},
+      CREATE_USERID = #{createUserid,jdbcType=VARCHAR},
+      CREATE_TIME = #{createTime,jdbcType=DATE}
+    where CERT_ID = #{certId,jdbcType=VARCHAR}
+  </update>
+</mapper>

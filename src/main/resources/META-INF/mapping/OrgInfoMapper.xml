@@ -1,0 +1,222 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.phxl.ysy.dao.OrgInfoMapper" >
+  <resultMap id="BaseResultMap" type="com.phxl.ysy.entity.OrgInfo" >
+    <result column="ORG_ID" property="orgId" jdbcType="DECIMAL" />
+    <result column="ORG_CODE" property="orgCode" jdbcType="VARCHAR" />
+    <result column="ORG_NAME" property="orgName" jdbcType="VARCHAR" />
+    <result column="FQUN" property="fqun" jdbcType="VARCHAR" />
+    <result column="ORG_ALIAS" property="orgAlias" jdbcType="VARCHAR" />
+    <result column="TF_PROVINCE" property="tfProvince" jdbcType="VARCHAR" />
+    <result column="TF_CITY" property="tfCity" jdbcType="VARCHAR" />
+    <result column="TF_DISTRICT" property="tfDistrict" jdbcType="VARCHAR" />
+    <result column="TF_ADDRESS" property="tfAddress" jdbcType="VARCHAR" />
+    <result column="TF_BANK" property="tfBank" jdbcType="VARCHAR" />
+    <result column="BANK_ACCOUNT" property="bankAccount" jdbcType="VARCHAR" />
+    <result column="WEBSITE" property="website" jdbcType="VARCHAR" />
+    <result column="FSTATE" property="fstate" jdbcType="VARCHAR" />
+    <result column="TF_LOGO" property="tfLogo" jdbcType="VARCHAR" />
+    <result column="TF_PROFILE" property="tfProfile" jdbcType="VARCHAR" />
+    <result column="ORG_TYPE" property="orgType" jdbcType="VARCHAR" />
+    <result column="CREATE_USERID" property="createUserid" jdbcType="VARCHAR" />
+    <result column="CREATE_TIME" property="createTime" jdbcType="DATE" />
+    <result column="MODIFY_TIME" property="modifyTime" jdbcType="DATE" />
+    <result column="TF_REMARK" property="tfRemark" jdbcType="VARCHAR" />
+    <result column="PARENT_ORGID" property="parentOrgid" jdbcType="DECIMAL" />
+    <result column="FLAG" property="flag" jdbcType="VARCHAR" />
+    <result column="LXR" property="lxr" jdbcType="VARCHAR" />
+    <result column="LXDH" property="lxdh" jdbcType="VARCHAR" />
+    <result column="ORG_STATUS" property="orgStatus" jdbcType="VARCHAR" />
+    <result column="VIP_LEVEL" property="vipLevel" jdbcType="VARCHAR" />
+    <result column="LEGAL_MAN" property="legalMan" jdbcType="VARCHAR" />
+  </resultMap>
+  <insert id="insert" parameterType="com.phxl.ysy.entity.OrgInfo" >
+    insert into GDZC.TD_ORG_INFO (ORG_ID, ORG_CODE, ORG_NAME, 
+      FQUN, ORG_ALIAS, TF_PROVINCE, 
+      TF_CITY, TF_DISTRICT, TF_ADDRESS, 
+      TF_BANK, BANK_ACCOUNT, WEBSITE, 
+      FSTATE, TF_LOGO, TF_PROFILE, 
+      ORG_TYPE, CREATE_USERID, CREATE_TIME, 
+      MODIFY_TIME, TF_REMARK, PARENT_ORGID, 
+      FLAG, LXR, LXDH, ORG_STATUS, 
+      VIP_LEVEL, LEGAL_MAN)
+    values (#{orgId,jdbcType=DECIMAL}, #{orgCode,jdbcType=VARCHAR}, #{orgName,jdbcType=VARCHAR}, 
+      #{fqun,jdbcType=VARCHAR}, #{orgAlias,jdbcType=VARCHAR}, #{tfProvince,jdbcType=VARCHAR}, 
+      #{tfCity,jdbcType=VARCHAR}, #{tfDistrict,jdbcType=VARCHAR}, #{tfAddress,jdbcType=VARCHAR}, 
+      #{tfBank,jdbcType=VARCHAR}, #{bankAccount,jdbcType=VARCHAR}, #{website,jdbcType=VARCHAR}, 
+      #{fstate,jdbcType=VARCHAR}, #{tfLogo,jdbcType=VARCHAR}, #{tfProfile,jdbcType=VARCHAR}, 
+      #{orgType,jdbcType=VARCHAR}, #{createUserid,jdbcType=VARCHAR}, #{createTime,jdbcType=DATE}, 
+      #{modifyTime,jdbcType=DATE}, #{tfRemark,jdbcType=VARCHAR}, #{parentOrgid,jdbcType=DECIMAL}, 
+      #{flag,jdbcType=VARCHAR}, #{lxr,jdbcType=VARCHAR}, #{lxdh,jdbcType=VARCHAR}, #{orgStatus,jdbcType=VARCHAR}, 
+      #{vipLevel,jdbcType=VARCHAR}, #{legalMan,jdbcType=VARCHAR})
+  </insert>
+  <insert id="insertSelective" parameterType="com.phxl.ysy.entity.OrgInfo" >
+    insert into GDZC.TD_ORG_INFO
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="orgId != null" >
+        ORG_ID,
+      </if>
+      <if test="orgCode != null" >
+        ORG_CODE,
+      </if>
+      <if test="orgName != null" >
+        ORG_NAME,
+      </if>
+      <if test="fqun != null" >
+        FQUN,
+      </if>
+      <if test="orgAlias != null" >
+        ORG_ALIAS,
+      </if>
+      <if test="tfProvince != null" >
+        TF_PROVINCE,
+      </if>
+      <if test="tfCity != null" >
+        TF_CITY,
+      </if>
+      <if test="tfDistrict != null" >
+        TF_DISTRICT,
+      </if>
+      <if test="tfAddress != null" >
+        TF_ADDRESS,
+      </if>
+      <if test="tfBank != null" >
+        TF_BANK,
+      </if>
+      <if test="bankAccount != null" >
+        BANK_ACCOUNT,
+      </if>
+      <if test="website != null" >
+        WEBSITE,
+      </if>
+      <if test="fstate != null" >
+        FSTATE,
+      </if>
+      <if test="tfLogo != null" >
+        TF_LOGO,
+      </if>
+      <if test="tfProfile != null" >
+        TF_PROFILE,
+      </if>
+      <if test="orgType != null" >
+        ORG_TYPE,
+      </if>
+      <if test="createUserid != null" >
+        CREATE_USERID,
+      </if>
+      <if test="createTime != null" >
+        CREATE_TIME,
+      </if>
+      <if test="modifyTime != null" >
+        MODIFY_TIME,
+      </if>
+      <if test="tfRemark != null" >
+        TF_REMARK,
+      </if>
+      <if test="parentOrgid != null" >
+        PARENT_ORGID,
+      </if>
+      <if test="flag != null" >
+        FLAG,
+      </if>
+      <if test="lxr != null" >
+        LXR,
+      </if>
+      <if test="lxdh != null" >
+        LXDH,
+      </if>
+      <if test="orgStatus != null" >
+        ORG_STATUS,
+      </if>
+      <if test="vipLevel != null" >
+        VIP_LEVEL,
+      </if>
+      <if test="legalMan != null" >
+        LEGAL_MAN,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="orgId != null" >
+        #{orgId,jdbcType=DECIMAL},
+      </if>
+      <if test="orgCode != null" >
+        #{orgCode,jdbcType=VARCHAR},
+      </if>
+      <if test="orgName != null" >
+        #{orgName,jdbcType=VARCHAR},
+      </if>
+      <if test="fqun != null" >
+        #{fqun,jdbcType=VARCHAR},
+      </if>
+      <if test="orgAlias != null" >
+        #{orgAlias,jdbcType=VARCHAR},
+      </if>
+      <if test="tfProvince != null" >
+        #{tfProvince,jdbcType=VARCHAR},
+      </if>
+      <if test="tfCity != null" >
+        #{tfCity,jdbcType=VARCHAR},
+      </if>
+      <if test="tfDistrict != null" >
+        #{tfDistrict,jdbcType=VARCHAR},
+      </if>
+      <if test="tfAddress != null" >
+        #{tfAddress,jdbcType=VARCHAR},
+      </if>
+      <if test="tfBank != null" >
+        #{tfBank,jdbcType=VARCHAR},
+      </if>
+      <if test="bankAccount != null" >
+        #{bankAccount,jdbcType=VARCHAR},
+      </if>
+      <if test="website != null" >
+        #{website,jdbcType=VARCHAR},
+      </if>
+      <if test="fstate != null" >
+        #{fstate,jdbcType=VARCHAR},
+      </if>
+      <if test="tfLogo != null" >
+        #{tfLogo,jdbcType=VARCHAR},
+      </if>
+      <if test="tfProfile != null" >
+        #{tfProfile,jdbcType=VARCHAR},
+      </if>
+      <if test="orgType != null" >
+        #{orgType,jdbcType=VARCHAR},
+      </if>
+      <if test="createUserid != null" >
+        #{createUserid,jdbcType=VARCHAR},
+      </if>
+      <if test="createTime != null" >
+        #{createTime,jdbcType=DATE},
+      </if>
+      <if test="modifyTime != null" >
+        #{modifyTime,jdbcType=DATE},
+      </if>
+      <if test="tfRemark != null" >
+        #{tfRemark,jdbcType=VARCHAR},
+      </if>
+      <if test="parentOrgid != null" >
+        #{parentOrgid,jdbcType=DECIMAL},
+      </if>
+      <if test="flag != null" >
+        #{flag,jdbcType=VARCHAR},
+      </if>
+      <if test="lxr != null" >
+        #{lxr,jdbcType=VARCHAR},
+      </if>
+      <if test="lxdh != null" >
+        #{lxdh,jdbcType=VARCHAR},
+      </if>
+      <if test="orgStatus != null" >
+        #{orgStatus,jdbcType=VARCHAR},
+      </if>
+      <if test="vipLevel != null" >
+        #{vipLevel,jdbcType=VARCHAR},
+      </if>
+      <if test="legalMan != null" >
+        #{legalMan,jdbcType=VARCHAR},
+      </if>
+    </trim>
+  </insert>
+</mapper>

@@ -1,0 +1,106 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.phxl.ysy.dao.EqRrAddupMapper" >
+  <resultMap id="BaseResultMap" type="com.phxl.ysy.entity.EqRrAddup" >
+    <id column="EQUIPMENT_CODE" property="equipmentCode" jdbcType="VARCHAR" />
+    <id column="ASSETS_RECORD" property="assetsRecord" jdbcType="VARCHAR" />
+    <id column="YEAR_NO" property="yearNo" jdbcType="VARCHAR" />
+    <result column="RR_DAYS_YEAR" property="rrDaysYear" jdbcType="DECIMAL" />
+    <result column="RR_FREQ_YEAR" property="rrFreqYear" jdbcType="DECIMAL" />
+    <result column="ACCE_AMOU" property="acceAmou" jdbcType="DECIMAL" />
+  </resultMap>
+  <sql id="Base_Column_List" >
+    EQUIPMENT_CODE, ASSETS_RECORD, YEAR_NO, RR_DAYS_YEAR, RR_FREQ_YEAR, ACCE_AMOU
+  </sql>
+  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="com.phxl.ysy.entity.EqRrAddupKey" >
+    select 
+    <include refid="Base_Column_List" />
+    from GDZC.TD_EQ_RR_ADDUP
+    where EQUIPMENT_CODE = #{equipmentCode,jdbcType=VARCHAR}
+      and ASSETS_RECORD = #{assetsRecord,jdbcType=VARCHAR}
+      and YEAR_NO = #{yearNo,jdbcType=VARCHAR}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="com.phxl.ysy.entity.EqRrAddupKey" >
+    delete from GDZC.TD_EQ_RR_ADDUP
+    where EQUIPMENT_CODE = #{equipmentCode,jdbcType=VARCHAR}
+      and ASSETS_RECORD = #{assetsRecord,jdbcType=VARCHAR}
+      and YEAR_NO = #{yearNo,jdbcType=VARCHAR}
+  </delete>
+  <insert id="insert" parameterType="com.phxl.ysy.entity.EqRrAddup" >
+    insert into GDZC.TD_EQ_RR_ADDUP (EQUIPMENT_CODE, ASSETS_RECORD, YEAR_NO, 
+      RR_DAYS_YEAR, RR_FREQ_YEAR, ACCE_AMOU
+      )
+    values (#{equipmentCode,jdbcType=VARCHAR}, #{assetsRecord,jdbcType=VARCHAR}, #{yearNo,jdbcType=VARCHAR}, 
+      #{rrDaysYear,jdbcType=DECIMAL}, #{rrFreqYear,jdbcType=DECIMAL}, #{acceAmou,jdbcType=DECIMAL}
+      )
+  </insert>
+  <insert id="insertSelective" parameterType="com.phxl.ysy.entity.EqRrAddup" >
+    insert into GDZC.TD_EQ_RR_ADDUP
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="equipmentCode != null" >
+        EQUIPMENT_CODE,
+      </if>
+      <if test="assetsRecord != null" >
+        ASSETS_RECORD,
+      </if>
+      <if test="yearNo != null" >
+        YEAR_NO,
+      </if>
+      <if test="rrDaysYear != null" >
+        RR_DAYS_YEAR,
+      </if>
+      <if test="rrFreqYear != null" >
+        RR_FREQ_YEAR,
+      </if>
+      <if test="acceAmou != null" >
+        ACCE_AMOU,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="equipmentCode != null" >
+        #{equipmentCode,jdbcType=VARCHAR},
+      </if>
+      <if test="assetsRecord != null" >
+        #{assetsRecord,jdbcType=VARCHAR},
+      </if>
+      <if test="yearNo != null" >
+        #{yearNo,jdbcType=VARCHAR},
+      </if>
+      <if test="rrDaysYear != null" >
+        #{rrDaysYear,jdbcType=DECIMAL},
+      </if>
+      <if test="rrFreqYear != null" >
+        #{rrFreqYear,jdbcType=DECIMAL},
+      </if>
+      <if test="acceAmou != null" >
+        #{acceAmou,jdbcType=DECIMAL},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="com.phxl.ysy.entity.EqRrAddup" >
+    update GDZC.TD_EQ_RR_ADDUP
+    <set >
+      <if test="rrDaysYear != null" >
+        RR_DAYS_YEAR = #{rrDaysYear,jdbcType=DECIMAL},
+      </if>
+      <if test="rrFreqYear != null" >
+        RR_FREQ_YEAR = #{rrFreqYear,jdbcType=DECIMAL},
+      </if>
+      <if test="acceAmou != null" >
+        ACCE_AMOU = #{acceAmou,jdbcType=DECIMAL},
+      </if>
+    </set>
+    where EQUIPMENT_CODE = #{equipmentCode,jdbcType=VARCHAR}
+      and ASSETS_RECORD = #{assetsRecord,jdbcType=VARCHAR}
+      and YEAR_NO = #{yearNo,jdbcType=VARCHAR}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.phxl.ysy.entity.EqRrAddup" >
+    update GDZC.TD_EQ_RR_ADDUP
+    set RR_DAYS_YEAR = #{rrDaysYear,jdbcType=DECIMAL},
+      RR_FREQ_YEAR = #{rrFreqYear,jdbcType=DECIMAL},
+      ACCE_AMOU = #{acceAmou,jdbcType=DECIMAL}
+    where EQUIPMENT_CODE = #{equipmentCode,jdbcType=VARCHAR}
+      and ASSETS_RECORD = #{assetsRecord,jdbcType=VARCHAR}
+      and YEAR_NO = #{yearNo,jdbcType=VARCHAR}
+  </update>
+</mapper>

@@ -1,0 +1,142 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.phxl.ysy.dao.MessagewechatMapper" >
+  <resultMap id="BaseResultMap" type="com.phxl.ysy.entity.Messagewechat" >
+    <id column="MESSAGEWECHAT_GUID" property="messagewechatGuid" jdbcType="VARCHAR" />
+    <result column="ORG_ID" property="orgId" jdbcType="DECIMAL" />
+    <result column="MC_NAME" property="mcName" jdbcType="VARCHAR" />
+    <result column="MC_TEMPLATEID" property="mcTemplateid" jdbcType="VARCHAR" />
+    <result column="MC_TEMPLATECONTENT" property="mcTemplatecontent" jdbcType="VARCHAR" />
+    <result column="MC_REMARK" property="mcRemark" jdbcType="VARCHAR" />
+    <result column="CREATE_DATE" property="createDate" jdbcType="DATE" />
+    <result column="MODIFY_DATE" property="modifyDate" jdbcType="DATE" />
+    <result column="FSTATE" property="fstate" jdbcType="VARCHAR" />
+  </resultMap>
+  <sql id="Base_Column_List" >
+    MESSAGEWECHAT_GUID, ORG_ID, MC_NAME, MC_TEMPLATEID, MC_TEMPLATECONTENT, MC_REMARK, 
+    CREATE_DATE, MODIFY_DATE, FSTATE
+  </sql>
+  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.String" >
+    select 
+    <include refid="Base_Column_List" />
+    from GDZC.TM_MESSAGEWECHAT
+    where MESSAGEWECHAT_GUID = #{messagewechatGuid,jdbcType=VARCHAR}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.String" >
+    delete from GDZC.TM_MESSAGEWECHAT
+    where MESSAGEWECHAT_GUID = #{messagewechatGuid,jdbcType=VARCHAR}
+  </delete>
+  <insert id="insert" parameterType="com.phxl.ysy.entity.Messagewechat" >
+    insert into GDZC.TM_MESSAGEWECHAT (MESSAGEWECHAT_GUID, ORG_ID, MC_NAME, 
+      MC_TEMPLATEID, MC_TEMPLATECONTENT, MC_REMARK, 
+      CREATE_DATE, MODIFY_DATE, FSTATE
+      )
+    values (#{messagewechatGuid,jdbcType=VARCHAR}, #{orgId,jdbcType=DECIMAL}, #{mcName,jdbcType=VARCHAR}, 
+      #{mcTemplateid,jdbcType=VARCHAR}, #{mcTemplatecontent,jdbcType=VARCHAR}, #{mcRemark,jdbcType=VARCHAR}, 
+      #{createDate,jdbcType=DATE}, #{modifyDate,jdbcType=DATE}, #{fstate,jdbcType=VARCHAR}
+      )
+  </insert>
+  <insert id="insertSelective" parameterType="com.phxl.ysy.entity.Messagewechat" >
+    insert into GDZC.TM_MESSAGEWECHAT
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="messagewechatGuid != null" >
+        MESSAGEWECHAT_GUID,
+      </if>
+      <if test="orgId != null" >
+        ORG_ID,
+      </if>
+      <if test="mcName != null" >
+        MC_NAME,
+      </if>
+      <if test="mcTemplateid != null" >
+        MC_TEMPLATEID,
+      </if>
+      <if test="mcTemplatecontent != null" >
+        MC_TEMPLATECONTENT,
+      </if>
+      <if test="mcRemark != null" >
+        MC_REMARK,
+      </if>
+      <if test="createDate != null" >
+        CREATE_DATE,
+      </if>
+      <if test="modifyDate != null" >
+        MODIFY_DATE,
+      </if>
+      <if test="fstate != null" >
+        FSTATE,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="messagewechatGuid != null" >
+        #{messagewechatGuid,jdbcType=VARCHAR},
+      </if>
+      <if test="orgId != null" >
+        #{orgId,jdbcType=DECIMAL},
+      </if>
+      <if test="mcName != null" >
+        #{mcName,jdbcType=VARCHAR},
+      </if>
+      <if test="mcTemplateid != null" >
+        #{mcTemplateid,jdbcType=VARCHAR},
+      </if>
+      <if test="mcTemplatecontent != null" >
+        #{mcTemplatecontent,jdbcType=VARCHAR},
+      </if>
+      <if test="mcRemark != null" >
+        #{mcRemark,jdbcType=VARCHAR},
+      </if>
+      <if test="createDate != null" >
+        #{createDate,jdbcType=DATE},
+      </if>
+      <if test="modifyDate != null" >
+        #{modifyDate,jdbcType=DATE},
+      </if>
+      <if test="fstate != null" >
+        #{fstate,jdbcType=VARCHAR},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="com.phxl.ysy.entity.Messagewechat" >
+    update GDZC.TM_MESSAGEWECHAT
+    <set >
+      <if test="orgId != null" >
+        ORG_ID = #{orgId,jdbcType=DECIMAL},
+      </if>
+      <if test="mcName != null" >
+        MC_NAME = #{mcName,jdbcType=VARCHAR},
+      </if>
+      <if test="mcTemplateid != null" >
+        MC_TEMPLATEID = #{mcTemplateid,jdbcType=VARCHAR},
+      </if>
+      <if test="mcTemplatecontent != null" >
+        MC_TEMPLATECONTENT = #{mcTemplatecontent,jdbcType=VARCHAR},
+      </if>
+      <if test="mcRemark != null" >
+        MC_REMARK = #{mcRemark,jdbcType=VARCHAR},
+      </if>
+      <if test="createDate != null" >
+        CREATE_DATE = #{createDate,jdbcType=DATE},
+      </if>
+      <if test="modifyDate != null" >
+        MODIFY_DATE = #{modifyDate,jdbcType=DATE},
+      </if>
+      <if test="fstate != null" >
+        FSTATE = #{fstate,jdbcType=VARCHAR},
+      </if>
+    </set>
+    where MESSAGEWECHAT_GUID = #{messagewechatGuid,jdbcType=VARCHAR}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.phxl.ysy.entity.Messagewechat" >
+    update GDZC.TM_MESSAGEWECHAT
+    set ORG_ID = #{orgId,jdbcType=DECIMAL},
+      MC_NAME = #{mcName,jdbcType=VARCHAR},
+      MC_TEMPLATEID = #{mcTemplateid,jdbcType=VARCHAR},
+      MC_TEMPLATECONTENT = #{mcTemplatecontent,jdbcType=VARCHAR},
+      MC_REMARK = #{mcRemark,jdbcType=VARCHAR},
+      CREATE_DATE = #{createDate,jdbcType=DATE},
+      MODIFY_DATE = #{modifyDate,jdbcType=DATE},
+      FSTATE = #{fstate,jdbcType=VARCHAR}
+    where MESSAGEWECHAT_GUID = #{messagewechatGuid,jdbcType=VARCHAR}
+  </update>
+</mapper>
