@@ -6,8 +6,6 @@
     <result column="ASSETS_RECORD" property="assetsRecord" jdbcType="VARCHAR" />
     <result column="CONTRACT_NO" property="contractNo" jdbcType="VARCHAR" />
     <result column="EQUIPMENT_CODE" property="equipmentCode" jdbcType="VARCHAR" />
-    <result column="FMODEL" property="fmodel" jdbcType="VARCHAR" />
-    <result column="SPEC" property="spec" jdbcType="VARCHAR" />
     <result column="ORG_ID" property="orgId" jdbcType="DECIMAL" />
     <result column="PRODUCT_COUNTRY" property="productCountry" jdbcType="VARCHAR" />
     <result column="PRODUCT" property="product" jdbcType="VARCHAR" />
@@ -52,6 +50,13 @@
     <result column="IN_DATE" property="inDate" jdbcType="DATE" />
     <result column="RRPAIR_TYPE" property="rrpairType" jdbcType="VARCHAR" />
     <result column="MAINTAIN_TYPE" property="maintainType" jdbcType="VARCHAR" />
+    <result column="RR_ACCE" property="rrAcce" jdbcType="VARCHAR" />
+    <result column="RR_ACCE_A" property="rrAcceA" jdbcType="VARCHAR" />
+    <result column="RR_ACCE_B" property="rrAcceB" jdbcType="VARCHAR" />
+    <result column="GUARANTEE_FLAG" property="guaranteeFlag" jdbcType="VARCHAR" />
+    <result column="SPARE" property="spare" jdbcType="VARCHAR" />
+    <result column="METERING_TYPE" property="meteringType" jdbcType="VARCHAR" />
+    <result column="NEXT_MAINTAIN_DATE" property="nextMaintainDate" jdbcType="DATE" />
   </resultMap>
   <sql id="Base_Column_List" >
     ASSETS_RECORD_M, ASSETS_RECORD, CONTRACT_NO, EQUIPMENT_CODE, FMODEL, SPEC, ORG_ID, 
@@ -64,14 +69,54 @@
     TF_ACCESSORY, QRCODE, M_DEPT_CODE, CARRYING_AMOUNT, RESIDUAL_VALUE_V, IN_DATE, RRPAIR_TYPE, 
     MAINTAIN_TYPE
   </sql>
-
+  
   <!-- 查询资产档案信息列表 -->
   <select id="selectAssetsList" parameterType="com.phxl.core.base.entity.Pager" resultType="java.util.Map">
   	select 
+	    a.assets_record_m "assetsRecordGuid" , 
 		a.assets_record "assetsRecord" ,
-		e.equipment_standard_name "equipmetStandarName" ,
-		a.spec "spec" ,
-		a.fmodel "fmodel" , 
+		e.equipment_standard_name "equipmetStandardName" ,
+		a.use_fstate "useFstate" , 
+		e.spec "spec" ,
+		a.product_type "productType" ,
+		a.custodian "custodian" ,
+		a.use_dept_code "useDeptCode" , 
+		(select dept_nam from td_dept_info where dept_code = a.use_dept_code) "useDept" , 
+		a.b_dept_code "bDeptCode" , 
+		(select dept_nam from td_dept_info where dept_code = a.b_dept_code) "bDept" 
+		from td_assets_record a left join td_equipment e
+		on (a.equipment_code = e.equipment_code)
+  		where 1 = 1 
+  		<if test="conditiions.mobile != null and conditiions.mobile != ''">
+			and ( regexp_like(a.assets_record, #{conditiions.mobile})
+				or regexp_like(e.equipment_standard_name, #{conditiions.mobile})
+			) 	
+  		</if>
+  		<if test="conditiions != null and conditiions.orderMark != null and conditiions.orderField != null and conditiions.orderField!=''">
+<!--   			<if test="conditiions.orderField == 'useDept'"> -->
+<!-- 	  			order by (select dept_nam from td_dept_info where dept_code = a.use_dept_code) ${conditiions.orderMark} -->
+<!--   			</if> -->
+<!--   			<if test="conditiions.orderField == 'bDept'"> -->
+<!-- 	  			order by (select dept_nam from td_dept_info where dept_code = a.b_dept_code) ${conditiions.orderMark} -->
+<!--   			</if> -->
+<!--   			<if test="conditiions.orderField == 'equipmetStandardName or conditiions.orderField == 'spec''"> -->
+<!-- 	  			order by e.[orderField] ${conditiions.orderMark} -->
+<!--   			</if> -->
+<!--   			<if test="conditiions.orderField != 'useDept' and conditiions.orderField != 'bDept' and conditiions.orderField != 'equipmetStandardName' and conditiions.orderField != 'spec'">  -->
+<!--   				order by a.[orderField] ${conditiions.orderMark} -->
+<!--   			</if> -->
+  			order by "${conditiions.orderField}" ${conditiions.orderMark}
+  		</if>
+  </select>
+
+  <!-- 查询资产档案详情 -->
+  <select id="selectAssetsRecordDetail" parameterType="com.phxl.core.base.entity.Pager" resultType="java.util.Map">
+  	select 
+		a.assets_record "assetsRecord" ,
+		e.equipment_standard_name "equipmetStandardName" ,
+		a.product_country "productCountry" , 
+		e.spec "spec" ,
+		e.fmodel "fmodel" , 
 		a.use_fstate "useFstate" , 
 		a.product_type "productType" ,
 		e.register_no "certGuid" ,
@@ -84,9 +129,9 @@
 		a.custodian "custodian" ,
 		a.buy_price "buyPrice" ,
 		a.install_price "installPrice" ,
-		a.source_funds "sourceFunds" ,
+		a.source_funds "sourceFunds" , 
 		a.production_date "productionDate" ,
-		a.enable_date "enableDate" ,
+<!-- 		a.enable_date "enableDate" , -->
 		a.recodr_date "recodrDate" ,
 		a.acct_date "acctDate" ,
 		a.use_limit "useLimit" ,
@@ -95,8 +140,8 @@
 		a.residual_value "residualValue" ,
 		a.qa_level "qalevel" ,
 		a.maintain_day "maintainDay" ,
-		a.out_aa_org "outAaOrg" ,
-		a.repair_flag "repairFlag" ,
+<!-- 		a.out_aa_org "outAaOrg" , -->
+<!-- 		a.repair_flag "repairFlag" , -->
 		a.OUT_RRPAIR_USERNAME "outRrpairUserName" ,
 		a.out_rrpair_phone "outRrpairPhone" , 
 		a.equipment_code "equipmentCode" ,
@@ -104,46 +149,63 @@
 		a.deposit "address" ,
 		(select add_months(a.production_date,(12*a.use_limit) ) from dual) "validity" , 
 		a.tf_accessory "tfAccessory",
-		to_char(a.buy_date,'yyyy-MM-dd') "buyDate" ,
-		e.qrcode "qrcode"
+		to_char(a.buy_date,'yyyy-MM-dd') "buyDate" , 
+		a.rrpair_type "rrpairType" , 
+	    a.maintain_type "maintainType" , 
+	    a.in_date "inDate" , 
+	    a.carrying_amount "carryingAmount" , 
+	    a.assets_record_m "assetsRecordGuid" , 
+	    a.guarantee_flag "guaranteeFlag" , 
+	    a.spare "spare" , 
+    	(select org_name from td_org_info o where o.org_id = a.f_org_id ) "fOrgName" , 
+    	a.metering_type "meteringType" , 
+    	a.next_maintain_date "nextMaintainDate" , 
+    	a.RESIDUAL_VALUE_V "residualValueV" , 
+    	a.contract_no "contractNo" , 
+    	a.original_value "originalValue" , 
+    	e.metering_unit "meteringUnit", 
+    	a.tf_brand "tfBrand" 
+<!-- 		 , e.qrcode "qrcode" -->
 		from td_assets_record a left join td_equipment e
 		on (a.equipment_code = e.equipment_code)
-  		where 1=1
-  		<if test="conditiions.assetsRecord != null and conditiions.assetsRecord != ''">
-			and regexp_like(a.assets_record, #{conditiions.assetsRecord})	
-  		</if>
-  		<if test="conditiions.equipmetStandarName != null and conditiions.equipmetStandarName != ''">
-			and regexp_like(e.equipment_standard_name, #{conditiions.equipmetStandarName})	
-  		</if>
-  		<if test="conditiions.useFstate != null and conditiions.useFstate != ''">
-  			and a.use_fstate = #{conditiions.useFstate}
-  		</if>
-  		<if test="conditiions.productType != null and conditiions.productType != ''">
-  			and a.product_type = #{conditiions.productType}
-  		</if>
-  		<if test="conditiions.spec != null and conditiions.spec != ''">
-			and regexp_like(a.spec, #{conditiions.spec})	
-  		</if>
-  		<if test="conditiions.product != null and conditiions.product != ''">
-			and regexp_like(a.product, #{conditiions.product})	
-  		</if>
-  		<if test="conditiions.useDeptCode != null and conditiions.useDeptCode != ''">
-			and regexp_like(a.use_dept_code, #{conditiions.useDeptCode})	
-  		</if>
-  		<if test="conditiions.bDept != null and conditiions.bDept != ''">
-			and regexp_like(a.b_dept_code, #{conditiions.bDept})	
-  		</if>
-  		<if test="conditiions.custodian != null and conditiions.custodian != ''">
-			and regexp_like(a.custodian, #{conditiions.custodian})	
-  		</if>
-  		<if test="conditiions.mobile != null and conditiions.mobile != ''">
-			and ( regexp_like(a.assets_record, #{conditiions.mobile})
-				or regexp_like(e.equipment_standard_name, #{conditiions.mobile})
-			) 	
-  		</if>
-  		<if test="conditiions.assetsRecordOne != null and conditiions.assetsRecordOne != ''">
-			and a.assets_record = #{conditiions.assetsRecordOne}	
-  		</if>
+  		where a.assets_record_m = #{conditiions.assetsRecordGuid}
+  		
+  		
+<!--   		<if test="conditiions.assetsRecord != null and conditiions.assetsRecord != ''"> -->
+<!-- 			and regexp_like(a.assets_record, #{conditiions.assetsRecord})	 -->
+<!--   		</if> -->
+<!--   		<if test="conditiions.equipmetStandarName != null and conditiions.equipmetStandarName != ''"> -->
+<!-- 			and regexp_like(e.equipment_standard_name, #{conditiions.equipmetStandarName})	 -->
+<!--   		</if> -->
+<!--   		<if test="conditiions.useFstate != null and conditiions.useFstate != ''"> -->
+<!--   			and a.use_fstate = #{conditiions.useFstate} -->
+<!--   		</if> -->
+<!--   		<if test="conditiions.productType != null and conditiions.productType != ''"> -->
+<!--   			and a.product_type = #{conditiions.productType} -->
+<!--   		</if> -->
+<!--   		<if test="conditiions.spec != null and conditiions.spec != ''"> -->
+<!-- 			and regexp_like(a.spec, #{conditiions.spec})	 -->
+<!--   		</if> -->
+<!--   		<if test="conditiions.product != null and conditiions.product != ''"> -->
+<!-- 			and regexp_like(a.product, #{conditiions.product})	 -->
+<!--   		</if> -->
+<!--   		<if test="conditiions.useDeptCode != null and conditiions.useDeptCode != ''"> -->
+<!-- 			and regexp_like(a.use_dept_code, #{conditiions.useDeptCode})	 -->
+<!--   		</if> -->
+<!--   		<if test="conditiions.bDept != null and conditiions.bDept != ''"> -->
+<!-- 			and regexp_like(a.b_dept_code, #{conditiions.bDept})	 -->
+<!--   		</if> -->
+<!--   		<if test="conditiions.custodian != null and conditiions.custodian != ''"> -->
+<!-- 			and regexp_like(a.custodian, #{conditiions.custodian})	 -->
+<!--   		</if> -->
+<!--   		<if test="conditiions.mobile != null and conditiions.mobile != ''"> -->
+<!-- 			and ( regexp_like(a.assets_record, #{conditiions.mobile}) -->
+<!-- 				or regexp_like(e.equipment_standard_name, #{conditiions.mobile}) -->
+<!-- 			) 	 -->
+<!--   		</if> -->
+<!--   		<if test="conditiions.assetsRecordOne != null and conditiions.assetsRecordOne != ''"> -->
+<!-- 			and a.assets_record = #{conditiions.assetsRecordOne}	 -->
+<!--   		</if> -->
   </select>
   
   <!-- 查询资产总量 -->
@@ -151,37 +213,68 @@
   	select count(*) from td_assets_record
   </select>
   
+  <!-- 修改资产档案信息 -->
+<!--   <update id="updateAssetsRecordInfo" parameterType="java.util.Map"> -->
+<!--   	update td_assets_record set ${value} = #{text} where ASSETS_RECORD_M = #{assetsRecordGuid} -->
+<!--   </update> -->
+  
   <insert id="importAssets">
-       insert into td_assets_record ( ASSETS_RECORD, EQUIPMENT_CODE, FMODEL, SPEC,
-    PRODUCT, PRODUCT_TYPE, SOURCE_FUNDS, B_DEPT_CODE, DEPOSIT,
-    PRODUCTION_DATE, USE_LIMIT, MAINTAIN_DAY, QA_LEVEL, 
-    BUY_DATE, DEPRECIATION_TYPE, DEPRECIATION_LIMIT, REPAIR_FLAG, 
-    USE_FSTATE, CREATE_USERID, RESIDUAL_VALUE, CUSTODIAN, INSTALL_PRICE, 
-    OUT_AA_ORG,USE_DEPT_CODE,BUY_PRICE,ORG_ID
+       insert into td_assets_record (ASSETS_RECORD_M, ASSETS_RECORD, 
+       USE_FSTATE, PRODUCT_TYPE, USE_DEPT_CODE, CUSTODIAN, 
+       DEPOSIT, B_DEPT_CODE, CERT_GUID, TF_BRAND, 
+       PRODUCT, PRODUCT_COUNTRY, PRODUCTION_DATE, F_ORG_ID, 
+       BUY_DATE, CONTRACT_NO, METERING_UNIT, BUY_PRICE, 
+       INSTALL_PRICE, SOURCE_FUNDS, RRPAIR_TYPE, MAINTAIN_TYPE, 
+       METERING_TYPE, MAINTAIN_DAY, NEXT_MAINTAIN_DATE, IN_DATE, 
+       DEPRECIATION_TYPE, ORIGINAL_VALUE, CARRYING_AMOUNT, RESIDUAL_VALUE, 
+       RESIDUAL_VALUE_V, USE_LIMIT, CREATE_USERID, ORG_ID
+<!--         FMODEL, SPEC, -->
+<!--      MAINTAIN_DAY, QA_LEVEL,  -->
+<!--     DEPRECIATION_LIMIT, REPAIR_FLAG,  -->
+<!--     USE_FSTATE, RESIDUAL_VALUE,  -->
+<!--     OUT_AA_ORG, -->
       )  select * from 
     <foreach collection="list" index="index" open="(" close=")" separator="union all"> 
-    select 
-      #{list[${index}].assetsRecord,jdbcType=VARCHAR}, #{list[${index}].assetsRecord,jdbcType=VARCHAR}, #{list[${index}].fmodel,jdbcType=VARCHAR}, 
-      #{list[${index}].spec,jdbcType=VARCHAR}, #{list[${index}].product,jdbcType=VARCHAR},   #{list[${index}].productType,jdbcType=VARCHAR}, 
-      #{list[${index}].sourceFunds,jdbcType=VARCHAR}, #{list[${index}].bDeptCode,jdbcType=VARCHAR}, #{list[${index}].deposit,jdbcType=VARCHAR}, 
-      #{list[${index}].productionDate,jdbcType=TIMESTAMP}, #{list[${index}].useLimit,jdbcType=DECIMAL}, #{list[${index}].maintainDay,jdbcType=VARCHAR},
-      #{list[${index}].qaLevel,jdbcType=VARCHAR},#{list[${index}].buyDate,jdbcType=TIMESTAMP},
-      #{list[${index}].depreciationType,jdbcType=VARCHAR}, #{list[${index}].depreciationLimit,jdbcType=DECIMAL},#{list[${index}].repairFlag,jdbcType=VARCHAR},
-      '00',#{list[${index}].createUserid,jdbcType=VARCHAR},
-      #{list[${index}].residualValue,jdbcType=VARCHAR}, #{list[${index}].custodian,jdbcType=VARCHAR}, 
-       #{list[${index}].installPrice,jdbcType=VARCHAR}, #{list[${index}].aaOrg,jdbcType=VARCHAR}, 
-       #{list[${index}].useDeptCode,jdbcType=VARCHAR}, #{list[${index}].buyPrice,jdbcType=VARCHAR},
-       #{list[${index}].orgId,jdbcType=DECIMAL} from dual
+    select guid(), 
+      #{list[${index}].assetsRecord,jdbcType=VARCHAR}, #{list[${index}].assetsRecord,jdbcType=VARCHAR}, 
+      #{list[${index}].useFstate,jdbcType=VARCHAR},  #{list[${index}].productType,jdbcType=VARCHAR}, 
+      #{list[${index}].useDeptCode,jdbcType=VARCHAR}, #{list[${index}].custodian,jdbcType=VARCHAR}, 
+      #{list[${index}].deposit,jdbcType=VARCHAR}, #{list[${index}].bDeptCode,jdbcType=VARCHAR}, 
+      #{list[${index}].certGuid,jdbcType=VARCHAR}, #{list[${index}].tfBrand,jdbcType=VARCHAR}, 
+      #{list[${index}].product,jdbcType=VARCHAR}, #{list[${index}].productCountry,jdbcType=VARCHAR}, 
+      #{list[${index}].productionDate,jdbcType=TIMESTAMP}, #{list[${index}].fOrgId,jdbcType=TIMESTAMP}, 
+      #{list[${index}].buyDate,jdbcType=TIMESTAMP}, #{list[${index}].contractNo,jdbcType=TIMESTAMP}, 
+      #{list[${index}].meteringUnit,jdbcType=TIMESTAMP}, #{list[${index}].buyPrice,jdbcType=VARCHAR}, 
+      #{list[${index}].installPrice,jdbcType=VARCHAR}, #{list[${index}].sourceFunds,jdbcType=VARCHAR}, 
+      #{list[${index}].rrpairType,jdbcType=VARCHAR}, #{list[${index}].maintainType,jdbcType=VARCHAR}, 
+      #{list[${index}].meteringType,jdbcType=VARCHAR}, #{list[${index}].maintainDay,jdbcType=VARCHAR}, 
+      #{list[${index}].nextMaintainDate,jdbcType=VARCHAR}, #{list[${index}].inDate,jdbcType=VARCHAR}, 
+      #{list[${index}].depreciationType,jdbcType=VARCHAR}, #{list[${index}].originalValue,jdbcType=VARCHAR}, 
+      #{list[${index}].carryingAmount,jdbcType=VARCHAR}, #{list[${index}].residualValue,jdbcType=VARCHAR}, 
+      #{list[${index}].residualValueV,jdbcType=VARCHAR}, #{list[${index}].useLimit,jdbcType=DECIMAL}, 
+      #{list[${index}].createUserid,jdbcType=VARCHAR}, #{list[${index}].orgId,jdbcType=DECIMAL} from dual
+      
+<!--       #{list[${index}].fmodel,jdbcType=VARCHAR}, #{list[${index}].spec,jdbcType=VARCHAR},  -->
+<!--       #{list[${index}].maintainDay,jdbcType=VARCHAR}, -->
+<!--       #{list[${index}].qaLevel,jdbcType=VARCHAR}, -->
+<!--       #{list[${index}].depreciationLimit,jdbcType=DECIMAL}, -->
+<!--       #{list[${index}].repairFlag,jdbcType=VARCHAR}, '00', #{list[${index}].createUserid,jdbcType=VARCHAR}, -->
+<!--       #{list[${index}].residualValue,jdbcType=VARCHAR},  -->
+<!--        #{list[${index}].aaOrg,jdbcType=VARCHAR},  -->
+        
+      
      </foreach> 
   </insert>
   
   <insert id="importEquipments">
-  insert into td_equipment (EQUIPMENT_CODE,EQUIPMENT_NAME, EQUIPMENT_STANDARD_NAME,QRCODE)
+  insert into td_equipment (EQUIPMENT_CODE,EQUIPMENT_NAME,
+  	 EQUIPMENT_STANDARD_NAME,QRCODE,FMODEL,SPEC)
   select * from 
     <foreach collection="list" index="index" open="(" close=")" separator="union all"> 
     select 
-      #{list[${index}].assetsRecord,jdbcType=VARCHAR}, #{list[${index}].equipmentName,jdbcType=VARCHAR},
-       #{list[${index}].equipmentName,jdbcType=VARCHAR}, #{list[${index}].qrCode,jdbcType=VARCHAR}
+      #{list[${index}].assetsRecord,jdbcType=VARCHAR}, #{list[${index}].equipmentName,jdbcType=VARCHAR} , 
+       #{list[${index}].equipmentName,jdbcType=VARCHAR}, #{list[${index}].qrCode,jdbcType=VARCHAR} , 
+        #{list[${index}].fmodel,jdbcType=VARCHAR}, #{list[${index}].spec,jdbcType=VARCHAR}
      from dual
      </foreach> 
   </insert>

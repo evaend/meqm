@@ -4,7 +4,6 @@ import java.util.List;
 import java.util.Map;
 
 import com.phxl.core.base.entity.Pager;
-import com.phxl.ysy.entity.AssetsRecord;
 import com.phxl.ysy.web.dto.EquipmentDto;
 
 public interface AssetsRecordMapper {
@@ -17,4 +16,7 @@ public interface AssetsRecordMapper {
 	int importAssets(List<EquipmentDto> list);
 
 	int importEquipments(List<EquipmentDto> list);
+	
+	//查询资产档案明细
+	Map<String, Object> selectAssetsRecordDetail(Pager pager);
 }

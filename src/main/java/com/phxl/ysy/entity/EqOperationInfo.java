@@ -2,6 +2,9 @@ package com.phxl.ysy.entity;
 
 import java.util.Date;
 
+import com.phxl.core.base.annotation.BaseSql;
+
+@BaseSql(tableName="TS_EQ_OPERATION_INFO", resultName="com.phxl.ysy.dao.EqOperationInfoMapper.BaseResultMap")
 public class EqOperationInfo {
     private String tsOpId;
 
@@ -22,6 +25,8 @@ public class EqOperationInfo {
     private String assetsRecord;
 
     private String equipmentCode;
+    
+    private String tfRemark;
 
     public String getTsOpId() {
         return tsOpId;
@@ -102,4 +107,12 @@ public class EqOperationInfo {
     public void setEquipmentCode(String equipmentCode) {
         this.equipmentCode = equipmentCode == null ? null : equipmentCode.trim();
     }
+
+	public String getTfRemark() {
+		return tfRemark;
+	}
+
+	public void setTfRemark(String tfRemark) {
+		this.tfRemark = tfRemark;
+	}
 }

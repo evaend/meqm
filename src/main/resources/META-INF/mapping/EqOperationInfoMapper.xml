@@ -12,142 +12,38 @@
     <result column="OP_B" property="opB" jdbcType="VARCHAR" />
     <result column="ASSETS_RECORD" property="assetsRecord" jdbcType="VARCHAR" />
     <result column="EQUIPMENT_CODE" property="equipmentCode" jdbcType="VARCHAR" />
+    <result column="TF_REMARK" property="tfRemark" jdbcType="VARCHAR" />
   </resultMap>
   <sql id="Base_Column_List" >
     TS_OP_ID, OP_ID, OP_TEXT, OP_TYPE, OP_USER_ID, OP_TIME, OP_A, OP_B, ASSETS_RECORD, 
     EQUIPMENT_CODE
   </sql>
-  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.String" >
-    select 
-    <include refid="Base_Column_List" />
-    from GDZC.TS_EQ_OPERATION_INFO
-    where TS_OP_ID = #{tsOpId,jdbcType=VARCHAR}
+   
+  <!-- 查询操作记录 -->
+  <select id="selectEqOperation" resultType="java.util.Map" parameterType="com.phxl.core.base.entity.Pager">
+  	 select e.ts_op_id "tsOpId" ,
+			e.op_id "opId" , 
+			e.op_text "opText" , 
+			e.op_type "opType" , 
+			e.op_user_id "opUserId" ,
+			u.user_name "userName" , 
+			e.op_time "opTime" , 
+			e.op_a "opA" , 
+			e.op_b "opB" , 
+			e.assets_record "assetsRecord" , 
+			e.equipment_code "equipmentCode" , 
+			e.tf_remark "tfRemark"
+			from TS_EQ_OPERATION_INFO e 
+			left join ts_user_info u 
+			on (e.op_user_id = u.user_id)
+			where 1 = 1 
+		<if test="conditiions.opType != null and conditiions.opType != ''">
+			and  ( regexp_like(e.op_type, #{conditiions.opType})
+			or regexp_like(e.op_text, #{conditiions.opType} ) )
+		</if>
+		<if test="conditiions != null and conditiions.orderMark != null and conditiions.orderField != null and conditiions.orderField!=''">
+  			order by "${conditiions.orderField}" ${conditiions.orderMark}
+  		</if>
   </select>
-  <delete id="deleteByPrimaryKey" parameterType="java.lang.String" >
-    delete from GDZC.TS_EQ_OPERATION_INFO
-    where TS_OP_ID = #{tsOpId,jdbcType=VARCHAR}
-  </delete>
-  <insert id="insert" parameterType="com.phxl.ysy.entity.EqOperationInfo" >
-    insert into GDZC.TS_EQ_OPERATION_INFO (TS_OP_ID, OP_ID, OP_TEXT, 
-      OP_TYPE, OP_USER_ID, OP_TIME, 
-      OP_A, OP_B, ASSETS_RECORD, 
-      EQUIPMENT_CODE)
-    values (#{tsOpId,jdbcType=VARCHAR}, #{opId,jdbcType=VARCHAR}, #{opText,jdbcType=VARCHAR}, 
-      #{opType,jdbcType=VARCHAR}, #{opUserId,jdbcType=VARCHAR}, #{opTime,jdbcType=DATE}, 
-      #{opA,jdbcType=VARCHAR}, #{opB,jdbcType=VARCHAR}, #{assetsRecord,jdbcType=VARCHAR}, 
-      #{equipmentCode,jdbcType=VARCHAR})
-  </insert>
-  <insert id="insertSelective" parameterType="com.phxl.ysy.entity.EqOperationInfo" >
-    insert into GDZC.TS_EQ_OPERATION_INFO
-    <trim prefix="(" suffix=")" suffixOverrides="," >
-      <if test="tsOpId != null" >
-        TS_OP_ID,
-      </if>
-      <if test="opId != null" >
-        OP_ID,
-      </if>
-      <if test="opText != null" >
-        OP_TEXT,
-      </if>
-      <if test="opType != null" >
-        OP_TYPE,
-      </if>
-      <if test="opUserId != null" >
-        OP_USER_ID,
-      </if>
-      <if test="opTime != null" >
-        OP_TIME,
-      </if>
-      <if test="opA != null" >
-        OP_A,
-      </if>
-      <if test="opB != null" >
-        OP_B,
-      </if>
-      <if test="assetsRecord != null" >
-        ASSETS_RECORD,
-      </if>
-      <if test="equipmentCode != null" >
-        EQUIPMENT_CODE,
-      </if>
-    </trim>
-    <trim prefix="values (" suffix=")" suffixOverrides="," >
-      <if test="tsOpId != null" >
-        #{tsOpId,jdbcType=VARCHAR},
-      </if>
-      <if test="opId != null" >
-        #{opId,jdbcType=VARCHAR},
-      </if>
-      <if test="opText != null" >
-        #{opText,jdbcType=VARCHAR},
-      </if>
-      <if test="opType != null" >
-        #{opType,jdbcType=VARCHAR},
-      </if>
-      <if test="opUserId != null" >
-        #{opUserId,jdbcType=VARCHAR},
-      </if>
-      <if test="opTime != null" >
-        #{opTime,jdbcType=DATE},
-      </if>
-      <if test="opA != null" >
-        #{opA,jdbcType=VARCHAR},
-      </if>
-      <if test="opB != null" >
-        #{opB,jdbcType=VARCHAR},
-      </if>
-      <if test="assetsRecord != null" >
-        #{assetsRecord,jdbcType=VARCHAR},
-      </if>
-      <if test="equipmentCode != null" >
-        #{equipmentCode,jdbcType=VARCHAR},
-      </if>
-    </trim>
-  </insert>
-  <update id="updateByPrimaryKeySelective" parameterType="com.phxl.ysy.entity.EqOperationInfo" >
-    update GDZC.TS_EQ_OPERATION_INFO
-    <set >
-      <if test="opId != null" >
-        OP_ID = #{opId,jdbcType=VARCHAR},
-      </if>
-      <if test="opText != null" >
-        OP_TEXT = #{opText,jdbcType=VARCHAR},
-      </if>
-      <if test="opType != null" >
-        OP_TYPE = #{opType,jdbcType=VARCHAR},
-      </if>
-      <if test="opUserId != null" >
-        OP_USER_ID = #{opUserId,jdbcType=VARCHAR},
-      </if>
-      <if test="opTime != null" >
-        OP_TIME = #{opTime,jdbcType=DATE},
-      </if>
-      <if test="opA != null" >
-        OP_A = #{opA,jdbcType=VARCHAR},
-      </if>
-      <if test="opB != null" >
-        OP_B = #{opB,jdbcType=VARCHAR},
-      </if>
-      <if test="assetsRecord != null" >
-        ASSETS_RECORD = #{assetsRecord,jdbcType=VARCHAR},
-      </if>
-      <if test="equipmentCode != null" >
-        EQUIPMENT_CODE = #{equipmentCode,jdbcType=VARCHAR},
-      </if>
-    </set>
-    where TS_OP_ID = #{tsOpId,jdbcType=VARCHAR}
-  </update>
-  <update id="updateByPrimaryKey" parameterType="com.phxl.ysy.entity.EqOperationInfo" >
-    update GDZC.TS_EQ_OPERATION_INFO
-    set OP_ID = #{opId,jdbcType=VARCHAR},
-      OP_TEXT = #{opText,jdbcType=VARCHAR},
-      OP_TYPE = #{opType,jdbcType=VARCHAR},
-      OP_USER_ID = #{opUserId,jdbcType=VARCHAR},
-      OP_TIME = #{opTime,jdbcType=DATE},
-      OP_A = #{opA,jdbcType=VARCHAR},
-      OP_B = #{opB,jdbcType=VARCHAR},
-      ASSETS_RECORD = #{assetsRecord,jdbcType=VARCHAR},
-      EQUIPMENT_CODE = #{equipmentCode,jdbcType=VARCHAR}
-    where TS_OP_ID = #{tsOpId,jdbcType=VARCHAR}
-  </update>
+  
 </mapper>

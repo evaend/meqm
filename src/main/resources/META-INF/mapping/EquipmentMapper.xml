@@ -2,7 +2,7 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
 <mapper namespace="com.phxl.ysy.dao.EquipmentMapper" >
   <resultMap id="BaseResultMap" type="com.phxl.ysy.entity.Equipment" >
-    <result column="EQUIPMENT_CODE" property="equipmentCode" jdbcType="VARCHAR" />
+    <id column="EQUIPMENT_CODE" property="equipmentCode" jdbcType="VARCHAR" />
     <result column="EQUIPMENT_NAME" property="equipmentName" jdbcType="VARCHAR" />
     <result column="EQUIPMENT_STANDARD_CODE" property="equipmentStandardCode" jdbcType="VARCHAR" />
     <result column="EQUIPMENT_STANDARD_NAME" property="equipmentStandardName" jdbcType="VARCHAR" />
@@ -16,101 +16,5 @@
     <result column="CERT_GUID" property="certGuid" jdbcType="VARCHAR" />
     <result column="REGISTER_NO" property="registerNo" jdbcType="VARCHAR" />
   </resultMap>
-  <insert id="insert" parameterType="com.phxl.ysy.entity.Equipment" >
-    insert into GDZC.TD_EQUIPMENT (EQUIPMENT_CODE, EQUIPMENT_NAME, EQUIPMENT_STANDARD_CODE, 
-      EQUIPMENT_STANDARD_NAME, ENGLISH_NAME, PY_CODE, 
-      INTERNATIONAL_CODE, STANDARD_ASSETS_FLAG, 
-      METERING_UNIT, USE_LIMIT, TYPE_CODE, 
-      CERT_GUID, REGISTER_NO)
-    values (#{equipmentCode,jdbcType=VARCHAR}, #{equipmentName,jdbcType=VARCHAR}, #{equipmentStandardCode,jdbcType=VARCHAR}, 
-      #{equipmentStandardName,jdbcType=VARCHAR}, #{englishName,jdbcType=VARCHAR}, #{pyCode,jdbcType=VARCHAR}, 
-      #{internationalCode,jdbcType=VARCHAR}, #{standardAssetsFlag,jdbcType=VARCHAR}, 
-      #{meteringUnit,jdbcType=VARCHAR}, #{useLimit,jdbcType=VARCHAR}, #{typeCode,jdbcType=VARCHAR}, 
-      #{certGuid,jdbcType=VARCHAR}, #{registerNo,jdbcType=VARCHAR})
-  </insert>
-  <insert id="insertSelective" parameterType="com.phxl.ysy.entity.Equipment" >
-    insert into GDZC.TD_EQUIPMENT
-    <trim prefix="(" suffix=")" suffixOverrides="," >
-      <if test="equipmentCode != null" >
-        EQUIPMENT_CODE,
-      </if>
-      <if test="equipmentName != null" >
-        EQUIPMENT_NAME,
-      </if>
-      <if test="equipmentStandardCode != null" >
-        EQUIPMENT_STANDARD_CODE,
-      </if>
-      <if test="equipmentStandardName != null" >
-        EQUIPMENT_STANDARD_NAME,
-      </if>
-      <if test="englishName != null" >
-        ENGLISH_NAME,
-      </if>
-      <if test="pyCode != null" >
-        PY_CODE,
-      </if>
-      <if test="internationalCode != null" >
-        INTERNATIONAL_CODE,
-      </if>
-      <if test="standardAssetsFlag != null" >
-        STANDARD_ASSETS_FLAG,
-      </if>
-      <if test="meteringUnit != null" >
-        METERING_UNIT,
-      </if>
-      <if test="useLimit != null" >
-        USE_LIMIT,
-      </if>
-      <if test="typeCode != null" >
-        TYPE_CODE,
-      </if>
-      <if test="certGuid != null" >
-        CERT_GUID,
-      </if>
-      <if test="registerNo != null" >
-        REGISTER_NO,
-      </if>
-    </trim>
-    <trim prefix="values (" suffix=")" suffixOverrides="," >
-      <if test="equipmentCode != null" >
-        #{equipmentCode,jdbcType=VARCHAR},
-      </if>
-      <if test="equipmentName != null" >
-        #{equipmentName,jdbcType=VARCHAR},
-      </if>
-      <if test="equipmentStandardCode != null" >
-        #{equipmentStandardCode,jdbcType=VARCHAR},
-      </if>
-      <if test="equipmentStandardName != null" >
-        #{equipmentStandardName,jdbcType=VARCHAR},
-      </if>
-      <if test="englishName != null" >
-        #{englishName,jdbcType=VARCHAR},
-      </if>
-      <if test="pyCode != null" >
-        #{pyCode,jdbcType=VARCHAR},
-      </if>
-      <if test="internationalCode != null" >
-        #{internationalCode,jdbcType=VARCHAR},
-      </if>
-      <if test="standardAssetsFlag != null" >
-        #{standardAssetsFlag,jdbcType=VARCHAR},
-      </if>
-      <if test="meteringUnit != null" >
-        #{meteringUnit,jdbcType=VARCHAR},
-      </if>
-      <if test="useLimit != null" >
-        #{useLimit,jdbcType=VARCHAR},
-      </if>
-      <if test="typeCode != null" >
-        #{typeCode,jdbcType=VARCHAR},
-      </if>
-      <if test="certGuid != null" >
-        #{certGuid,jdbcType=VARCHAR},
-      </if>
-      <if test="registerNo != null" >
-        #{registerNo,jdbcType=VARCHAR},
-      </if>
-    </trim>
-  </insert>
+  
 </mapper>

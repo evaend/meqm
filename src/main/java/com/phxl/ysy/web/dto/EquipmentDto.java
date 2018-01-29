@@ -11,7 +11,12 @@ public class EquipmentDto extends AssetsRecord{
 	private int rownum;
 	
 	private String equipmentName;
+	
 	private String qrCode;
+	
+	private String fmodel;
+	
+	private String spec;
 
 	public String getSheetName() {
 		return sheetName;
@@ -43,5 +48,21 @@ public class EquipmentDto extends AssetsRecord{
 
 	public void setQrCode(String qrCode) {
 		this.qrCode = qrCode;
+	}
+
+	public String getFmodel() {
+		return fmodel;
+	}
+
+	public void setFmodel(String fmodel) {
+		this.fmodel = fmodel;
+	}
+
+	public String getSpec() {
+		return spec;
+	}
+
+	public void setSpec(String spec) {
+		this.spec = spec;
 	}
 }

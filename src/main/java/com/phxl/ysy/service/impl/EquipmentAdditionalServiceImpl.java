@@ -137,11 +137,11 @@ public class EquipmentAdditionalServiceImpl  extends BaseService implements Equi
 	    }
 	    if(pager.getConditiions().containsKey("specCertGuid") && pager.getConditiions().get("specCertGuid")!=null){
 	    	String specCertGuid =  (String)pager.getConditiions().get("specCertGuid");
-	    	hql = hql.append(" and r.CERT_GUID = "+specCertGuid+")");
+	    	hql = hql.append(" and r.CERT_GUID = '"+specCertGuid+"'");
 	    }
 	    if(pager.getConditiions().containsKey("excludeCertGuid") && pager.getConditiions().get("excludeCertGuid")!=null){
 	    	String excludeCertGuid =  (String)pager.getConditiions().get("excludeCertGuid");
-	    	hql = hql.append(" and r.CERT_GUID != "+excludeCertGuid+")");
+	    	hql = hql.append(" and r.CERT_GUID != '"+excludeCertGuid+"'");
 	    }
 		List<Map<String, Object>> certList = new ArrayList<Map<String,Object>>();
 		certList = jdbcTemplate1.queryForList(hql.toString());

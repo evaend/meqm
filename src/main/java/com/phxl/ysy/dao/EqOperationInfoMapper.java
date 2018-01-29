@@ -1,17 +1,11 @@
 package com.phxl.ysy.dao;
 
-import com.phxl.ysy.entity.EqOperationInfo;
+import java.util.List;
+import java.util.Map;
+
+import com.phxl.core.base.entity.Pager;
 
 public interface EqOperationInfoMapper {
-    int deleteByPrimaryKey(String tsOpId);
-
-    int insert(EqOperationInfo record);
-
-    int insertSelective(EqOperationInfo record);
-
-    EqOperationInfo selectByPrimaryKey(String tsOpId);
-
-    int updateByPrimaryKeySelective(EqOperationInfo record);
-
-    int updateByPrimaryKey(EqOperationInfo record);
+	//查询操作记录
+	List<Map<String, Object>> selectEqOperation(Pager pager);
 }

@@ -1,5 +1,8 @@
 package com.phxl.ysy.entity;
 
+import com.phxl.core.base.annotation.BaseSql;
+
+@BaseSql(tableName="TD_EQUIPMENT", resultName="com.phxl.ysy.dao.EquipmentMapper.BaseResultMap")
 public class Equipment {
     private String equipmentCode;
 

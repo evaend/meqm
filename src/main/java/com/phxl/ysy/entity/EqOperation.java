@@ -2,6 +2,9 @@ package com.phxl.ysy.entity;
 
 import java.util.Date;
 
+import com.phxl.core.base.annotation.BaseSql;
+
+@BaseSql(tableName="TS_EQ_OPERATION", resultName="com.phxl.ysy.dao.EqOperationMapper.BaseResultMap")
 public class EqOperation {
     private String tsEqOperationGuId;
 

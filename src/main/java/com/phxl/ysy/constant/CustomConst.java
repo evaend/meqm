@@ -1193,4 +1193,27 @@ public class CustomConst {
         put("05", "专业设备");
         put("06", "其他");
     }};
+    
+    /**
+     * 资产信息字段修改
+     * @author zhangyanli
+     *
+     */
+    public static final class AssetsRecordInfoUpdate {
+    	/**EQUIPMENT_STANDARD_NAME、 资产名称*/
+        public static final String equipmentStandardName = "EQUIPMENT_STANDARD_NAME";
+        /**DEPOSIT、 存放地址*/
+        public static final String deposit = "DEPOSIT";
+        /**RRPAIR_TYPE、维修分类 */
+        public static final String rrpairType = "RRPAIR_TYPE";
+        /**SPARE、有无备用 */
+        public static final String spare = "SPARE";
+        /**MAINTAIN_DAY、保养周期 */
+        public static final String maintainDay = "MAINTAIN_DAY";
+        /**MAINTAIN_TYPE、保养分类 */
+        public static final String maintainType = "MAINTAIN_TYPE";
+        /**METERING_TYPE、计量分类 */
+        public static final String meteringType = "METERING_TYPE";
+    }
+
 }

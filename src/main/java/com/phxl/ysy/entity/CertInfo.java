@@ -2,6 +2,9 @@ package com.phxl.ysy.entity;
 
 import java.util.Date;
 
+import com.phxl.core.base.annotation.BaseSql;
+
+@BaseSql(tableName="TD_CERT_INFO", resultName="com.phxl.ysy.dao.CertInfoMapper.BaseResultMap")
 public class CertInfo {
     private String certId;
 
@@ -20,6 +23,10 @@ public class CertInfo {
     private String createUserid;
 
     private Date createTime;
+    
+    private String assetsRecord;
+    
+    private String equipmentCode;
 
     public String getCertId() {
         return certId;
@@ -92,4 +99,20 @@ public class CertInfo {
     public void setCreateTime(Date createTime) {
         this.createTime = createTime;
     }
+
+	public String getAssetsRecord() {
+		return assetsRecord;
+	}
+
+	public void setAssetsRecord(String assetsRecord) {
+		this.assetsRecord = assetsRecord;
+	}
+
+	public String getEquipmentCode() {
+		return equipmentCode;
+	}
+
+	public void setEquipmentCode(String equipmentCode) {
+		this.equipmentCode = equipmentCode;
+	}
 }

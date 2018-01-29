@@ -3,6 +3,9 @@ package com.phxl.ysy.entity;
 import java.math.BigDecimal;
 import java.util.Date;
 
+import com.phxl.core.base.annotation.BaseSql;
+
+@BaseSql(tableName="TD_ASSETS_RECORD", resultName="com.phxl.ysy.dao.AssetsRecordMapper.BaseResultMap")
 public class AssetsRecord {
     private String assetsRecordM;
 
@@ -11,10 +14,6 @@ public class AssetsRecord {
     private String contractNo;
 
     private String equipmentCode;
-
-    private String fmodel;
-
-    private String spec;
 
     private Long orgId;
 
@@ -104,6 +103,20 @@ public class AssetsRecord {
 
     private String maintainType;
 
+    private String rrAcce;
+
+    private String rrAcceA;
+
+    private String rrAcceB;
+
+    private String guaranteeFlag;
+
+    private String spare;
+    
+    private String meteringType;
+    
+    private Date nextMaintainDate;
+
     public String getAssetsRecordM() {
         return assetsRecordM;
     }
@@ -134,22 +147,6 @@ public class AssetsRecord {
 
     public void setEquipmentCode(String equipmentCode) {
         this.equipmentCode = equipmentCode == null ? null : equipmentCode.trim();
-    }
-
-    public String getFmodel() {
-        return fmodel;
-    }
-
-    public void setFmodel(String fmodel) {
-        this.fmodel = fmodel == null ? null : fmodel.trim();
-    }
-
-    public String getSpec() {
-        return spec;
-    }
-
-    public void setSpec(String spec) {
-        this.spec = spec == null ? null : spec.trim();
     }
 
     public Long getOrgId() {
@@ -503,4 +500,60 @@ public class AssetsRecord {
     public void setMaintainType(String maintainType) {
         this.maintainType = maintainType == null ? null : maintainType.trim();
     }
+
+	public String getRrAcce() {
+		return rrAcce;
+	}
+
+	public void setRrAcce(String rrAcce) {
+		this.rrAcce = rrAcce;
+	}
+ 
+	public String getRrAcceA() {
+		return rrAcceA;
+	}
+
+	public void setRrAcceA(String rrAcceA) {
+		this.rrAcceA = rrAcceA;
+	}
+
+	public String getRrAcceB() {
+		return rrAcceB;
+	}
+
+	public void setRrAcceB(String rrAcceB) {
+		this.rrAcceB = rrAcceB;
+	}
+
+	public String getGuaranteeFlag() {
+		return guaranteeFlag;
+	}
+
+	public void setGuaranteeFlag(String guaranteeFlag) {
+		this.guaranteeFlag = guaranteeFlag;
+	}
+
+	public String getSpare() {
+		return spare;
+	}
+
+	public void setSpare(String spare) {
+		this.spare = spare;
+	}
+
+	public String getMeteringType() {
+		return meteringType;
+	}
+
+	public void setMeteringType(String meteringType) {
+		this.meteringType = meteringType;
+	}
+
+	public Date getNextMaintainDate() {
+		return nextMaintainDate;
+	}
+
+	public void setNextMaintainDate(Date nextMaintainDate) {
+		this.nextMaintainDate = nextMaintainDate;
+	}
 }
