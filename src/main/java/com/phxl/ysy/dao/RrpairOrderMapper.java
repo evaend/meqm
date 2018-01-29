@@ -5,10 +5,11 @@ import java.util.Map;
 
 import com.phxl.core.base.entity.Pager;
 import com.phxl.ysy.entity.RrpairOrder;
+import com.phxl.ysy.entity.StaticData;
 
 public interface RrpairOrderMapper {
 	//查询设备维修列表
-	List<Map<String, Object>> selectRrpairList(Pager pager);
+	List<Map<String, Object>> selectRrpairDetailList(Pager pager);
 	
 	//（移动端）查询设备维修各状态数量
 	Map<String, Object> selectRrpairFstateNum(Map<String, Object> map);
@@ -30,4 +31,14 @@ public interface RrpairOrderMapper {
 	 * @return	void
 	 */
 	void SP_GET_BILL_NOSTORAGE(Map<String, Object> params);
+
+	/**
+	 * 查询维修操作记录
+	 * @param pager
+	 * @return
+	 */
+	List<Map<String,Object>> selectEqOperationList(Pager pager);
+
+	//查询设备维修列表
+	List<Map<String, Object>> selectRrpairList(Pager pager);
 }

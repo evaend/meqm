@@ -4,7 +4,8 @@ import java.math.BigDecimal;
 import java.util.Date;
 
 public class RrpairOrder {
-    private String rrpairOrder;
+
+    private String rrpairOrderGuid;
 
     private String assetsRecord;
 
@@ -78,8 +79,6 @@ public class RrpairOrder {
 
     private String tfRemark;
 
-    private String rrpairOrderGuid;
-
     private String faultAccessory;
 
     private String tfAccessory;
@@ -95,14 +94,6 @@ public class RrpairOrder {
     private String failCause;
 
     private Date createDate;
-
-    public String getRrpairOrder() {
-        return rrpairOrder;
-    }
-
-    public void setRrpairOrder(String rrpairOrder) {
-        this.rrpairOrder = rrpairOrder == null ? null : rrpairOrder.trim();
-    }
 
     public String getAssetsRecord() {
         return assetsRecord;

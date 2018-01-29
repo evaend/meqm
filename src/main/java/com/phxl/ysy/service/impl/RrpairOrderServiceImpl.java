@@ -48,9 +48,9 @@ public class RrpairOrderServiceImpl extends BaseService implements RrpairOrderSe
 	@Autowired
 	CallprocedureMapper callprocedureMapper;
 
-	public List<Map<String, Object>> selectRrpairList(Pager pager) {
-		List<Map<String, Object>> list = rrpairOrderMapper.selectRrpairList(pager);
-		for (Map<String, Object> map : list) {
+	public List<Map<String, Object>> selectRrpairDetailList(Pager pager) {
+		List<Map<String, Object>> list = rrpairOrderMapper.selectRrpairDetailList(pager);
+		/*for (Map<String, Object> map : list) {
 			RrpairOrder rrpairOrder = find(RrpairOrder.class, map.get("rrpairOrder").toString());
 			if(map.get("rrpairType")==null){
 				map.put("MaintainUserName", "");
@@ -61,9 +61,10 @@ public class RrpairOrderServiceImpl extends BaseService implements RrpairOrderSe
 			}else{
 				map.put("MaintainUserName", "");
 			}
-		}
+		}*/
 		return list;
 	}
+/*
 
 	public List<Map<String, Object>> selectRrpairFstateNum() {
 		Map<String, Object> m = new HashMap<String, Object>();
@@ -146,7 +147,8 @@ public class RrpairOrderServiceImpl extends BaseService implements RrpairOrderSe
 	}
 
 	
-	/**
+	*/
+/**
 	 * 生成单号（适用场景:直接以需方机构生成单号）
 	 * @author	黄文君
 	 * @date	2017年6月21日 上午11:11:42
@@ -156,7 +158,8 @@ public class RrpairOrderServiceImpl extends BaseService implements RrpairOrderSe
 	 * @param	asLen				流水号位数上限
 	 * @throws	ValidationException
 	 * @return	String				生成的单号
-	 */
+	 *//*
+
 	
 	public String callSpGetBill(Long billOrgId, String billName, String billPrefix, Integer asLen) throws ValidationException {
 		Assert.notNull(billOrgId, "生成新单号: billOrgId，不能为空");
@@ -249,5 +252,20 @@ public class RrpairOrderServiceImpl extends BaseService implements RrpairOrderSe
 	        imessageService.pushMessages(message);
 		}
         
+	}
+*/
+
+	/**
+	 * 查询维修操作记录
+	 * @param pager
+	 * @return
+	 */
+	public List<Map<String,Object>> selectEqOperationList(Pager pager){
+		return rrpairOrderMapper.selectEqOperationList(pager);
+	}
+
+	public List<Map<String, Object>> selectRrpairList(Pager pager) {
+		List<Map<String, Object>> list = rrpairOrderMapper.selectRrpairList(pager);
+		return list;
 	}
 }

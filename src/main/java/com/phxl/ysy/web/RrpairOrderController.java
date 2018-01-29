@@ -40,56 +40,13 @@ public class RrpairOrderController {
 	
 	@Autowired
 	HttpSession session;
-	
-	/**
-	 * 查询设备维修列表 
-	 * @param rrpairOrder 维修单号
-	 * @param orderFstate 维修状态（10待接修，30维修中，50待验收，80已关闭）
-	 * @param urgentFlag 紧急度（10紧急，20急，30一般）
-	 * @param time 时间
-	 * @param sort 排序（正序esc，倒序desc）
-	 * @param equipmentCode 设备编号
-	 * @param pagesize
-	 * @param page
-	 * @param request
-	 * @param response
-	 * @return
-	 */
-	@RequestMapping("/selectRrpairList")
-	@ResponseBody
-	public List<Map<String, Object>> selectRrpairList(
-			@RequestParam(value="rrpairOrder",required = false) String rrpairOrder,
-			@RequestParam(value="orderFstate",required = false) String orderFstate,
-			@RequestParam(value="urgentFlag",required = false) String urgentFlag,
-			@RequestParam(value="time",required = false) String time,
-			@RequestParam(value="sort",required = false) String sort,
-			@RequestParam(value="equipmentCode",required = false) String equipmentCode,
-			@RequestParam(value="pagesize",required = false) Integer pagesize,
-			@RequestParam(value="page",required = false) Integer page,
-			HttpServletRequest request,HttpServletResponse response
-			) {
-		Pager<Map<String, Object>> pager = new Pager<Map<String,Object>>(true);
-		//如果没有设置当前页和每页数量，则默认第一页，每页十五条数据
-		pager.setPageSize(pagesize == null ? 15 : pagesize);
-		pager.setPageNum(page == null ? 1 : page);
-		
-		pager.addQueryParam("rrpairOrder", rrpairOrder);
-		pager.addQueryParam("orderFstate", orderFstate);
-		pager.addQueryParam("urgentFlag", urgentFlag);
-		pager.addQueryParam("time", time);
-		pager.addQueryParam("sort", sort);
-		pager.addQueryParam("equipmentCode", equipmentCode);
-		
-		List<Map<String, Object>> list = rrpairOrderService.selectRrpairList(pager);
-		return list;
-	}
-	
+
 	/**
 	 * 查询设备维修各状态数量
 	 * @param request
 	 * @param response
 	 * @return
-	 */
+	 *//*
 	@RequestMapping("/selectRrpairFstateNum")
 	@ResponseBody
 	public List<Map<String, Object>> selectRrpairFstateNum(
@@ -98,14 +55,14 @@ public class RrpairOrderController {
 		return list;
 	}
 	
-	/**
+	*//**
 	 * 维修单详情——查询备注/评价
 	 * @param rrpairOrder 维修单号
 	 * @param type 备注/评价（备注0 ，评价1）
 	 * @param request
 	 * @param response
 	 * @return
-	 */
+	 *//*
 	@RequestMapping("/selectRrpairEvaluate")
 	@ResponseBody
 	public Map<String, Object> selectRrpairEvaluate(
@@ -119,7 +76,7 @@ public class RrpairOrderController {
 		return map;
 	}
 	
-	/**
+	*//**
 	 * 维修单详情——添加备注/评价 
 	 * @param rrpairOrder 维修单号
 	 * @param type 备注/评价（备注0 ，评价1）
@@ -128,7 +85,7 @@ public class RrpairOrderController {
 	 * @param response
 	 * @return
 	 * @throws ValidationException
-	 */
+	 *//*
 	@RequestMapping("/updateRrpairContent")
 	@ResponseBody
 	public String updateRrpairContent(
@@ -147,7 +104,7 @@ public class RrpairOrderController {
 		return str;
 	}
 
-	/**
+	*//**
 	 * 维修单详情——修改状态
 	 * @param rrpairOrder 维修单号
 	 * @param assersNowRecord 维修单当前状态（10待接修，30维修中，50待验收，80已关闭）
@@ -158,7 +115,7 @@ public class RrpairOrderController {
 	 * @param response
 	 * @return
 	 * @throws Exception
-	 */
+	 *//*
 	@RequestMapping("/updateRrpairFstate")
 	@ResponseBody
 	public String updateRrpairFstate(
@@ -198,7 +155,7 @@ public class RrpairOrderController {
 		return str;
 	}
 	
-	/**
+	*//**
 	 * 维修单详情——报修
 	 * @param equipmentCode 设备编号
 	 * @param equipmentName 设备名称
@@ -215,7 +172,7 @@ public class RrpairOrderController {
 	 * @param response
 	 * @return
 	 * @throws Exception
-	 */
+	 *//**//*
 	@RequestMapping("/insertRrpair")
 	@ResponseBody
 	public String insertRrpair(
@@ -313,7 +270,7 @@ public class RrpairOrderController {
 		str = "success";
 		return str;
 	}
-	
+	*//*
 	/**
 	 * 修改维修工单信息
 	 * @param rrpairOrder 维修单号
@@ -327,7 +284,7 @@ public class RrpairOrderController {
 	 * @param response
 	 * @return
 	 * @throws ValidationException
-	 */
+	 *//*
 	@RequestMapping("/updateRrpairInfo")
 	@ResponseBody
 	public String updateRrpairInfo(
@@ -456,5 +413,116 @@ public class RrpairOrderController {
 		str = "success";
 		return str;
 	}
-	
+*/
+
+	/**
+	 * 查询设备维修详情列表
+	 * @author	XiongChao
+ 	 * @param rrpairOrderNo	维修单号
+	 * @param rrpairOrderGuid		维修单guid
+	 * @param pagesize		页面显示条数
+	 * @param page		页数
+	 * @param sortField	排序字段
+	 * @param sortOrder	排序方式
+	 * @param request
+	 * @param response
+	 * @return
+	 */
+	@RequestMapping("/selectRrpairDetailList")
+	@ResponseBody
+	public List<Map<String, Object>> selectRrpairDetailList(
+			@RequestParam(value="rrpairOrderNo",required = false) String rrpairOrderNo,
+			@RequestParam(value="rrpairOrderGuid",required = false) String rrpairOrderGuid,
+			@RequestParam(value="pagesize",required = false) Integer pagesize,
+			@RequestParam(value="page",required = false) Integer page,
+			@RequestParam(value="sortField",required = false) String sortField,
+			@RequestParam(value="sortOrder",required = false) String sortOrder,
+			HttpServletRequest request,HttpServletResponse response
+	) {
+		Pager<Map<String, Object>> pager = new Pager<Map<String,Object>>(true);
+		//如果没有设置当前页和每页数量，则默认第一页，每页十五条数据
+		pager.setPageSize(pagesize == null ? 15 : pagesize);
+		pager.setPageNum(page == null ? 1 : page);
+		pager.addQueryParam("rrpairOrderNo", rrpairOrderNo);
+		pager.addQueryParam("rrpairOrderGuid", rrpairOrderGuid);
+		if(StringUtils.isNotBlank(sortOrder) && StringUtils.isNotBlank(sortField)){
+			pager.addQueryParam("orderField", sortField);
+			pager.addQueryParam("orderMark", "ascend".equalsIgnoreCase(sortOrder)?"asc":"desc");
+		}
+
+		List<Map<String, Object>> list = rrpairOrderService.selectRrpairDetailList(pager);
+		return list;
+	}
+
+	/**
+	 * 查询设备维修列表
+	 * @author	XiongChao
+	 * @param params
+	 * @param pagesize
+	 * @param page
+	 * @param sortField
+	 * @param sortOrder
+	 * @param request
+	 * @param response
+	 * @return
+	 */
+	@RequestMapping("/selectRrpairList")
+	@ResponseBody
+	public List<Map<String, Object>> selectRrpairList(
+			@RequestParam(value="params",required = false) String params,
+			@RequestParam(value="pagesize",required = false) Integer pagesize,
+			@RequestParam(value="page",required = false) Integer page,
+			@RequestParam(value="sortField",required = false) String sortField,
+			@RequestParam(value="sortOrder",required = false) String sortOrder,
+			HttpServletRequest request,HttpServletResponse response) {
+		Pager<Map<String, Object>> pager = new Pager<Map<String,Object>>(true);
+		//如果没有设置当前页和每页数量，则默认第一页，每页十五条数据
+		pager.setPageSize(pagesize == null ? 15 : pagesize);
+		pager.setPageNum(page == null ? 1 : page);
+		if(StringUtils.isNotBlank(sortOrder) && StringUtils.isNotBlank(sortField)){
+			pager.addQueryParam("orderField", sortField);
+			pager.addQueryParam("orderMark", "ascend".equalsIgnoreCase(sortOrder)?"asc":"desc");
+		}
+		pager.addQueryParam("params", params);
+
+		List<Map<String, Object>> list = rrpairOrderService.selectRrpairList(pager);
+		return list;
+	}
+
+	/**@author XiongChao
+	 * 查询维修操作记录
+	 * @param params	模糊查询参数（操作员，操作分类。非必填）
+	 * @param opTypeSum 操作分类（非必填）
+	 * @param userName	 操作员（非必填）
+	 * @param pagesize		页面显示条数默认15（非必填）
+	 * @param page		当前也买你数默认第一页（非必填）
+	 * @param sortField	排序字段（非必填）
+	 * @param sortOrder	排序方式ascend/descend（非必填）
+	 * @return list
+	 */
+	@RequestMapping("/selectEqOperationList")
+	@ResponseBody
+	public List<Map<String,Object>> selectEqOperationList(
+			@RequestParam(value="params",required = false) String params,
+			@RequestParam(value="opTypeSum",required = false) String opTypeSum,
+		  	@RequestParam(value="userName",required = false) String userName,
+		  	@RequestParam(value="pagesize",required = false) Integer pagesize,
+		  	@RequestParam(value="page",required = false) Integer page,
+		  	@RequestParam(value="sortField",required = false) String sortField,
+		  	@RequestParam(value="sortOrder",required = false) String sortOrder){
+		Pager<Map<String, Object>> pager = new Pager<Map<String,Object>>(true);
+		//如果没有设置当前页和每页数量，则默认第一页，每页十五条数据
+		pager.setPageSize(pagesize == null ? 15 : pagesize);
+		pager.setPageNum(page == null ? 1 : page);
+
+		pager.addQueryParam("opTypeSum", opTypeSum);
+		pager.addQueryParam("userName", userName);
+		pager.addQueryParam("params", params);
+		if(StringUtils.isNotBlank(sortOrder) && StringUtils.isNotBlank(sortField)){
+			pager.addQueryParam("orderField", sortField);
+			pager.addQueryParam("orderMark", "ascend".equalsIgnoreCase(sortOrder)?"asc":"desc");
+		}
+		List<Map<String, Object>> list = rrpairOrderService.selectEqOperationList(pager);
+		return list;
+	}
 }

@@ -12,9 +12,9 @@ import com.phxl.ysy.entity.RrpairOrder;
 
 public interface RrpairOrderService extends IBaseService {
 	//查询设备维修列表
-	List<Map<String, Object>> selectRrpairList(Pager pager);
+	List<Map<String, Object>> selectRrpairDetailList(Pager pager);
 
-	//（移动端）查询设备维修各状态数量
+	/*//（移动端）查询设备维修各状态数量
 	List<Map<String, Object>> selectRrpairFstateNum();
 
 	//查询备注/评论
@@ -28,5 +28,14 @@ public interface RrpairOrderService extends IBaseService {
 	
 	//微信推送消息(修改维修信息)
 	void pushMessage(String rrpairOrder);
+*/
+	/**
+	 * 查询维修操作记录
+	 * @param pager
+	 * @return
+	 */
+	List<Map<String,Object>> selectEqOperationList(Pager pager);
 
+	//查询设备维修列表
+	List<Map<String, Object>> selectRrpairList(Pager pager);
 }

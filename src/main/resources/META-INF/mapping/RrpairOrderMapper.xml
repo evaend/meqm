@@ -2,7 +2,7 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
 <mapper namespace="com.phxl.ysy.dao.RrpairOrderMapper" >
   <resultMap id="BaseResultMap" type="com.phxl.ysy.entity.RrpairOrder" >
-    <id column="RRPAIR_ORDER" property="rrpairOrder" jdbcType="VARCHAR" />
+    <id column="RRPAIR_ORDER_GUID" property="rrpairOrderGuid" jdbcType="VARCHAR" />
     <result column="ASSETS_RECORD" property="assetsRecord" jdbcType="VARCHAR" />
     <result column="EQUIPMENT_CODE" property="equipmentCode" jdbcType="VARCHAR" />
     <result column="U_ORG" property="uOrg" jdbcType="VARCHAR" />
@@ -39,7 +39,6 @@
     <result column="COST_DETAIL" property="costDetail" jdbcType="VARCHAR" />
     <result column="TF_COMMENT" property="tfComment" jdbcType="VARCHAR" />
     <result column="TF_REMARK" property="tfRemark" jdbcType="VARCHAR" />
-    <result column="RRPAIR_ORDER_GUID" property="rrpairOrderGuid" jdbcType="VARCHAR" />
     <result column="FAULT_ACCESSORY" property="faultAccessory" jdbcType="VARCHAR" />
     <result column="TF_ACCESSORY" property="tfAccessory" jdbcType="VARCHAR" />
     <result column="RRPAIR_ORDER_NO" property="rrpairOrderNo" jdbcType="VARCHAR" />
@@ -59,8 +58,66 @@
     RRPAIR_ORDER_GUID, FAULT_ACCESSORY, TF_ACCESSORY, RRPAIR_ORDER_NO, RRPAIR_SEND, CALL_USERID, 
     OUT_ORG, FAIL_CAUSE, CREATE_DATE
   </sql>
-  
-  <!-- 查询设备维修列表 -->
+    <!-- 查询设备维修详情列表 -->
+    <select id="selectRrpairDetailList" resultType="java.util.HashMap" parameterType="com.phxl.core.base.entity.Pager">
+        select
+        ro.rrpair_order_guid "rrpairOrderGuid",--维修工单号guid
+        ro.rrpair_order_no "rrpairOrderNo" ,  -- 维修单号
+        ro.order_fstate "orderFstate", -- 单据状态：待接修，维修中,待验收，已关闭
+        tdi.dept_nam "deptName",--ro.use_dept_code "useDeptCode",--TD_DEPT_INFO.DEPT_NAM（使用科室）
+        ro.rrpair_userid "rrpairUserid",  --报修人id
+        ro.rrpair_username "rrpairUsername", --报修人姓名
+        ro.rrpair_phone "rrpairPhone", -- 报修人电话
+        ro.rrpair_type "rrpairType",  --维修方式:内修，外修
+        ro.in_rrpair_userid "inRrpairUserid",  --内修负责人id
+        ro.in_rrpair_username "inRrpairUsername",  --内修负责人姓名
+        ro.out_rrpair_username "outRrpairUsername", --外修负责人姓名
+        ro.create_date "createDate",  --创建时间-报修时间（报修时间）
+        ro.rrpair_date "rrpairDate",--修复日期(完成时间)
+        ro.assets_record  "assetsRecord",    -- 资产档案号-资产编号
+        ro.order_type "orderType", -- 工单性质：报修登记（科室和补报修），保养后发现，巡检后发现(报修来源)
+        ro.urgent_flag "urgentFlag", --紧急度：紧急，急，一般(紧急度)
+        ro.spare "spare",  --备用机：无，有(备用)
+        ro.guarantee_flag "guaranteeFlag",  --保修：在保，出保(在保)
+        ro.rrpair_send "rrpairSend",  --是否送修：是，否(是否送修)
+        ro.fail_cause "failCause",  --故障原因（故障描述）
+        ro.call_time "callTime", --指派时间
+        ro.out_org "outOrg",  --外修机构(维修单位)
+        ro.actual_price "actualPrice", -- 实际费用(维修费用)
+        --更换配件(占时不用)
+        (select dept_nam from td_dept_info t
+        where t.dept_code=roa.dept_code) checkDeptNam, --验收科室
+        roa.rr_acce_userid "rrAcceUserid",  --报修后验收人id
+        roa.rr_acce_username "rrAcceUsername",  --报修后验收人姓名
+        roa.rr_acce_fstate "rrAcceFstate",  --报修后验收人验收 60已验收 90验收不通过（验收结果）
+        roa.rr_acce_date "rrAcceAate",  --报修后验收日期 （验收日期）
+
+        te.equipment_standard_name "equipmentStandardName"，--equipment_code资产名称
+        te.spec "spec",--规格
+        te.fmodel "fmodel",--型号
+        tar.product_type "productType",--资产分类id(资产类别 )
+        tar.custodian "custodian",--保管员
+        (select dept_nam from td_dept_info t
+            where t.dept_code=tar.m_dept_code) mDeptName, --管理科室
+        tar.deposit "deposit"--放地点-a区b楼c层d房间(存放地点)
+        from td_rrpair_order ro
+        left join tb_rrpair_order_acce roa on ro.rrpair_order_no=roa.rrpair_order
+        left join td_equipment te on ro.equipment_code=te.equipment_code
+        left join td_assets_record tar on ro.assets_record=tar.assets_record
+        left join td_dept_info tdi on ro.use_dept_code=tdi.dept_code
+        --left join td_rrpair_fitting_use rfu on ro.rrpair_order_guid=rfu.rrpair_order_guid
+        where 1=1
+        <if test="conditiions.rrpairOrderNo != null and conditiions.rrpairOrderNo != ''">
+            and ro.rrpair_order_no=#{conditiions.rrpairOrderNo, jdbcType=VARCHAR}
+        </if>
+        <if test="conditiions.rrpairOrderGuid != null and conditiions.rrpairOrderGuid != ''">
+            and ro.rrpair_order_guid=#{conditiions.rrpairOrderGuid, jdbcType=VARCHAR}
+        </if>
+        <if test="conditiions != null and conditiions.orderMark != null and conditiions.orderField != null and conditiions.orderField!=''">
+            order by "${conditiions.orderField}" ${conditiions.orderMark}
+        </if>
+    </select>
+<!--  &lt;!&ndash; 查询设备维修列表 &ndash;&gt;
   <select id="selectRrpairList" resultType="java.util.HashMap" parameterType="com.phxl.core.base.entity.Pager">
   	select 
 		r.RRPAIR_ORDER "rrpairOrder" ,
@@ -69,7 +126,7 @@
 		r.RRPAIR_USERNAME "rrpairUserName" , 
 		r.guarantee_date "rrpairTime" , 
 		r.RRPAIR_PHONE "rrpairPhone" ,
-		-- "MaintainUserName" , 
+		&#45;&#45; "MaintainUserName" ,
 		r.ORDER_TYPE "orderType" ,
 		r.RRPAIR_TYPE "rrpairType" ,
 		r.RRPAIR_FLAG "rrpairFlag" ,
@@ -97,38 +154,38 @@
 		(r.EQUIPMENT_CODE = e.EQUIPMENT_CODE )
 		left join td_dept_info d on
 		(d.dept_code = r.use_dept_code)
-		--left join td_label l on
-		--(r.fault_describe = l.label_guid)
+		&#45;&#45;left join td_label l on
+		&#45;&#45;(r.fault_describe = l.label_guid)
 		where 1=1
-		<!-- 维修状态 -->
+		&lt;!&ndash; 维修状态 &ndash;&gt;
 		<if test="conditiions.orderFstate != null and conditiions.orderFstate != ''">
 			and r.ORDER_FSTATE = #{conditiions.orderFstate, jdbcType=VARCHAR}
 		</if> 
-		<!-- 维修单号 -->
+		&lt;!&ndash; 维修单号 &ndash;&gt;
 		<if test="conditiions.rrpairOrder != null and conditiions.rrpairOrder != ''">
 			and regexp_like(r.RRPAIR_ORDER, #{conditiions.rrpairOrder, jdbcType=VARCHAR})
 		</if> 
-		<!-- 设备单号 -->
+		&lt;!&ndash; 设备单号 &ndash;&gt;
 		<if test="conditiions.equipmentCode != null and conditiions.equipmentCode != ''">
 			and r.equipment_code = #{conditiions.equipmentCode, jdbcType=VARCHAR}
 		</if> 
-		<!-- 查询历史工单的时候排除当前工单 -->
+		&lt;!&ndash; 查询历史工单的时候排除当前工单 &ndash;&gt;
 		<if test="conditiions.assetsRecordOne != null and conditiions.assetsRecordOne != ''">
 			and r.RRPAIR_ORDER != #{conditiions.assetsRecordOne}
 		</if>
-		<!-- 紧急度 -->
+		&lt;!&ndash; 紧急度 &ndash;&gt;
 		<if test="conditiions.urgentFlag != null and conditiions.urgentFlag != ''">
 			order by r.urgent_flag ${conditiions.sort}
 		</if>
-		<!-- 时间排序(如果紧急度为空) -->
+		&lt;!&ndash; 时间排序(如果紧急度为空) &ndash;&gt;
 		<if test="conditiions.time != null and conditiions.time != ''">
 			order by r.modify_time ${conditiions.sort}
 		</if>
-		<!-- 默认时的排序 -->
+		&lt;!&ndash; 默认时的排序 &ndash;&gt;
 		<if test="(conditiions.urgentFlag == null or conditiions.urgentFlag == '') and (conditiions.time == null or conditiions.time == '')">
 			order by r.modify_time desc
 		</if>
-  </select>
+  </select>-->
   
   <!-- （移动端）查询设备维修各状态数量 -->
   <select id="selectRrpairFstateNum" resultType="java.util.HashMap" parameterType="java.util.HashMap">
@@ -150,5 +207,56 @@
   <update id="updateRrpairContent" parameterType="java.util.HashMap">
   	update td_rrpair_order set ${content} = #{value} , modify_time = sysdate where RRPAIR_ORDER = #{rrpairOrder}
   </update>
-  
+
+    <!-- 查询维修操作记录 -->
+    <select id="selectEqOperationList" resultType="java.util.HashMap" parameterType="com.phxl.core.base.entity.Pager">
+        select te.ts_eq_operation_gu_id "tsEqOperationGuId",tui.user_name "userName",te.op_type_sum "opTypeSum",te.createtime "createtime",te.tf_remark "tfRemark"
+        from ts_eq_operation te
+        left join ts_user_info tui on te.user_id=tui.user_id
+        where 1=1
+        <if test="conditiions.opTypeSum != null and conditiions.opTypeSum != ''">
+            and te.op_type_sum=#{conditiions.opTypeSum, jdbcType=VARCHAR}
+        </if>
+        <if test="conditiions.userName != null and conditiions.userName != ''">
+            and tui.user_name=#{conditiions.userName, jdbcType=VARCHAR}
+        </if>
+        <if test="conditiions.params != null and conditiions.params != ''">
+            and regexp_like(te.op_type_sum, #{conditiions.opTypeSum, jdbcType=VARCHAR}) OR
+                regexp_like(tui.user_name, #{conditiions.userName, jdbcType=VARCHAR})
+        </if>
+        <if test="conditiions != null and conditiions.orderMark != null and conditiions.orderField != null and conditiions.orderField!=''">
+            order by "${conditiions.orderField}" ${conditiions.orderMark}
+        </if>
+    </select>
+
+    <!-- 查询设备维修列表 -->
+    <select id="selectRrpairList" resultType="java.util.HashMap" parameterType="com.phxl.core.base.entity.Pager">
+        select
+        ro.rrpair_order_guid "rrpairOrderGuid",--维修工单号guid
+        ro.rrpair_order_no "rrpairOrderNo" ,  -- 维修单号
+        ro.order_fstate "orderFstate", -- 单据状态：待接修，维修中,待验收，已关闭
+        te.equipment_standard_name "equipmentStandardName"，--equipment_code资产名称
+        tdi.dept_nam "deptName",--ro.use_dept_code "useDeptCode",--TD_DEPT_INFO.DEPT_NAM（使用科室）
+        tar.custodian "custodian",--保管员
+        ro.rrpair_userid "rrpairUserid",  --报修人id
+        ro.rrpair_username "rrpairUsername", --报修人姓名
+        ro.create_date "createDate",  --创建时间-报修时间（报修时间，维修时间）
+        ro.rrpair_type "rrpairType",  --维修方式:内修，外修
+        ro.in_rrpair_userid "inRrpairUserid",  --内修负责人id
+        ro.in_rrpair_username "inRrpairUsername",  --内修负责人姓名
+        ro.out_rrpair_username "outRrpairUsername" --外修负责人姓名
+        from td_rrpair_order ro
+        left join td_equipment te on ro.equipment_code=te.equipment_code
+        left join td_assets_record tar on ro.assets_record=tar.assets_record
+        left join td_dept_info tdi on ro.use_dept_code=tdi.dept_code
+        where 1=1
+        <if test="conditiions.params != null and conditiions.params != ''">
+            and regexp_like(ro.rrpair_order_no, #{conditiions.params, jdbcType=VARCHAR}) OR
+                regexp_like(ro.assets_record, #{conditiions.params, jdbcType=VARCHAR}) OR
+                regexp_like(te.equipment_standard_name, #{conditiions.params, jdbcType=VARCHAR})
+        </if>
+        <if test="conditiions != null and conditiions.orderMark != null and conditiions.orderField != null and conditiions.orderField!=''">
+            order by "${conditiions.orderField}" ${conditiions.orderMark}
+        </if>
+    </select>
 </mapper>
