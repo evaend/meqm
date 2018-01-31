@@ -8,7 +8,9 @@ import org.springframework.core.annotation.Order;
 import com.phxl.core.base.entity.Pager;
 import com.phxl.core.base.exception.ValidationException;
 import com.phxl.core.base.service.IBaseService;
+import com.phxl.ysy.entity.AssetsRecord;
 import com.phxl.ysy.entity.RrpairOrder;
+import com.phxl.ysy.entity.RrpairOrderAcce;
 
 public interface RrpairOrderService extends IBaseService {
 	//查询设备维修列表
@@ -22,13 +24,13 @@ public interface RrpairOrderService extends IBaseService {
 
 	//修改备注/评论
 	void updateRrpairContent(String rrpairOrder,Integer type,String value);
-	
+*/	
 	//生成单号
 	String callSpGetBill(Long billOrgId, String billName, String billPrefix, Integer asLen) throws ValidationException ;
 	
 	//微信推送消息(修改维修信息)
 	void pushMessage(String rrpairOrder);
-*/
+
 	/**
 	 * 查询维修操作记录
 	 * @param pager
@@ -38,4 +40,15 @@ public interface RrpairOrderService extends IBaseService {
 
 	//查询设备维修列表
 	List<Map<String, Object>> selectRrpairList(Pager pager);
+	
+	/**
+	 * 添加维修记录
+	 * @param rrpairOrder
+	 */
+	void insertRrpairOrder(RrpairOrder rrpairOrder,AssetsRecord assetsRecord);
+	
+	//查询当前维修记录的维修配件使用列表
+	List<Map<String, Object>> selectRrpairFittingList(Pager pager);
+	
+	void insertRrpairOrderAcce(RrpairOrderAcce rrpairOrderAcce, RrpairOrder rrpairOrder);
 }

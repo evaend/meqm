@@ -2,6 +2,9 @@ package com.phxl.ysy.entity;
 
 import java.util.Date;
 
+import com.phxl.core.base.annotation.BaseSql;
+
+@BaseSql(tableName="TB_RRPAIR_ORDER_ACCE", resultName="com.phxl.ysy.dao.RrpairOrderAcceMapper.BaseResultMap")
 public class RrpairOrderAcce {
     private String rrpairOrderAcce;
 
@@ -22,6 +25,10 @@ public class RrpairOrderAcce {
     private String tfRemark;
 
     private Date createDate;
+    
+    private String notCause;
+    
+    private String evaluate;
 
     public String getRrpairOrderAcce() {
         return rrpairOrderAcce;
@@ -102,4 +109,20 @@ public class RrpairOrderAcce {
     public void setCreateDate(Date createDate) {
         this.createDate = createDate;
     }
+
+	public String getNotCause() {
+		return notCause;
+	}
+
+	public void setNotCause(String notCause) {
+		this.notCause = notCause;
+	}
+
+	public String getEvaluate() {
+		return evaluate;
+	}
+
+	public void setEvaluate(String evaluate) {
+		this.evaluate = evaluate;
+	}
 }

@@ -82,13 +82,13 @@ public class AssetsRecordController {
 			){
 		Pager<Map<String, Object>> pager = new Pager<Map<String,Object>>(true);
 		//如果没有设置当前页和每页数量，则默认第一页，每页十五条数据
+		pager.setPageNum(page == null ? 1 : page);
 		pager.setPageSize(pagesize == null ? 15 : pagesize);
 		if(StringUtils.isNotBlank(sortField) && StringUtils.isNotBlank(sortOrder)){
 //			pager.addQueryParam("resultMapName", "com.phxl.ysy.systemModule.dao.GroupMapper.BaseResultMap");//设置ResultMap映射关系
 			pager.addQueryParam("orderField", sortField);
 			pager.addQueryParam("orderMark", "ascend".equalsIgnoreCase(sortOrder)?"asc":"desc");
 		}
-		pager.setPageNum(page == null ? 1 : page);
 		
 //		pager.addQueryParam("assetsRecord", assetsRecord);
 //		pager.addQueryParam("equipmetStandarName", equipmetStandarName);
@@ -110,18 +110,21 @@ public class AssetsRecordController {
 	/**
 	 * 查询资产档案详情
 	 * @param assetsRecordGuid 资产档案GUID
+	 * @param assetsRecord 资产编号/二维码
 	 * @return
 	 * @throws ValidationException 
 	 */
 	@RequestMapping("/selectAssetsRecordDetail")
 	@ResponseBody
 	public Map<String, Object> selectAssetsRecordDetail(
-			@RequestParam(value="assetsRecordGuid",required = false) String assetsRecordGuid) throws ValidationException{
+			@RequestParam(value="assetsRecordGuid",required = false) String assetsRecordGuid,
+			@RequestParam(value="assetsRecord",required = false) String assetsRecord) throws ValidationException{
 		if (StringUtils.isBlank(assetsRecordGuid)) {
 			throw new ValidationException("资产id不允许为空");
 		}
 		Pager<Map<String, Object>> pager = new Pager<Map<String,Object>>(false);
 		pager.addQueryParam("assetsRecordGuid", assetsRecordGuid);
+		pager.addQueryParam("assetsRecord", assetsRecord);
 		Map<String, Object> map = assetsRecordService.selectAssetsRecordDetail(pager);
 		if (map == null ) {
 			throw new ValidationException("当前资产信息不存在");
@@ -129,8 +132,9 @@ public class AssetsRecordController {
 		return map;
 	}
 	/**
-	 * 查询设备附件列表
+	 * 查询设备配件列表
 	 * @param assetsRecordGuid 资产档案GUID
+	 * @param equipmetName 配件名称/编号
 	 * @param page 当前页数
 	 * @param pagesize 每页条数
 	 * @param request
@@ -143,6 +147,8 @@ public class AssetsRecordController {
 	@ResponseBody
 	public Pager<Map<String, Object>> selectAssetsExtendList(
 			@RequestParam(value="assetsRecordGuid",required = false) String assetsRecordGuid,
+			@RequestParam(value="rrpairOrderGuid",required = false) String rrpairOrderGuid,
+			@RequestParam(value="equipmetName",required = false) String equipmetName,
 			@RequestParam(value="page",required = false) Integer page,
 			@RequestParam(value="pagesize",required = false) Integer pagesize,
 			@RequestParam(value="sortField",required = false) String sortField,
@@ -157,6 +163,8 @@ public class AssetsRecordController {
 		pager.setPageNum(page == null ? 1 : page);
 		pager.setPageSize(pagesize == null ? 15 : pagesize);
 		pager.addQueryParam("assetsRecordGuid", assetsRecordGuid);
+		pager.addQueryParam("rrpairOrderGuid", rrpairOrderGuid);
+		pager.addQueryParam("equipmetName", equipmetName);
 		
 		if(StringUtils.isNotBlank(sortField) && StringUtils.isNotBlank(sortOrder)){
 			pager.addQueryParam("orderField", sortField);
@@ -168,7 +176,7 @@ public class AssetsRecordController {
 	}
 	
 	/**
-	 * 查询产品证件列表
+	 * 查询资产附件列表
 	 * @param assetsRecord 资产档案编号
 	 * @param page 当前页数
 	 * @param pagesize 每页条数
@@ -207,7 +215,7 @@ public class AssetsRecordController {
 	}
 
 	/**
-	 * 删除证件信息
+	 * 删除资产附件信息
 	 * @param certId 证件ID
 	 * @author zhangyanli
 	 * @throws ValidationException 
@@ -233,6 +241,7 @@ public class AssetsRecordController {
 	 * @param pagesize 每页条数
 	 * @param request
 	 * @param response
+	 * @param assetsRecordGuid 资产档案guid
 	 * @return
 	 * @author zhangyanli
 	 */
@@ -244,12 +253,14 @@ public class AssetsRecordController {
 			@RequestParam(value="pagesize",required = false) Integer pagesize,
 			@RequestParam(value="sortField",required = false) String sortField,
 			@RequestParam(value="sortOrder",required = false) String sortOrder,
+			@RequestParam(value="assetsRecordGuid",required = false) String assetsRecordGuid,
 			HttpServletRequest request , HttpServletResponse response){
 		Pager<Map<String, Object>> pager = new Pager<Map<String,Object>>(true);
 		pager.setPageNum(page == null ? 1 : page);
 		pager.setPageSize(pagesize == null ? 15 : pagesize);
 		pager.addQueryParam("opType", opType);
-
+		pager.addQueryParam("assetsRecordGuid", assetsRecordGuid);
+		
 		if(StringUtils.isNotBlank(sortField) && StringUtils.isNotBlank(sortOrder)){
 			pager.addQueryParam("orderField", sortField);
 			pager.addQueryParam("orderMark", "ascend".equalsIgnoreCase(sortOrder)?"asc":"desc");

@@ -13,154 +13,32 @@
     <result column="TF_REMARK" property="tfRemark" jdbcType="VARCHAR" />
     <result column="CREATE_DATE" property="createDate" jdbcType="DATE" />
     <result column="ACCE_FMODEL" property="acceFmodel" jdbcType="VARCHAR" />
+    <result column="ACCE_UNIT" property="acceUnit" jdbcType="VARCHAR" />
+    <result column="ACCE_SPEC" property="acceSpec" jdbcType="VARCHAR" />
+    <result column="EQUIPMENT_CODE" property="equipmentCode" jdbcType="VARCHAR" />
+    <result column="ASSETS_RECORD" property="assetsRecord" jdbcType="VARCHAR" />
   </resultMap>
   <sql id="Base_Column_List" >
     RRPAIR_FITTING_USE_GUID, RRPAIR_ORDER_GUID, SEQ_NUM, ACCE_NAME, ACCE_TYPE, ACCE_NUM, 
-    UNIT_PRICE, RETURN_NUM, TF_REMARK, CREATE_DATE, ACCE_FMODEL
+    UNIT_PRICE, RETURN_NUM, TF_REMARK, CREATE_DATE, ACCE_FMODEL, ACCE_UNIT, ACCE_SPEC, 
+    EQUIPMENT_CODE, ASSETS_RECORD
   </sql>
-  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.String" >
-    select 
-    <include refid="Base_Column_List" />
-    from GDZC.TD_RRPAIR_FITTING_USE
-    where RRPAIR_FITTING_USE_GUID = #{rrpairFittingUseGuid,jdbcType=VARCHAR}
+  
+  <select id="selectRrpairFittingList" parameterType="com.phxl.core.base.entity.Pager" resultType="java.util.HashMap">
+  	 select RRPAIR_FITTING_USE_GUID "rrpairFittingUseGuid", 
+  			ASSETS_RECORD "assetsRecord" , 
+  			EQUIPMENT_CODE "equipmentCode" , 
+  			ACCE_NAME "acceName" , 
+  			ACCE_FMODEL "acceFmodel" , 
+  			ACCE_SPEC "acceSpec" , 
+  			ACCE_NUM "acceNum" , 
+  			ACCE_UNIT "acceUnit" , 
+  			UNIT_PRICE "unitPrice" , 
+  			ACCE_NUM*UNIT_PRICE "money"
+  	 	from TD_RRPAIR_FITTING_USE where 1 = 1 
+  	<if test="conditiions.rrpairOrderGuid != null and conditiions.rrpairOrderGuid != ''">
+  		and TD_RRPAIR_FITTING_USE.RRPAIR_ORDER_GUID = #{conditiions.rrpairOrderGuid}
+  	</if>
   </select>
-  <delete id="deleteByPrimaryKey" parameterType="java.lang.String" >
-    delete from GDZC.TD_RRPAIR_FITTING_USE
-    where RRPAIR_FITTING_USE_GUID = #{rrpairFittingUseGuid,jdbcType=VARCHAR}
-  </delete>
-  <insert id="insert" parameterType="com.phxl.ysy.entity.RrpairFittingUse" >
-    insert into GDZC.TD_RRPAIR_FITTING_USE (RRPAIR_FITTING_USE_GUID, RRPAIR_ORDER_GUID, 
-      SEQ_NUM, ACCE_NAME, ACCE_TYPE, 
-      ACCE_NUM, UNIT_PRICE, RETURN_NUM, 
-      TF_REMARK, CREATE_DATE, ACCE_FMODEL
-      )
-    values (#{rrpairFittingUseGuid,jdbcType=VARCHAR}, #{rrpairOrderGuid,jdbcType=VARCHAR}, 
-      #{seqNum,jdbcType=DECIMAL}, #{acceName,jdbcType=VARCHAR}, #{acceType,jdbcType=VARCHAR}, 
-      #{acceNum,jdbcType=DECIMAL}, #{unitPrice,jdbcType=DECIMAL}, #{returnNum,jdbcType=DECIMAL}, 
-      #{tfRemark,jdbcType=VARCHAR}, #{createDate,jdbcType=DATE}, #{acceFmodel,jdbcType=VARCHAR}
-      )
-  </insert>
-  <insert id="insertSelective" parameterType="com.phxl.ysy.entity.RrpairFittingUse" >
-    insert into GDZC.TD_RRPAIR_FITTING_USE
-    <trim prefix="(" suffix=")" suffixOverrides="," >
-      <if test="rrpairFittingUseGuid != null" >
-        RRPAIR_FITTING_USE_GUID,
-      </if>
-      <if test="rrpairOrderGuid != null" >
-        RRPAIR_ORDER_GUID,
-      </if>
-      <if test="seqNum != null" >
-        SEQ_NUM,
-      </if>
-      <if test="acceName != null" >
-        ACCE_NAME,
-      </if>
-      <if test="acceType != null" >
-        ACCE_TYPE,
-      </if>
-      <if test="acceNum != null" >
-        ACCE_NUM,
-      </if>
-      <if test="unitPrice != null" >
-        UNIT_PRICE,
-      </if>
-      <if test="returnNum != null" >
-        RETURN_NUM,
-      </if>
-      <if test="tfRemark != null" >
-        TF_REMARK,
-      </if>
-      <if test="createDate != null" >
-        CREATE_DATE,
-      </if>
-      <if test="acceFmodel != null" >
-        ACCE_FMODEL,
-      </if>
-    </trim>
-    <trim prefix="values (" suffix=")" suffixOverrides="," >
-      <if test="rrpairFittingUseGuid != null" >
-        #{rrpairFittingUseGuid,jdbcType=VARCHAR},
-      </if>
-      <if test="rrpairOrderGuid != null" >
-        #{rrpairOrderGuid,jdbcType=VARCHAR},
-      </if>
-      <if test="seqNum != null" >
-        #{seqNum,jdbcType=DECIMAL},
-      </if>
-      <if test="acceName != null" >
-        #{acceName,jdbcType=VARCHAR},
-      </if>
-      <if test="acceType != null" >
-        #{acceType,jdbcType=VARCHAR},
-      </if>
-      <if test="acceNum != null" >
-        #{acceNum,jdbcType=DECIMAL},
-      </if>
-      <if test="unitPrice != null" >
-        #{unitPrice,jdbcType=DECIMAL},
-      </if>
-      <if test="returnNum != null" >
-        #{returnNum,jdbcType=DECIMAL},
-      </if>
-      <if test="tfRemark != null" >
-        #{tfRemark,jdbcType=VARCHAR},
-      </if>
-      <if test="createDate != null" >
-        #{createDate,jdbcType=DATE},
-      </if>
-      <if test="acceFmodel != null" >
-        #{acceFmodel,jdbcType=VARCHAR},
-      </if>
-    </trim>
-  </insert>
-  <update id="updateByPrimaryKeySelective" parameterType="com.phxl.ysy.entity.RrpairFittingUse" >
-    update GDZC.TD_RRPAIR_FITTING_USE
-    <set >
-      <if test="rrpairOrderGuid != null" >
-        RRPAIR_ORDER_GUID = #{rrpairOrderGuid,jdbcType=VARCHAR},
-      </if>
-      <if test="seqNum != null" >
-        SEQ_NUM = #{seqNum,jdbcType=DECIMAL},
-      </if>
-      <if test="acceName != null" >
-        ACCE_NAME = #{acceName,jdbcType=VARCHAR},
-      </if>
-      <if test="acceType != null" >
-        ACCE_TYPE = #{acceType,jdbcType=VARCHAR},
-      </if>
-      <if test="acceNum != null" >
-        ACCE_NUM = #{acceNum,jdbcType=DECIMAL},
-      </if>
-      <if test="unitPrice != null" >
-        UNIT_PRICE = #{unitPrice,jdbcType=DECIMAL},
-      </if>
-      <if test="returnNum != null" >
-        RETURN_NUM = #{returnNum,jdbcType=DECIMAL},
-      </if>
-      <if test="tfRemark != null" >
-        TF_REMARK = #{tfRemark,jdbcType=VARCHAR},
-      </if>
-      <if test="createDate != null" >
-        CREATE_DATE = #{createDate,jdbcType=DATE},
-      </if>
-      <if test="acceFmodel != null" >
-        ACCE_FMODEL = #{acceFmodel,jdbcType=VARCHAR},
-      </if>
-    </set>
-    where RRPAIR_FITTING_USE_GUID = #{rrpairFittingUseGuid,jdbcType=VARCHAR}
-  </update>
-  <update id="updateByPrimaryKey" parameterType="com.phxl.ysy.entity.RrpairFittingUse" >
-    update GDZC.TD_RRPAIR_FITTING_USE
-    set RRPAIR_ORDER_GUID = #{rrpairOrderGuid,jdbcType=VARCHAR},
-      SEQ_NUM = #{seqNum,jdbcType=DECIMAL},
-      ACCE_NAME = #{acceName,jdbcType=VARCHAR},
-      ACCE_TYPE = #{acceType,jdbcType=VARCHAR},
-      ACCE_NUM = #{acceNum,jdbcType=DECIMAL},
-      UNIT_PRICE = #{unitPrice,jdbcType=DECIMAL},
-      RETURN_NUM = #{returnNum,jdbcType=DECIMAL},
-      TF_REMARK = #{tfRemark,jdbcType=VARCHAR},
-      CREATE_DATE = #{createDate,jdbcType=DATE},
-      ACCE_FMODEL = #{acceFmodel,jdbcType=VARCHAR}
-    where RRPAIR_FITTING_USE_GUID = #{rrpairFittingUseGuid,jdbcType=VARCHAR}
-  </update>
+ 
 </mapper>

@@ -28,7 +28,14 @@ import com.phxl.core.base.util.FTPUtils;
 import com.phxl.core.base.util.IdentifieUtil;
 import com.phxl.core.base.util.LocalAssert;
 import com.phxl.core.base.util.SystemConfig;
+import com.phxl.ysy.constant.CustomConst;
+import com.phxl.ysy.constant.CustomConst.LoginUser;
+import com.phxl.ysy.entity.AssetsExtend;
+import com.phxl.ysy.entity.AssetsRecord;
+import com.phxl.ysy.entity.Equipment;
+import com.phxl.ysy.entity.RrpairFittingUse;
 import com.phxl.ysy.entity.RrpairOrder;
+import com.phxl.ysy.entity.RrpairOrderAcce;
 import com.phxl.ysy.entity.WeixinOpenUser;
 import com.phxl.ysy.service.RrpairOrderService;
 
@@ -524,5 +531,559 @@ public class RrpairOrderController {
 		}
 		List<Map<String, Object>> list = rrpairOrderService.selectEqOperationList(pager);
 		return list;
+	}
+	
+	/**
+	 * 添加或修改维修记录
+	 * @param rrpairOrderGuid 维修记录GUID
+	 * @param assetsRecordGuid 资产信息GUID
+	 * @param isRepairs 是否需要修改或新增报修信息（是true，不是false）
+	 * @param orderFstate 维修状态（10申请（提交），20指派（指派），30维修中,50待验收（完成），90已关闭（关闭） ）
+	 * @param equipmentCode 设备编号
+	 * @param urgentFlag 紧急度
+	 * @param rrpairSend 是否送修
+	 * @param spare 有无备用
+	 * @param rrpairPhone 报修人联系电话
+	 * @param faultDescribe 故障现象
+	 * @param useFstate 是否在用 (01在用，02停用)
+	 * @param tfRemark 备注
+	 * @param failCause 故障描述
+	 * @param tfAccessory 附件（多个附件一,拆分）
+	 * @param rrpairType 维修方式（00内修，01外修）（如果不填写维修信息，则为空）
+	 * @param inRrpairPhone 内修人联系方式
+	 * @param repairContentType 故障类型
+	 * @param repairContentTyp 故障原因
+	 * @param repairResult 维修结果
+	 * @param actualPrice 维修费用（总计）
+	 * @param tfRemarkWx 维修备注（内修）
+	 * @param offCause 关闭原因
+	 * @param followupTreatment 后续处理
+	 * @param tfRemarkGb 关闭备注
+	 * @param outOrg 指派服务商
+	 * @param outRrpairPhone 外修人联系方式
+	 * @param completTime 预计完成时间
+	 * @param tfRemarkZp 指派备注（外修）
+	 * @throws Exception
+	 * @author zhangyanli
+	 */
+	@RequestMapping("/insertOrUpdateRrpair")
+	@ResponseBody
+	public void insertOrUpdateRrpair(
+			@RequestParam(value="rrpairOrderGuid",required = false) String rrpairOrderGuid,
+			@RequestParam(value="assetsRecordGuid",required = false) String assetsRecordGuid,
+			@RequestParam(value="isRepairs",required = false) Boolean isRepairs,
+			@RequestParam(value="orderFstate",required = false) String orderFstate,
+			@RequestParam(value="equipmentCode",required = false) String equipmentCode,
+			@RequestParam(value="urgentFlag",required = false) String urgentFlag,
+			@RequestParam(value="rrpairSend",required = false) String rrpairSend,
+			@RequestParam(value="spare",required = false) String spare,
+			@RequestParam(value="rrpairPhone",required = false) String rrpairPhone,
+			@RequestParam(value="faultDescribe",required = false) String faultDescribe,
+			@RequestParam(value="useFstate",required = false) String useFstate,
+			@RequestParam(value="tfRemark",required = false) String tfRemark,
+			@RequestParam(value="failCause",required = false) String failCause,
+			@RequestParam(value="tfAccessory",required = false) String [] tfAccessory,
+			@RequestParam(value="rrpairType",required = false) String rrpairType,
+			@RequestParam(value="inRrpairPhone",required = false) String inRrpairPhone,
+			@RequestParam(value="repairContentType",required = false) String repairContentType,
+			@RequestParam(value="repairContentTyp",required = false) String repairContentTyp,
+			@RequestParam(value="repairResult",required = false) String repairResult,
+			@RequestParam(value="actualPrice",required = false) String actualPrice,
+			@RequestParam(value="tfRemarkWx",required = false) String tfRemarkWx,
+			@RequestParam(value="offCause",required = false) String offCause,
+			@RequestParam(value="followupTreatment",required = false) String followupTreatment,
+			@RequestParam(value="tfRemarkGb",required = false) String tfRemarkGb,
+			@RequestParam(value="outOrg",required = false) String outOrg,
+			@RequestParam(value="outRrpairPhone",required = false) String outRrpairPhone,
+			@RequestParam(value="completTime",required = false) Date completTime,
+			@RequestParam(value="tfRemarkZp",required = false) String tfRemarkZp
+			) throws Exception{
+		AssetsRecord assetsRecord = null;
+		if (assetsRecordGuid!=null) {
+			assetsRecord = rrpairOrderService.find(AssetsRecord.class, assetsRecordGuid);
+			if (assetsRecord==null) {
+				throw new ValidationException("当前资产信息不存在");
+			}else{
+				assetsRecord.setUseFstate(useFstate);
+			}
+		}
+		RrpairOrder rrpair = null;
+		String rrpairOrder = null;
+		
+		if (StringUtils.isNotBlank(rrpairOrderGuid)) {
+			rrpair = rrpairOrderService.find(RrpairOrder.class, rrpairOrderGuid);
+			if (rrpair==null) {
+				throw new ValidationException("当前维修记录不存在");
+			}
+			rrpairOrder = rrpair.getRrpairOrderNo();
+		}else{
+			rrpair = new RrpairOrder();
+			//机构ID，单据名称，单据前缀，单号长度
+			rrpairOrder = rrpairOrderService.callSpGetBill(212L, "维修单", "AA", 6);
+			rrpair.setRrpairOrderGuid(IdentifieUtil.getGuId());
+			rrpair.setRrpairOrderNo(rrpairOrder);
+			rrpair.setCreateDate(new Date());
+		}
+		
+		if (StringUtils.isNotBlank(orderFstate)) {
+			rrpair.setOrderFstate(orderFstate);
+		}
+		
+		//如果需要填写报修信息
+		if (isRepairs) {
+			rrpair.setEquipmentCode(equipmentCode);
+			rrpair.setUrgentFlag(urgentFlag);
+			rrpair.setRrpairSend(rrpairSend);
+			rrpair.setSpare(spare);
+			rrpair.setRrpairPhone(rrpairPhone);
+			rrpair.setFaultDescribe(faultDescribe);
+			rrpair.setTfRemark(tfRemark);
+			rrpair.setFailCause(failCause);
+			rrpair.setCreateDate(new Date());
+//			rrpair.setRrpairUserid(session.getAttribute("openid").toString());
+//			WeixinOpenUser wxUser = (WeixinOpenUser)session.getAttribute("wxUser");
+//			rrpair.setRrpairUsername(wxUser.getUserName());
+			rrpair.setRrpairUserid("11");
+			rrpair.setRrpairUsername("11");
+			String fault = "";
+			if (tfAccessory!=null && tfAccessory.length!=0) {
+				for (int i = 0; i < tfAccessory.length; i++) {
+					 //获取文件类型
+			        int beginIndex = tfAccessory[i].indexOf("/");
+			        int endIndex = tfAccessory[i].indexOf(";");
+			        String filename = tfAccessory[i].substring(beginIndex+1,endIndex==-1 ? tfAccessory[i].length() : endIndex);
+			        StringBuffer buf = new StringBuffer(".");
+			        if(StringUtils.isNotBlank(filename)){
+			            filename = buf.append(filename).toString();
+			        }else{
+			            throw new ValidationException("未知的上传文件类型!");
+			        }
+			        //获取文件
+			        String file = tfAccessory[i];
+			        file = file.replaceAll("data:image/jpeg;base64,", "");  
+			        file = file.replaceAll("data:image/jpg;base64,", "");
+			        file = file.replaceAll("data:image/png;base64,", ""); 
+			        file = file.replaceAll("data:image/gif;base64,", ""); 
+			        file = file.replaceAll("data:image/bmp;base64,", "");
+			        file = file.replaceAll("data:application/pdf;base64,", "");
+			        Base64 decoder = new Base64();  
+			        byte[] buffer = decoder.decodeBase64(file);
+			        ByteArrayInputStream in = new ByteArrayInputStream(buffer);
+			        
+			        String configKey="resource.ftp.ysyFile.organization.cert.product";
+			        String rCertGuid = rrpairOrder+i;
+			        System.out.println("rCertGuid = "+rCertGuid);
+			        String[] args=new String[]{rCertGuid};//证件注册GUID
+
+			        System.out.println("args = "+args);
+			        String directory=MessageFormat.format(SystemConfig.getProperty(configKey), args);//目录位置
+					System.out.println("configKey = "+SystemConfig.getProperty(configKey));
+					System.out.println("directory = "+directory);
+			        //确定存储文件名
+			        int index = filename.lastIndexOf(".");
+			        if(index<0){
+			            throw new ValidationException("未知的上传文件类型!");
+			        }
+			        String fileName=rCertGuid+filename.substring(index);
+			        System.out.println("filename = "+filename);
+			        String filePath=directory+fileName;
+			        FTPUtils.upload(directory, fileName, in);
+			        fault += filePath+";";
+				}
+			}
+			rrpair.setFaultAccessory(fault);
+		}
+		
+		//如果资产信息不为空，则此维修记录为新增，填写相对应的字段信息
+		if (assetsRecord!=null) {
+			rrpair.setAssetsRecord(assetsRecord.getAssetsRecord());
+			rrpair.setUseDeptCode(assetsRecord.getUseDeptCode());
+		}
+		rrpair.setModifyTime(new Date());
+		if (StringUtils.isNotBlank(rrpairType)) {
+			if (rrpairType.equals("00")) {
+				rrpair.setInRrpairPhone(inRrpairPhone);
+				rrpair.setRepairContentType(repairContentType);
+				rrpair.setRepairContentTyp(repairContentTyp);
+				rrpair.setRepairResult(repairResult);
+				if (StringUtils.isNotBlank(actualPrice)) {
+					rrpair.setActualPrice(BigDecimal.valueOf(Long.valueOf(actualPrice)));
+				}
+				rrpair.setTfRemarkWx(tfRemarkWx);
+				rrpair.setOffCause(offCause);
+				rrpair.setFollowupTreatment(followupTreatment);
+				rrpair.setTfRemarkGb(tfRemarkGb);
+			}else{
+				rrpair.setOutOrg(outOrg);
+				rrpair.setOutRrpairPhone(outRrpairPhone);
+				rrpair.setCompletTime(completTime);
+				rrpair.setTfRemarkZp(tfRemarkZp);
+			}
+		}
+
+		rrpairOrderService.insertRrpairOrder(rrpair,assetsRecord);
+	}
+	
+	/**
+	 * 查询当前维修记录的维修配件使用列表
+	 * @param rrpairOrderGuid 维修记录guid
+	 * @param pagesize
+	 * @param page
+	 * @return
+	 * @author zhangyanli
+	 */
+	@RequestMapping("/selectRrpairFittingList")
+	@ResponseBody
+	public Pager<Map<String, Object>> selectRrpairFittingList(
+			@RequestParam(value="rrpairOrderGuid",required = false) String rrpairOrderGuid,
+			@RequestParam(value="pagesize",required = false) Integer pagesize,
+			@RequestParam(value="page",required = false) Integer page){
+		Pager<Map<String, Object>> pager = new Pager<Map<String,Object>>(false);
+		//如果没有设置当前页和每页数量，则默认第一页，每页十五条数据
+		pager.setPageNum(page == null ? 1 : page);
+		pager.setPageSize(pagesize == null ? 15 : pagesize);
+		pager.addQueryParam("rrpairOrderGuid", rrpairOrderGuid);
+		List<Map<String, Object>> list = rrpairOrderService.selectRrpairFittingList(pager);
+		pager.setRows(list);
+		return pager;
+	}
+	
+	/**
+	 * 从资产配件列表添加维修配件使用信息
+	 * @param rrpairOrderGuid 维修记录guid
+	 * @param assetsExtendGuid 资产附件guid
+	 * @param acceNum 数量
+	 * @throws ValidationException
+	 * @author zhangyanli
+	 */
+	@RequestMapping("/insertRrpairFitting")
+	@ResponseBody
+	public void insertRrpairFitting(
+			@RequestParam(value="rrpairOrderGuid",required = false) String rrpairOrderGuid,
+			@RequestParam(value="assetsExtendGuid",required = false) String assetsExtendGuid,
+			@RequestParam(value="acceNum",required = false) Integer acceNum) throws ValidationException{
+		if (StringUtils.isBlank(rrpairOrderGuid)) {
+			throw new ValidationException("当前维修记录guid不允许为空");
+		}
+		if (StringUtils.isBlank(assetsExtendGuid)) {
+			throw new ValidationException("当前资产附件guid不允许为空");
+		}
+		if (acceNum == null || acceNum <=0 ) {
+			throw new ValidationException("当前数量必须是非0正整数");
+		}
+		RrpairOrder rrpairOrder = rrpairOrderService.find(RrpairOrder.class, rrpairOrderGuid);
+		if (rrpairOrder == null) {
+			throw new ValidationException("当前维修记录不存在");
+		}
+		AssetsExtend assetsExtend = rrpairOrderService.find(AssetsExtend.class, assetsExtendGuid);
+		if (assetsExtend == null) {
+			throw new ValidationException("当前资产附件不存在");
+		}
+		Equipment equipment = rrpairOrderService.find(Equipment.class, assetsExtend.getEquipmentCode());
+		if (equipment==null) {
+			throw new ValidationException("当前设备信息不存在");
+		}
+		if (StringUtils.isNotBlank(rrpairOrder.getAssetsRecord()) && acceNum > 1) {
+			throw new ValidationException("当前配件数量最多为1");
+		}
+		Pager<Map<String, Object>> pager = new Pager<Map<String,Object>>(false);
+		pager.addQueryParam("rrpairOrderGuid", rrpairOrderGuid);
+		//根据维修编号查询维修配件使用列表
+		List<Map<String, Object>> list = rrpairOrderService.selectRrpairFittingList(pager);
+		
+		//判断是否需要添加
+		boolean flag = true;
+//		if (list!=null && list.size()!=0) {
+//			for (Map<String, Object> map : list) {
+//				if (equipment.getEquipmentName().equals(map.get("acceName")) && 
+//					equipment.getFmodel().equals(map.get("acceFmodel")) && 
+//					equipment.getSpec().equals(map.get("acceSpec"))) {
+//					//如果是有编号的配件，则是唯一的，不允许重复添加
+//					if (map.get("assetsRecord")!=null && 
+//							StringUtils.isNotBlank(map.get("assetsRecord").toString()) && acceNum != 0) {
+//						throw new ValidationException("当前配件已经添加维修使用，不允许重复添加");
+//					}
+//					//如果没有编号，则在原来的数量上修改
+//					else {
+//						RrpairFittingUse rrUse = rrpairOrderService.find(RrpairFittingUse.class, map.get("rrpairFittingUseGuid").toString());
+//						rrUse.setAcceNum(rrUse.getAcceNum().add(BigDecimal.valueOf(acceNum)));
+//						flag = false;
+//					}
+//				}
+//			}
+//		}
+		
+		if (flag) {
+			RrpairFittingUse rrpairFittingUse = new RrpairFittingUse();
+			rrpairFittingUse.setRrpairFittingUseGuid(IdentifieUtil.getGuId());
+			rrpairFittingUse.setRrpairOrderGuid(rrpairOrderGuid);
+			rrpairFittingUse.setEquipmentCode(assetsExtend.getEquipmentCode());
+			rrpairFittingUse.setAcceName(equipment.getEquipmentName());
+			rrpairFittingUse.setAssetsRecord(assetsExtend.getAssetsRecord());
+			rrpairFittingUse.setUnitPrice(assetsExtend.getPrice());
+			rrpairFittingUse.setAcceFmodel(equipment.getFmodel());
+			rrpairFittingUse.setAcceSpec(equipment.getSpec());
+			rrpairFittingUse.setAcceNum(BigDecimal.valueOf(acceNum));
+			rrpairOrderService.insertInfo(rrpairFittingUse);
+		}
+		
+	}
+
+	/**
+	 * 手动填写添加附件
+	 * @param rrpairOrderGuid 维修记录guid
+	 * @param assetsRecord 附件编号
+	 * @param acceName 附件名称
+	 * @param acceFmodel 附件型号
+	 * @param acceSpec 附件规格
+	 * @param acceUnit 附件单位
+	 * @param unitPrice 单价
+	 * @param acceNum 数量
+	 * @throws ValidationException
+	 * @author zhangyanli
+	 */
+	@RequestMapping("/insertRrpairExtend")
+	@ResponseBody
+	public void insertRrpairExtend(
+			@RequestParam(value="rrpairOrderGuid",required = false) String rrpairOrderGuid,
+			@RequestParam(value="assetsRecord",required = false) String assetsRecord,
+			@RequestParam(value="acceName",required = false) String acceName,
+			@RequestParam(value="acceFmodel",required = false) String acceFmodel,
+			@RequestParam(value="acceSpec",required = false) String acceSpec,
+			@RequestParam(value="acceUnit",required = false) String acceUnit,
+			@RequestParam(value="unitPrice",required = false) BigDecimal unitPrice,
+			@RequestParam(value="acceNum",required = false) Integer acceNum
+			) throws ValidationException{
+		if (StringUtils.isBlank(rrpairOrderGuid)) {
+			throw new ValidationException("当前维修记录guid不允许为空");
+		}
+		RrpairOrder rrpairOrder = rrpairOrderService.find(RrpairOrder.class, rrpairOrderGuid);
+		if (rrpairOrder == null) {
+			throw new ValidationException("当前维修记录不存在");
+		}
+		if (acceNum == null || acceNum <=0 ) {
+			throw new ValidationException("当前数量必须是非0正整数");
+		}
+		Pager<Map<String, Object>> pager = new Pager<Map<String,Object>>(false);
+		pager.addQueryParam("rrpairOrderGuid", rrpairOrderGuid);
+		//根据维修编号查询维修配件使用列表
+		List<Map<String, Object>> list = rrpairOrderService.selectRrpairFittingList(pager);
+		
+		//判断是否需要添加
+		boolean flag = true;
+//		if (list!=null && list.size()!=0) {
+//			for (Map<String, Object> map : list) {
+//				if (acceName.equals(map.get("acceName")) && 
+//					acceFmodel.equals(map.get("acceFmodel")) && 
+//					acceSpec.equals(map.get("acceSpec"))) {
+//					//如果是有编号的配件，则是唯一的，不允许重复添加
+//					if (map.get("assetsRecord")!=null && 
+//						StringUtils.isNotBlank(map.get("assetsRecord").toString()) && acceNum != 0) {
+//						throw new ValidationException("当前配件已经添加维修使用，不允许重复添加");
+//					}
+//					//如果没有编号，则在原来的数量上修改
+//					else {
+//						RrpairFittingUse rrUse = rrpairOrderService.find(RrpairFittingUse.class, map.get("rrpairFittingUseGuid").toString());
+//						rrUse.setAcceNum(rrUse.getAcceNum().add(BigDecimal.valueOf(acceNum)));
+//						flag = false;
+//					}
+//				}
+//			}
+//		}
+		
+		if (flag) {
+			RrpairFittingUse rrpairFittingUse = new RrpairFittingUse();
+			rrpairFittingUse.setRrpairFittingUseGuid(IdentifieUtil.getGuId());
+			rrpairFittingUse.setRrpairOrderGuid(rrpairOrderGuid);
+			rrpairFittingUse.setAssetsRecord(assetsRecord);
+			rrpairFittingUse.setAcceName(acceName);
+			rrpairFittingUse.setAcceFmodel(acceFmodel);
+			rrpairFittingUse.setAcceSpec(acceSpec);
+			rrpairFittingUse.setAcceUnit(acceUnit);
+			rrpairFittingUse.setUnitPrice(unitPrice);
+			rrpairFittingUse.setAcceNum(BigDecimal.valueOf(acceNum));
+			rrpairOrderService.insertInfo(rrpairFittingUse);
+		}
+	}
+	
+	/**
+	 * 删除当前维修配件
+	 * @param rrpairOrderGuid 维修配件guid
+	 * @throws ValidationException
+	 * @author zhangyanli
+	 */
+	@RequestMapping("/deleteRrpairFitting")
+	@ResponseBody
+	public void deleteRrpairFitting(
+			@RequestParam(value="rrpairFittingUseGuid",required = false) String rrpairFittingUseGuid) throws ValidationException{
+		if (StringUtils.isBlank(rrpairFittingUseGuid)) {
+			throw new ValidationException("当前维修配件guid不允许为空");
+		}
+		RrpairFittingUse rrpairFittingUse = rrpairOrderService.find(RrpairFittingUse.class, rrpairFittingUseGuid);
+		if (rrpairFittingUse == null) {
+			throw new ValidationException("当前维修记录不存在");
+		}
+		rrpairOrderService.deleteInfo(rrpairFittingUse);
+	}
+	
+	/**
+	 * 验收
+	 * @param rrpairOrderGuid 维修记录guid
+	 * @param rrAcceFstate 通过/不通过
+	 * @param tfRemark 备注
+	 * @param notCause 不通过原因
+	 * @throws ValidationException
+	 * @author zhangyanli
+	 */
+	@RequestMapping("/insertRrpairOrderAcce")
+	@ResponseBody
+	public void insertRrpairOrderAcce(
+			@RequestParam(value="rrpairOrderGuid",required = false) String rrpairOrderGuid,
+			@RequestParam(value="rrAcceFstate",required = false) String rrAcceFstate,
+			@RequestParam(value="tfRemark",required = false) String tfRemark,
+			@RequestParam(value="notCause",required = false) String notCause
+			) throws ValidationException{
+		RrpairOrder rrpairOrder = rrpairOrderService.find(RrpairOrder.class, rrpairOrderGuid);
+		if (rrpairOrder==null) {
+			throw new ValidationException("当前维修记录不存在");
+		}
+		RrpairOrderAcce rrpairOrderAcce = new RrpairOrderAcce();
+		rrpairOrderAcce.setRrpairOrderAcce(IdentifieUtil.getGuId());
+		rrpairOrderAcce.setRrpairOrder(rrpairOrderGuid);
+//		rrpairOrderAcce.setRrAcceUserid(session.getAttribute(LoginUser.SESSION_USERID).toString());
+//		rrpairOrderAcce.setRrAcceUsername(session.getAttribute(LoginUser.SESSION_USERNAME).toString());
+		rrpairOrderAcce.setRrAcceFstate(rrAcceFstate);
+		rrpairOrderAcce.setTfRemark(tfRemark);
+		if (rrAcceFstate.equals("90")) {
+			rrpairOrderAcce.setNotCause(notCause);
+		}
+		rrpairOrderAcce.setRrAcceDate(new Date());
+		
+		rrpairOrder.setOrderFstate("80");
+		rrpairOrderService.insertRrpairOrderAcce(rrpairOrderAcce, rrpairOrder);
+	}
+	
+	/**
+	 * 指派维修工单
+	 * @param rrpairOrderGuid 维修记录GUID
+	 * @param orderFstate 维修状态 （内修30 ， 外修20 ， 关闭90）如果是暂存，则为空
+	 * @param rrpairType 维修方式（00内修，01外修）(关闭02)
+	 * @param inRrpairPhone 内修人联系方式
+	 * @param callDeptCode 维修组code（内修）
+	 * @param callDeptName 维修组名称（内修）
+	 * @param inRrpairUserid 内修指派人id
+	 * @param inRrpairUsername 内修指派人姓名
+	 * @param tfRemarkWx 指派备注（内修）
+	 * @param offCause 关闭原因
+	 * @param followupTreatment 后续处理
+	 * @param tfRemarkGb 关闭备注
+	 * @param outOrg 指派服务商
+	 * @param outRrpairPhone 外修人联系方式
+	 * @param completTime 预计完成时间
+	 * @param tfRemarkZp 指派备注（外修）
+	 * @author zhangyanli
+	 */
+	@RequestMapping("/designateInOrOut")
+	@ResponseBody
+	public void designateInOrOut(
+			@RequestParam(value="rrpairOrderGuid",required = false) String rrpairOrderGuid,
+			@RequestParam(value="orderFstate",required = false) String orderFstate,
+			@RequestParam(value="rrpairType",required = false) String rrpairType,
+			@RequestParam(value="inRrpairPhone",required = false) String inRrpairPhone,
+			@RequestParam(value="callDeptCode",required = false) String callDeptCode,
+			@RequestParam(value="callDeptName",required = false) String callDeptName,
+			@RequestParam(value="inRrpairUserid",required = false) String inRrpairUserid,
+			@RequestParam(value="inRrpairUsername",required = false) String inRrpairUsername,
+			@RequestParam(value="tfRemarkWx",required = false) String tfRemarkWx,
+			@RequestParam(value="offCause",required = false) String offCause,
+			@RequestParam(value="followupTreatment",required = false) String followupTreatment,
+			@RequestParam(value="tfRemarkGb",required = false) String tfRemarkGb,
+			@RequestParam(value="outOrg",required = false) String outOrg,
+			@RequestParam(value="outRrpairPhone",required = false) String outRrpairPhone,
+			@RequestParam(value="completTime",required = false) Date completTime,
+			@RequestParam(value="tfRemarkZp",required = false) String tfRemarkZp
+			) throws ValidationException{
+		RrpairOrder rrpair = rrpairOrderService.find(RrpairOrder.class, rrpairOrderGuid);
+		if (rrpair==null) {
+			throw new ValidationException("当前维修记录不存在");
+		}
+		
+		if (StringUtils.isNotBlank(orderFstate)) {
+			rrpair.setOrderFstate(orderFstate);
+		}
+		rrpair.setModifyTime(new Date());
+				
+		if (StringUtils.isNotBlank(rrpairType)) {
+			//如果指派信息是内修，则填写内修信息
+			if (rrpairType.equals("00")) {
+				rrpair.setRrpairType(rrpairType);
+				rrpair.setCallDeptName(callDeptName);
+				rrpair.setCallDeptCode(callDeptCode);
+				rrpair.setInRrpairUserid(inRrpairUserid);
+				rrpair.setInRrpairUsername(inRrpairUsername);
+				rrpair.setTfRemarkWx(tfRemarkWx);
+				rrpair.setCallTime(new Date());
+				rrpair.setCompletTime(completTime);
+			}
+			//如果指派信息是外修，则填写外修信息
+			else if (rrpairType.equals("10")){
+				rrpair.setRrpairType(rrpairType);
+				rrpair.setOutOrg(outOrg);
+				rrpair.setOutRrpairPhone(outRrpairPhone);
+				rrpair.setCallTime(new Date());
+				rrpair.setCompletTime(completTime);
+				rrpair.setTfRemarkZp(tfRemarkZp);
+			}
+			//如果指派时关闭维修单，则填写关闭原因等信息
+			else{
+				rrpair.setOffCause(offCause);
+				rrpair.setFollowupTreatment(followupTreatment);
+				rrpair.setTfRemarkGb(tfRemarkGb);
+			}
+		}
+		rrpairOrderService.updateInfo(rrpair);
+	}
+	
+	/**
+	 * 修改维修工单状态
+	 * @param rrpairOrderGuid 维修工单guid
+	 * @param orderFstate 维修工单改变后的状态 (30维修中[接修],50待验收[完成]，80拒绝[拒绝],90关闭[关闭] )
+	 * @param refuseCause 拒绝原因
+	 * @param otherCause 其他原因
+	 * @param tfRemarkJj 拒绝备注
+	 * @throws ValidationException
+	 */
+	@RequestMapping("/updateRrpairOrderFstate")
+	@ResponseBody
+	public void updateRrpairOrderFstate(
+			@RequestParam(value="rrpairOrderGuid",required = false) String rrpairOrderGuid,
+			@RequestParam(value="orderFstate",required = false) String orderFstate,
+			@RequestParam(value="refuseCause",required = false) String refuseCause,
+			@RequestParam(value="otherCause",required = false) String otherCause,
+			@RequestParam(value="tfRemarkJj",required = false) String tfRemarkJj
+			) throws ValidationException{
+		RrpairOrder rrpairOrder = rrpairOrderService.find(RrpairOrder.class, rrpairOrderGuid);
+		if (rrpairOrder==null) {
+			throw new ValidationException("当前维修记录不存在");
+		}
+		if (StringUtils.isBlank(orderFstate)) {
+			throw new ValidationException("维修状态不允许为空");
+		}
+		//如果是内修人主动接修，则自动填写内修人信息
+		if (orderFstate.equals(CustomConst.RrpairOrderFstate.MAINTENANCE)) {
+			if (rrpairOrder.getOrderFstate().equals(CustomConst.RrpairOrderFstate.AWAITING_REPAIR)) {
+//				rrpairOrder.setInRrpairUserid(session.getAttribute(LoginUser.SESSION_USERID).toString());
+//				rrpairOrder.setInRrpairUsername(session.getAttribute(LoginUser.SESSION_USERNAME).toString());
+			}
+		}
+		//如果外修拒绝维修单，则填写拒绝原因等信息
+		if (orderFstate.equals(CustomConst.RrpairOrderFstate.REJECT)) {
+			rrpairOrder.setRefuseCause(refuseCause);
+			rrpairOrder.setOtherCause(otherCause);
+			rrpairOrder.setTfRemarkJj(tfRemarkJj);
+		}
+		rrpairOrder.setOrderFstate(orderFstate);
+		rrpairOrder.setModifyTime(new Date());
+		rrpairOrderService.updateInfo(rrpairOrder);
 	}
 }

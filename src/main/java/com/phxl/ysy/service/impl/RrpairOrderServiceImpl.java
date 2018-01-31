@@ -22,11 +22,17 @@ import com.mysql.fabric.xmlrpc.base.Array;
 import com.phxl.core.base.entity.Pager;
 import com.phxl.core.base.exception.ValidationException;
 import com.phxl.core.base.service.impl.BaseService;
+import com.phxl.core.base.util.IdentifieUtil;
 import com.phxl.core.base.util.LocalAssert;
+import com.phxl.ysy.constant.CustomConst.LoginUser;
 import com.phxl.ysy.dao.AssetsRecordMapper;
 import com.phxl.ysy.dao.CallprocedureMapper;
+import com.phxl.ysy.dao.RrpairFittingUseMapper;
 import com.phxl.ysy.dao.RrpairOrderMapper;
+import com.phxl.ysy.entity.AssetsRecord;
+import com.phxl.ysy.entity.EqOperation;
 import com.phxl.ysy.entity.RrpairOrder;
+import com.phxl.ysy.entity.RrpairOrderAcce;
 import com.phxl.ysy.entity.WeixinOpenUser;
 import com.phxl.ysy.service.IMessageService;
 import com.phxl.ysy.service.RrpairOrderService;
@@ -47,6 +53,9 @@ public class RrpairOrderServiceImpl extends BaseService implements RrpairOrderSe
 	
 	@Autowired
 	CallprocedureMapper callprocedureMapper;
+	
+	@Autowired
+	RrpairFittingUseMapper rrpairFittingUseMapper;
 
 	public List<Map<String, Object>> selectRrpairDetailList(Pager pager) {
 		List<Map<String, Object>> list = rrpairOrderMapper.selectRrpairDetailList(pager);
@@ -146,8 +155,8 @@ public class RrpairOrderServiceImpl extends BaseService implements RrpairOrderSe
 		rrpairOrderMapper.updateRrpairContent(map);
 	}
 
-	
 	*/
+	
 /**
 	 * 生成单号（适用场景:直接以需方机构生成单号）
 	 * @author	黄文君
@@ -158,7 +167,7 @@ public class RrpairOrderServiceImpl extends BaseService implements RrpairOrderSe
 	 * @param	asLen				流水号位数上限
 	 * @throws	ValidationException
 	 * @return	String				生成的单号
-	 *//*
+	 */
 
 	
 	public String callSpGetBill(Long billOrgId, String billName, String billPrefix, Integer asLen) throws ValidationException {
@@ -253,7 +262,7 @@ public class RrpairOrderServiceImpl extends BaseService implements RrpairOrderSe
 		}
         
 	}
-*/
+
 
 	/**
 	 * 查询维修操作记录
@@ -267,5 +276,42 @@ public class RrpairOrderServiceImpl extends BaseService implements RrpairOrderSe
 	public List<Map<String, Object>> selectRrpairList(Pager pager) {
 		List<Map<String, Object>> list = rrpairOrderMapper.selectRrpairList(pager);
 		return list;
+	}
+
+	@Override
+	/**
+	 * 添加修改维修记录
+	 * @param rrpairOrder
+	 */
+	public void insertRrpairOrder(RrpairOrder rrpairOrder,AssetsRecord assetsRecord) {
+		RrpairOrder rrpair = find(RrpairOrder.class, rrpairOrder.getRrpairOrderGuid());
+		if (rrpair==null) {
+			insertInfo(rrpairOrder);
+			EqOperation eqOperation = new EqOperation();
+			eqOperation.setTsEqOperationGuId(IdentifieUtil.getGuId());
+//			eqOperation.setUserId(session.getAttribute(LoginUser.SESSION_USERID).toString());
+			eqOperation.setUserId("11");
+			eqOperation.setCreatetime(new Date());
+			eqOperation.setOpType("");
+			eqOperation.setTfRemark(rrpairOrder.getTfRemark());
+			insertInfo(eqOperation);
+		}else{
+			updateInfo(rrpairOrder);
+		}
+		if (assetsRecord!=null) {
+			updateInfo(assetsRecord);
+		}
+	}
+
+	@Override
+	public List<Map<String, Object>> selectRrpairFittingList(Pager pager) {
+		return rrpairFittingUseMapper.selectRrpairFittingList(pager);
+	}
+
+	@Override
+	public void insertRrpairOrderAcce(RrpairOrderAcce rrpairOrderAcce,
+			RrpairOrder rrpairOrder) {
+		insertInfo(rrpairOrderAcce);
+		updateInfo(rrpairOrder);
 	}
 }

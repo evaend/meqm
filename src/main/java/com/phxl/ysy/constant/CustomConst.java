@@ -1216,4 +1216,22 @@ public class CustomConst {
         public static final String meteringType = "METERING_TYPE";
     }
 
+    /**
+     * 维修状态
+     * @author zhangyanli
+     */
+    public static final class RrpairOrderFstate {
+		/**10、待维修（申请）*/
+		public static final String AWAITING_REPAIR = "10";
+		/**20、已指派（指派）*/
+		public static final String ASSIGNED = "20";
+		/**30、维修中（维修）*/
+		public static final String MAINTENANCE = "30";
+		/**50、待验收（验收）*/
+		public static final String AWAIT_CHECK = "50";
+		/**80、已拒绝（拒绝）*/
+		public static final String REJECT = "80";
+		/**90 、已关闭（关闭）*/
+		public static final String FINISH = "90";
+	}
 }

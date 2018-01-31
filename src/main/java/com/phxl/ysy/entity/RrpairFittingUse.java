@@ -3,6 +3,9 @@ package com.phxl.ysy.entity;
 import java.math.BigDecimal;
 import java.util.Date;
 
+import com.phxl.core.base.annotation.BaseSql;
+
+@BaseSql(tableName="TD_RRPAIR_FITTING_USE", resultName="com.phxl.ysy.dao.RrpairFittingUseMapper.BaseResultMap")
 public class RrpairFittingUse {
     private String rrpairFittingUseGuid;
 
@@ -25,6 +28,14 @@ public class RrpairFittingUse {
     private Date createDate;
 
     private String acceFmodel;
+
+    private String acceUnit;
+
+    private String acceSpec;
+
+    private String equipmentCode;
+
+    private String assetsRecord;
 
     public String getRrpairFittingUseGuid() {
         return rrpairFittingUseGuid;
@@ -112,5 +123,37 @@ public class RrpairFittingUse {
 
     public void setAcceFmodel(String acceFmodel) {
         this.acceFmodel = acceFmodel == null ? null : acceFmodel.trim();
+    }
+
+    public String getAcceUnit() {
+        return acceUnit;
+    }
+
+    public void setAcceUnit(String acceUnit) {
+        this.acceUnit = acceUnit == null ? null : acceUnit.trim();
+    }
+
+    public String getAcceSpec() {
+        return acceSpec;
+    }
+
+    public void setAcceSpec(String acceSpec) {
+        this.acceSpec = acceSpec == null ? null : acceSpec.trim();
+    }
+
+    public String getEquipmentCode() {
+        return equipmentCode;
+    }
+
+    public void setEquipmentCode(String equipmentCode) {
+        this.equipmentCode = equipmentCode == null ? null : equipmentCode.trim();
+    }
+
+    public String getAssetsRecord() {
+        return assetsRecord;
+    }
+
+    public void setAssetsRecord(String assetsRecord) {
+        this.assetsRecord = assetsRecord == null ? null : assetsRecord.trim();
     }
 }

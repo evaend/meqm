@@ -47,6 +47,18 @@
     <result column="OUT_ORG" property="outOrg" jdbcType="VARCHAR" />
     <result column="FAIL_CAUSE" property="failCause" jdbcType="VARCHAR" />
     <result column="CREATE_DATE" property="createDate" jdbcType="DATE" />
+    <result column="CALL_DEPT_NAME" property="callDeptName" jdbcType="VARCHAR" />
+    <result column="CALL_TIME" property="callTime" jdbcType="DATE" />
+    <result column="REPAIR_RESULT" property="repairResult" jdbcType="VARCHAR" />
+    <result column="TF_REMARK_WX" property="tfRemarkWx" jdbcType="VARCHAR" />
+    <result column="TF_REMARK_ZP" property="tfRemarkZp" jdbcType="VARCHAR" />
+    <result column="REFUSE_CAUSE" property="refuseCause" jdbcType="VARCHAR" />
+    <result column="OTHER_CAUSE" property="otherCause" jdbcType="VARCHAR" />
+    <result column="TF_REMARK_JJ" property="tfRemarkJj" jdbcType="VARCHAR" />
+    <result column="TF_REMARK_GB" property="tfRemarkGb" jdbcType="VARCHAR" />
+    <result column="FOLLOWUP_TREATMENT" property="followupTreatment" jdbcType="VARCHAR" />
+    <result column="OFF_CAUSE" property="offCause" jdbcType="VARCHAR" />
+    <result column="IN_RRPAIR_PHONE" property="inRrpairPhone" jdbcType="VARCHAR" />
   </resultMap>
   <sql id="Base_Column_List" >
     RRPAIR_ORDER, ASSETS_RECORD, EQUIPMENT_CODE, U_ORG, USE_DEPT_CODE, ACCT_DATE, GUARANTEE_DATE, 

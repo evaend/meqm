@@ -3,7 +3,12 @@ package com.phxl.ysy.entity;
 import java.math.BigDecimal;
 import java.util.Date;
 
+import com.phxl.core.base.annotation.BaseSql;
+
+@BaseSql(tableName="TD_ASSETS_EXTEND", resultName="com.phxl.ysy.dao.AssetsExtendMapper.BaseResultMap")
 public class AssetsExtend extends AssetsExtendKey {
+	private String assetsExtendGuid;
+	
     private String equipmentCode;
 
     private String equipmentSpec;
@@ -93,4 +98,12 @@ public class AssetsExtend extends AssetsExtendKey {
     public void setAssetsRecordM(String assetsRecordM) {
         this.assetsRecordM = assetsRecordM == null ? null : assetsRecordM.trim();
     }
+
+	public String getAssetsExtendGuid() {
+		return assetsExtendGuid;
+	}
+
+	public void setAssetsExtendGuid(String assetsExtendGuid) {
+		this.assetsExtendGuid = assetsExtendGuid;
+	}
 }

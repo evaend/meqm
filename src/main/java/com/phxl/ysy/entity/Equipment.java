@@ -29,6 +29,10 @@ public class Equipment {
     private String certGuid;
 
     private String registerNo;
+    
+    private String spec;
+    
+    private String fmodel;
 
     public String getEquipmentCode() {
         return equipmentCode;
@@ -133,4 +137,20 @@ public class Equipment {
     public void setRegisterNo(String registerNo) {
         this.registerNo = registerNo == null ? null : registerNo.trim();
     }
+
+	public String getSpec() {
+		return spec;
+	}
+
+	public void setSpec(String spec) {
+		this.spec = spec;
+	}
+
+	public String getFmodel() {
+		return fmodel;
+	}
+
+	public void setFmodel(String fmodel) {
+		this.fmodel = fmodel;
+	}
 }

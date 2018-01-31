@@ -2,8 +2,9 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
 <mapper namespace="com.phxl.ysy.dao.AssetsExtendMapper" >
   <resultMap id="BaseResultMap" type="com.phxl.ysy.entity.AssetsExtend" >
-    <id column="ASSETS_RECORD" property="assetsRecord" jdbcType="VARCHAR" />
-    <id column="PROJECT_NO" property="projectNo" jdbcType="VARCHAR" />
+    <id column="ASSETS_EXTEND_GUID" property="assetsExtendGuid" jdbcType="VARCHAR" />
+    <result column="ASSETS_RECORD" property="assetsRecord" jdbcType="VARCHAR" />
+    <result column="PROJECT_NO" property="projectNo" jdbcType="VARCHAR" />
     <result column="EQUIPMENT_CODE" property="equipmentCode" jdbcType="VARCHAR" />
     <result column="EQUIPMENT_SPEC" property="equipmentSpec" jdbcType="VARCHAR" />
     <result column="PRICE" property="price" jdbcType="DECIMAL" />
@@ -15,14 +16,15 @@
     <result column="ASSETS_RECORD_M" property="assetsRecordM" jdbcType="VARCHAR" />
   </resultMap>
   <sql id="Base_Column_List" >
-    ASSETS_RECORD, PROJECT_NO, EQUIPMENT_CODE, EQUIPMENT_SPEC, PRICE, CREATE_USERID, 
+    ASSETS_EXTEND_GUID, ASSETS_RECORD, PROJECT_NO, EQUIPMENT_CODE, EQUIPMENT_SPEC, PRICE, CREATE_USERID, 
     CREATE_USERNAME, CREATE_DATE, EXTEND_SUM, QRCODE, ASSETS_RECORD_M
   </sql>
   
   <!-- 查询资产配件列表 -->
   <select id="selectAssetsExtendList" parameterType="com.phxl.core.base.entity.Pager" resultType="java.util.Map">
- 	 select ae.assets_record_m "assetsRecordGuid" , 
-			e.equipment_code "equipmentCode" , 
+ 	 select ae.assets_extend_guid "assetsExtendGuid" , 
+ 	 		ae.assets_record_m "assetsRecordGuid" , 
+			e.equipment_name "equipmentName" , 
 			ae.assets_record "assetsRecord" , 
 			e.spec "spec" , 
 			e.fmodel "fmodel" , 
@@ -33,7 +35,16 @@
 			from TD_ASSETS_EXTEND ae 
 			left join td_equipment e on (ae.equipment_code = e.equipment_code )
 			where ae.assets_record_m = #{conditiions.assetsRecordGuid}
-		<if test="conditiions != null and conditiions.orderMark != null and conditiions.orderField != null and conditiions.orderField!=''">
+		<if test="conditiions.equipmetName != null and conditiions.equipmetName != ''">
+			and ( regexp_like(e.equipment_name , #{conditiions.equipmetName}) 
+				or regexp_like(ae.assets_record , #{conditiions.equipmetName}) 
+			)
+  		</if>
+  		<if test="conditiions.rrpairOrderGuid != null and conditiions.rrpairOrderGuid != '' ">
+  			and ae.assets_record not in (
+  				select assets_record from td_rrpair_fitting_use where rrpair_order_guid = #{conditiions.rrpairOrderGuid})
+  		</if>
+		<if test="conditiions.orderMark != null and conditiions.orderMark != '' and conditiions.orderField != null and conditiions.orderField!=''">
   			order by "${conditiions.orderField}" ${conditiions.orderMark}
   		</if>
   </select>

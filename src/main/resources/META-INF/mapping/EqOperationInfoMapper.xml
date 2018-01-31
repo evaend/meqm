@@ -41,7 +41,10 @@
 			and  ( regexp_like(e.op_type, #{conditiions.opType})
 			or regexp_like(e.op_text, #{conditiions.opType} ) )
 		</if>
-		<if test="conditiions != null and conditiions.orderMark != null and conditiions.orderField != null and conditiions.orderField!=''">
+  		<if test="conditiions.assetsRecordGuid != null and conditiions.assetsRecordGuid != ''">
+  			and e.op_id = #{conditiions.assetsRecordGuid}
+  		</if>
+		<if test="conditiions.orderMark != null and conditiions.orderMark != '' and conditiions.orderField != null and conditiions.orderField!=''">
   			order by "${conditiions.orderField}" ${conditiions.orderMark}
   		</if>
   </select>

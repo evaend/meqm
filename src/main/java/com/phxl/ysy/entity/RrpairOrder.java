@@ -3,6 +3,9 @@ package com.phxl.ysy.entity;
 import java.math.BigDecimal;
 import java.util.Date;
 
+import com.phxl.core.base.annotation.BaseSql;
+
+@BaseSql(tableName="TD_RRPAIR_ORDER", resultName="com.phxl.ysy.dao.RrpairOrderMapper.BaseResultMap")
 public class RrpairOrder {
 
     private String rrpairOrderGuid;
@@ -87,14 +90,38 @@ public class RrpairOrder {
 
     private String rrpairSend;
 
-    private String callUserid;
+    private String callDeptCode;
 
     private String outOrg;
 
     private String failCause;
 
     private Date createDate;
-
+    
+    private String callDeptName;
+    
+    private Date callTime;
+    
+    private String repairResult;
+    
+    private String tfRemarkWx;
+    
+    private String tfRemarkZp;
+    
+    private String refuseCause;
+    
+    private String otherCause;
+    
+    private String tfRemarkJj;
+    
+    private String tfRemarkGb;
+    
+    private String followupTreatment;
+    
+    private String offCause;
+    
+    private String inRrpairPhone;
+    
     public String getAssetsRecord() {
         return assetsRecord;
     }
@@ -423,14 +450,6 @@ public class RrpairOrder {
         this.rrpairSend = rrpairSend == null ? null : rrpairSend.trim();
     }
 
-    public String getCallUserid() {
-        return callUserid;
-    }
-
-    public void setCallUserid(String callUserid) {
-        this.callUserid = callUserid == null ? null : callUserid.trim();
-    }
-
     public String getOutOrg() {
         return outOrg;
     }
@@ -454,4 +473,108 @@ public class RrpairOrder {
     public void setCreateDate(Date createDate) {
         this.createDate = createDate;
     }
+
+	public String getCallDeptName() {
+		return callDeptName;
+	}
+
+	public void setCallDeptName(String callDeptName) {
+		this.callDeptName = callDeptName;
+	}
+
+	public Date getCallTime() {
+		return callTime;
+	}
+
+	public void setCallTime(Date callTime) {
+		this.callTime = callTime;
+	}
+
+	public String getRepairResult() {
+		return repairResult;
+	}
+
+	public void setRepairResult(String repairResult) {
+		this.repairResult = repairResult;
+	}
+
+	public String getTfRemarkWx() {
+		return tfRemarkWx;
+	}
+
+	public void setTfRemarkWx(String tfRemarkWx) {
+		this.tfRemarkWx = tfRemarkWx;
+	}
+
+	public String getTfRemarkZp() {
+		return tfRemarkZp;
+	}
+
+	public void setTfRemarkZp(String tfRemarkZp) {
+		this.tfRemarkZp = tfRemarkZp;
+	}
+
+	public String getRefuseCause() {
+		return refuseCause;
+	}
+
+	public void setRefuseCause(String refuseCause) {
+		this.refuseCause = refuseCause;
+	}
+
+	public String getOtherCause() {
+		return otherCause;
+	}
+
+	public void setOtherCause(String otherCause) {
+		this.otherCause = otherCause;
+	}
+
+	public String getTfRemarkJj() {
+		return tfRemarkJj;
+	}
+
+	public void setTfRemarkJj(String tfRemarkJj) {
+		this.tfRemarkJj = tfRemarkJj;
+	}
+
+	public String getTfRemarkGb() {
+		return tfRemarkGb;
+	}
+
+	public void setTfRemarkGb(String tfRemarkGb) {
+		this.tfRemarkGb = tfRemarkGb;
+	}
+
+	public String getFollowupTreatment() {
+		return followupTreatment;
+	}
+
+	public void setFollowupTreatment(String followupTreatment) {
+		this.followupTreatment = followupTreatment;
+	}
+
+	public String getOffCause() {
+		return offCause;
+	}
+
+	public void setOffCause(String offCause) {
+		this.offCause = offCause;
+	}
+
+	public String getInRrpairPhone() {
+		return inRrpairPhone;
+	}
+
+	public void setInRrpairPhone(String inRrpairPhone) {
+		this.inRrpairPhone = inRrpairPhone;
+	}
+
+	public String getCallDeptCode() {
+		return callDeptCode;
+	}
+
+	public void setCallDeptCode(String callDeptCode) {
+		this.callDeptCode = callDeptCode;
+	}
 }

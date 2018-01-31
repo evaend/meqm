@@ -168,8 +168,15 @@
 <!-- 		 , e.qrcode "qrcode" -->
 		from td_assets_record a left join td_equipment e
 		on (a.equipment_code = e.equipment_code)
-  		where a.assets_record_m = #{conditiions.assetsRecordGuid}
-  		
+  		where 1 = 1 
+  		<if test="conditiions.assetsRecordGuid != null and conditiions.assetsRecordGuid != ''">
+  			and a.assets_record_m = #{conditiions.assetsRecordGuid}
+  		</if>
+  		<if test="conditiions.assetsRecord != null and conditiions.assetsRecord != ''">
+  			and (a.assets_record = #{conditiions.assetsRecord}
+  				or a.qrcode = #{conditiions.assetsRecord}
+  			)
+  		</if>
   		
 <!--   		<if test="conditiions.assetsRecord != null and conditiions.assetsRecord != ''"> -->
 <!-- 			and regexp_like(a.assets_record, #{conditiions.assetsRecord})	 -->
