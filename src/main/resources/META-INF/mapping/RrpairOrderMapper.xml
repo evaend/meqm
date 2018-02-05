@@ -38,7 +38,7 @@
     <result column="ACTUAL_PRICE" property="actualPrice" jdbcType="DECIMAL" />
     <result column="COST_DETAIL" property="costDetail" jdbcType="VARCHAR" />
     <result column="TF_COMMENT" property="tfComment" jdbcType="VARCHAR" />
-    <result column="TF_REMARK" property="tfRemark" jdbcType="VARCHAR" />
+    <result column="TF_REMARK_BX" property="tfRemark" jdbcType="VARCHAR" />
     <result column="FAULT_ACCESSORY" property="faultAccessory" jdbcType="VARCHAR" />
     <result column="TF_ACCESSORY" property="tfAccessory" jdbcType="VARCHAR" />
     <result column="RRPAIR_ORDER_NO" property="rrpairOrderNo" jdbcType="VARCHAR" />
@@ -70,6 +70,105 @@
     RRPAIR_ORDER_GUID, FAULT_ACCESSORY, TF_ACCESSORY, RRPAIR_ORDER_NO, RRPAIR_SEND, CALL_USERID, 
     OUT_ORG, FAIL_CAUSE, CREATE_DATE
   </sql>
+  
+  <!-- 查询维修工单信息——（资产信息） -->
+  <select id="selectRrpairDetailIsAssets" resultType="java.util.HashMap" parameterType="com.phxl.core.base.entity.Pager">
+  	 select ro.rrpair_order_guid "rrpairOrderGuid",--维修工单号guid
+  	  		ro.assets_record  "assetsRecord",    -- 资产档案号-资产编号      
+			te.equipment_standard_name "equipmentStandardName",	--equipment_code资产名称 
+			te.spec "spec",	--规格
+			te.fmodel "fmodel",	--型号
+			tar.product_type "productType",--资产分类id(资产类别 )  
+			tdi.dept_nam "deptName",	--（使用科室）
+			tar.custodian "custodian",	--管理员，保管员
+			tar.m_dept_code "mDeptCode",	--管理科室id
+			tar.deposit "deposit",	--放地点-a区b楼c层d房间(存放地点)
+			ro.guarantee_flag "guaranteeFlag"  --保修：在保，出保(在保)
+		from td_rrpair_order ro
+        left join tb_rrpair_order_acce roa on ro.rrpair_order_no=roa.rrpair_order
+        left join td_equipment te on ro.equipment_code=te.equipment_code
+        left join td_assets_record tar on ro.assets_record=tar.assets_record
+        left join td_dept_info tdi on ro.use_dept_code=tdi.dept_code
+        where ro.rrpair_order_guid = #{conditiions.rrpairOrderGuid, jdbcType=VARCHAR}
+  </select>
+  
+  <!-- 查询维修工单信息——（报修信息） -->
+  <select id="selectRrpairDetailIsOrder" resultType="java.util.HashMap" parameterType="com.phxl.core.base.entity.Pager">
+  	 select ro.rrpair_order_guid "rrpairOrderGuid",--维修工单号guid
+        	ro.urgent_flag "urgentFlag", --紧急度：紧急，急，一般(紧急度)
+	        ro.rrpair_send "rrpairSend",  --是否送修：是，否(是否送修)
+	        ro.rrpair_phone "rrpairPhone", -- 报修人电话
+	        ro.fault_describe "faultDescribe",	--故障现象
+	        tar.use_fstate "useFstate",	--是否停用
+	        ro.repair_content_typ "repairContentTyp",  --故障原因（故障描述）
+	        ro.tf_remark_bx "tfRemarkBx",	--报修备注
+	        ro.fault_accessory "faultAccessory"	--报修图片附件
+	  	from td_rrpair_order ro
+        left join td_assets_record tar on ro.assets_record=tar.assets_record
+        where ro.rrpair_order_guid = #{conditiions.rrpairOrderGuid, jdbcType=VARCHAR}
+  </select>
+  
+  <!-- 查询维修工单信息——（指派信息） -->
+  <select id="selectRrpairDetailIsCall" resultType="java.util.HashMap" parameterType="com.phxl.core.base.entity.Pager">
+  	 select ro.rrpair_type "rrpairType",  --维修方式:内修，外修
+	        ro.in_rrpair_userid "inRrpairUserid",  --内修负责人id
+	        ro.in_rrpair_username "inRrpairUsername",  --内修负责人姓名
+	        ro.out_rrpair_username "outRrpairUsername", --外修负责人姓名
+	  		ro.in_rrpair_phone "inRrpairPhone",	--内修负责人电话
+	  		ro.out_rrpair_phone "outRrpairPhone",	--外修负责人电话
+	        (select org_name from td_org_info where org_id = ro.out_org) "outOrg",  --外修机构(维修单位)
+	        ro.call_time "callTime", --指派时间（预计开始时间）
+	        ro.complet_time "completTime",	--预计结束时间
+	        ro.call_dept_code "callDeptCode",	--维修组code 
+			ro.call_dept_name "callDeptName",	--维修组名称
+	        ro.tf_remark_zp "tfRemarkZp",	--指派备注
+	        ro.off_cause "offCause",	--关闭原因
+	        ro.followup_treatment "followupTreatment",	--后续处理
+	        ro.tf_remark_gb "tfRemarkGb"	--关闭备注
+  		from td_rrpair_order ro
+        where ro.rrpair_order_guid = #{conditiions.rrpairOrderGuid, jdbcType=VARCHAR}
+  </select>
+  
+  <!-- 查询维修工单信息——（维修信息） -->
+  <select id="selectRrpairDetailIsRrpair" resultType="java.util.HashMap" parameterType="com.phxl.core.base.entity.Pager">
+         select ro.rrpair_type "rrpairType",  --维修方式:内修，外修
+        		ro.in_rrpair_userid "inRrpairUserid",  --内修负责人id
+		        ro.in_rrpair_username "inRrpairUsername",  --内修负责人姓名
+		  		ro.in_rrpair_phone "inRrpairPhone",	--内修负责人电话
+		  		ro.repair_result "repairResult",	--维修结果
+        		ro.actual_price "actualPrice", -- 实际费用(维修费用)
+        		ro.repair_content_type "repairContentType",	--故障类型
+        		ro.repair_content_typ "repairContentTyp",	--故障原因
+        		ro.tf_remark_wx "tfRemarkWx",	--维修备注
+		        ro.off_cause "offCause",	--关闭原因
+		        ro.followup_treatment "followupTreatment",	--后续处理
+	        	ro.tf_remark_gb "tfRemarkGb",	--关闭备注
+	        	(select org_name from td_org_info where org_id = ro.out_org) "outOrg",  --外修机构(维修单位)
+		        ro.out_rrpair_username "outRrpairUsername", --外修负责人姓名
+		  		ro.out_rrpair_phone "outRrpairPhone",	--外修负责人电话
+		        ro.call_time "callTime", --指派时间（预计开始时间）
+		        ro.complet_time "completTime",	--预计结束时间
+		        ro.tf_remark_zp "tfRemarkZp"	--指派备注
+  			from td_rrpair_order ro
+        	where ro.rrpair_order_guid = #{conditiions.rrpairOrderGuid, jdbcType=VARCHAR}
+  </select>
+  
+  <!-- 查询维修工单信息——（验收信息） -->
+  <select id="selectRrpairDetailIsAcce" resultType="java.util.HashMap" parameterType="com.phxl.core.base.entity.Pager">
+         select (select dept_nam from td_dept_info t
+		        where t.dept_code=roa.dept_code) "checkDeptName", --验收科室
+		        roa.rr_acce_userid "rrAcceUserid",  --报修后验收人id
+		        roa.rr_acce_username "rrAcceUsername",  --报修后验收人姓名
+		        roa.rr_acce_fstate "rrAcceFstate",  --报修后验收人验收 60已验收 90验收不通过（验收结果）
+		        roa.rr_acce_date "rrAcceAate",  --报修后验收日期 （验收日期）
+		        roa.not_cause "notCause",	--理由说明
+		        roa.evaluate "evaluate",	--评价
+		        roa.tf_remark "tfRemark"	--备注
+		    from td_rrpair_order ro 
+        	left join tb_rrpair_order_acce roa on ro.rrpair_order_no=roa.rrpair_order 
+        	where ro.rrpair_order_guid = #{conditiions.rrpairOrderGuid, jdbcType=VARCHAR}
+  </select>
+  
     <!-- 查询设备维修详情列表 -->
     <select id="selectRrpairDetailList" resultType="java.util.HashMap" parameterType="com.phxl.core.base.entity.Pager">
         select
@@ -92,7 +191,7 @@
         ro.spare "spare",  --备用机：无，有(备用)
         ro.guarantee_flag "guaranteeFlag",  --保修：在保，出保(在保)
         ro.rrpair_send "rrpairSend",  --是否送修：是，否(是否送修)
-        ro.fail_cause "failCause",  --故障原因（故障描述）
+        ro.repair_content_typ "repairContentTyp",  --故障原因（故障描述）
         ro.call_time "callTime", --指派时间
         ro.out_org "outOrg",  --外修机构(维修单位)
         ro.actual_price "actualPrice", -- 实际费用(维修费用)

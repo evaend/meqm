@@ -1,5 +1,6 @@
 package com.phxl.ysy.service.impl;
 
+import java.math.BigDecimal;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -29,8 +30,11 @@ import com.phxl.ysy.dao.AssetsRecordMapper;
 import com.phxl.ysy.dao.CallprocedureMapper;
 import com.phxl.ysy.dao.RrpairFittingUseMapper;
 import com.phxl.ysy.dao.RrpairOrderMapper;
+import com.phxl.ysy.entity.AssetsExtend;
 import com.phxl.ysy.entity.AssetsRecord;
 import com.phxl.ysy.entity.EqOperation;
+import com.phxl.ysy.entity.Equipment;
+import com.phxl.ysy.entity.RrpairFittingUse;
 import com.phxl.ysy.entity.RrpairOrder;
 import com.phxl.ysy.entity.RrpairOrderAcce;
 import com.phxl.ysy.entity.WeixinOpenUser;
@@ -313,5 +317,69 @@ public class RrpairOrderServiceImpl extends BaseService implements RrpairOrderSe
 			RrpairOrder rrpairOrder) {
 		insertInfo(rrpairOrderAcce);
 		updateInfo(rrpairOrder);
+	}
+
+	@Override
+	public void insertRrpairFitting(RrpairOrder rrpairOrder,String rrpairOrderGuid,
+			List<String> assetsExtendGuid, List<Integer> acceNum) throws ValidationException {
+		for (int i = 0; i < assetsExtendGuid.size(); i++) {
+			//根据资产配件主键，查询资产配件信息
+			AssetsExtend assetsExtend = find(AssetsExtend.class, assetsExtendGuid.get(i));
+			if (assetsExtend == null) {
+				throw new ValidationException("当前资产附件不存在");
+			}
+			//根据资产配件的设备编号，查询设备信息
+			Equipment equipment = find(Equipment.class, assetsExtend.getEquipmentCode());
+			if (equipment==null) {
+				throw new ValidationException("当前设备信息不存在");
+			}
+			if (StringUtils.isBlank(assetsExtendGuid.get(i))) {
+				throw new ValidationException("当前资产附件guid不允许为空");
+			}
+			if (acceNum == null || acceNum.get(i) <=0 ) {
+				throw new ValidationException("当前数量必须是非0正整数");
+			}
+			if (StringUtils.isNotBlank(rrpairOrder.getAssetsRecord()) && acceNum.get(i) > 1) {
+				throw new ValidationException("当前配件数量最多为1");
+			}
+				RrpairFittingUse rrpairFittingUse = new RrpairFittingUse();
+				rrpairFittingUse.setRrpairFittingUseGuid(IdentifieUtil.getGuId());
+				rrpairFittingUse.setRrpairOrderGuid(rrpairOrderGuid);
+				rrpairFittingUse.setEquipmentCode(assetsExtend.getEquipmentCode());
+				rrpairFittingUse.setAcceName(equipment.getEquipmentName());
+				rrpairFittingUse.setAssetsRecord(assetsExtend.getAssetsRecord());
+				rrpairFittingUse.setUnitPrice(assetsExtend.getPrice());
+				rrpairFittingUse.setAcceFmodel(equipment.getFmodel());
+				rrpairFittingUse.setAcceSpec(equipment.getSpec());
+				rrpairFittingUse.setAcceNum(BigDecimal.valueOf(acceNum.get(i)));
+				rrpairFittingUse.setCreateDate(new Date());
+				insertInfo(rrpairFittingUse);
+		}
+		
+	}
+
+	@Override
+	public Map<String, Object> selectRrpairDetailIsAcce(Pager pager) {
+		return rrpairOrderMapper.selectRrpairDetailIsAcce(pager);
+	}
+
+	@Override
+	public Map<String, Object> selectRrpairDetailIsRrpair(Pager pager) {
+		return rrpairOrderMapper.selectRrpairDetailIsRrpair(pager);
+	}
+
+	@Override
+	public Map<String, Object> selectRrpairDetailIsCall(Pager pager) {
+		return rrpairOrderMapper.selectRrpairDetailIsCall(pager);
+	}
+
+	@Override
+	public Map<String, Object> selectRrpairDetailIsOrder(Pager pager) {
+		return rrpairOrderMapper.selectRrpairDetailIsOrder(pager);
+	}
+
+	@Override
+	public Map<String, Object> selectRrpairDetailIsAssets(Pager pager) {
+		return rrpairOrderMapper.selectRrpairDetailIsAssets(pager);
 	}
 }

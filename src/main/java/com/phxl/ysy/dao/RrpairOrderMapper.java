@@ -8,6 +8,21 @@ import com.phxl.ysy.entity.RrpairOrder;
 import com.phxl.ysy.entity.StaticData;
 
 public interface RrpairOrderMapper {
+	//查询维修工单信息——（验收信息）
+	Map<String, Object> selectRrpairDetailIsAcce(Pager pager);
+	
+	//查询维修工单信息——（维修信息）
+	Map<String, Object> selectRrpairDetailIsRrpair(Pager pager);
+	
+	//查询维修工单信息——（指派信息）
+	Map<String, Object> selectRrpairDetailIsCall(Pager pager);
+	
+	//查询维修工单信息——（报修信息）
+	Map<String, Object> selectRrpairDetailIsOrder(Pager pager);
+	
+	//查询维修工单信息——（资产信息）
+	Map<String, Object> selectRrpairDetailIsAssets(Pager pager);
+	
 	//查询设备维修列表
 	List<Map<String, Object>> selectRrpairDetailList(Pager pager);
 	

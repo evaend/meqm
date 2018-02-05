@@ -1,8 +1,10 @@
 package com.phxl.ysy.web;
 
 import java.io.ByteArrayInputStream;
+import java.io.IOException;
 import java.math.BigDecimal;
 import java.text.MessageFormat;
+import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -22,6 +24,10 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
+import com.fasterxml.jackson.core.JsonParseException;
+import com.fasterxml.jackson.databind.DeserializationFeature;
+import com.fasterxml.jackson.databind.JsonMappingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.phxl.core.base.entity.Pager;
 import com.phxl.core.base.exception.ValidationException;
 import com.phxl.core.base.util.FTPUtils;
@@ -434,10 +440,11 @@ public class RrpairOrderController {
 	 * @param request
 	 * @param response
 	 * @return
+	 * @throws ValidationException 
 	 */
 	@RequestMapping("/selectRrpairDetailList")
 	@ResponseBody
-	public List<Map<String, Object>> selectRrpairDetailList(
+	public Map<String, Object> selectRrpairDetailList(
 			@RequestParam(value="rrpairOrderNo",required = false) String rrpairOrderNo,
 			@RequestParam(value="rrpairOrderGuid",required = false) String rrpairOrderGuid,
 			@RequestParam(value="pagesize",required = false) Integer pagesize,
@@ -445,20 +452,29 @@ public class RrpairOrderController {
 			@RequestParam(value="sortField",required = false) String sortField,
 			@RequestParam(value="sortOrder",required = false) String sortOrder,
 			HttpServletRequest request,HttpServletResponse response
-	) {
-		Pager<Map<String, Object>> pager = new Pager<Map<String,Object>>(true);
-		//如果没有设置当前页和每页数量，则默认第一页，每页十五条数据
-		pager.setPageSize(pagesize == null ? 15 : pagesize);
-		pager.setPageNum(page == null ? 1 : page);
+	) throws ValidationException {
+		Pager<Map<String, Object>> pager = new Pager<Map<String,Object>>(false);
+//		//如果没有设置当前页和每页数量，则默认第一页，每页十五条数据
+//		pager.setPageSize(pagesize == null ? 15 : pagesize);
+//		pager.setPageNum(page == null ? 1 : page);
+//		if(StringUtils.isNotBlank(sortOrder) && StringUtils.isNotBlank(sortField)){
+//		pager.addQueryParam("orderField", sortField);
+//		pager.addQueryParam("orderMark", "ascend".equalsIgnoreCase(sortOrder)?"asc":"desc");
+//	}
+		if (StringUtils.isBlank(rrpairOrderGuid)) {
+			throw new ValidationException("当前维修记录guid不允许为空");
+		}
 		pager.addQueryParam("rrpairOrderNo", rrpairOrderNo);
 		pager.addQueryParam("rrpairOrderGuid", rrpairOrderGuid);
-		if(StringUtils.isNotBlank(sortOrder) && StringUtils.isNotBlank(sortField)){
-			pager.addQueryParam("orderField", sortField);
-			pager.addQueryParam("orderMark", "ascend".equalsIgnoreCase(sortOrder)?"asc":"desc");
-		}
 
-		List<Map<String, Object>> list = rrpairOrderService.selectRrpairDetailList(pager);
-		return list;
+		Map<String, Object> result = new HashMap<String, Object>();
+		result.put("selectRrpairDetailIsAssets", rrpairOrderService.selectRrpairDetailIsAssets(pager));
+		result.put("selectRrpairDetailIsOrder", rrpairOrderService.selectRrpairDetailIsOrder(pager));
+		result.put("selectRrpairDetailIsCall", rrpairOrderService.selectRrpairDetailIsCall(pager));
+		result.put("selectRrpairDetailIsRrpair", rrpairOrderService.selectRrpairDetailIsRrpair(pager));
+		result.put("selectRrpairDetailIsAcce", rrpairOrderService.selectRrpairDetailIsAcce(pager));
+//		List<Map<String, Object>> list = rrpairOrderService.selectRrpairDetailList(pager);
+		return result;
 	}
 
 	/**
@@ -702,22 +718,22 @@ public class RrpairOrderController {
 		rrpair.setModifyTime(new Date());
 		if (StringUtils.isNotBlank(rrpairType)) {
 			if (rrpairType.equals("00")) {
-				rrpair.setInRrpairPhone(inRrpairPhone);
-				rrpair.setRepairContentType(repairContentType);
-				rrpair.setRepairContentTyp(repairContentTyp);
-				rrpair.setRepairResult(repairResult);
+				rrpair.setInRrpairPhone(inRrpairPhone==null ? rrpair.getInRrpairPhone() : inRrpairPhone);
+				rrpair.setRepairContentType(repairContentType==null ? rrpair.getRepairContentType() : repairContentType);
+				rrpair.setRepairContentTyp(repairContentTyp==null ? rrpair.getRepairContentTyp() : repairContentTyp);
+				rrpair.setRepairResult(repairResult==null ? rrpair.getRepairResult() : repairResult);
 				if (StringUtils.isNotBlank(actualPrice)) {
 					rrpair.setActualPrice(BigDecimal.valueOf(Long.valueOf(actualPrice)));
 				}
-				rrpair.setTfRemarkWx(tfRemarkWx);
-				rrpair.setOffCause(offCause);
-				rrpair.setFollowupTreatment(followupTreatment);
-				rrpair.setTfRemarkGb(tfRemarkGb);
+				rrpair.setTfRemarkWx(tfRemarkWx==null ? rrpair.getTfRemarkWx() : tfRemarkWx);
+				rrpair.setOffCause(offCause==null ? rrpair.getOffCause() : offCause);
+				rrpair.setFollowupTreatment(followupTreatment==null ? rrpair.getFollowupTreatment() : followupTreatment);
+				rrpair.setTfRemarkGb(tfRemarkGb==null ? rrpair.getTfRemarkGb() : tfRemarkGb);
 			}else{
-				rrpair.setOutOrg(outOrg);
-				rrpair.setOutRrpairPhone(outRrpairPhone);
-				rrpair.setCompletTime(completTime);
-				rrpair.setTfRemarkZp(tfRemarkZp);
+				rrpair.setOutOrg(outOrg==null ? rrpair.getOutOrg() : outOrg);
+				rrpair.setOutRrpairPhone(outRrpairPhone==null ? rrpair.getOutRrpairPhone() : outRrpairPhone);
+				rrpair.setCompletTime(completTime==null ? rrpair.getCompletTime() : completTime);
+				rrpair.setTfRemarkZp(tfRemarkZp==null ? rrpair.getTfRemarkZp() : tfRemarkZp);
 			}
 		}
 
@@ -753,38 +769,33 @@ public class RrpairOrderController {
 	 * @param rrpairOrderGuid 维修记录guid
 	 * @param assetsExtendGuid 资产附件guid
 	 * @param acceNum 数量
-	 * @throws ValidationException
+	 * @throws Exception
 	 * @author zhangyanli
 	 */
 	@RequestMapping("/insertRrpairFitting")
 	@ResponseBody
 	public void insertRrpairFitting(
-			@RequestParam(value="rrpairOrderGuid",required = false) String rrpairOrderGuid,
-			@RequestParam(value="assetsExtendGuid",required = false) String assetsExtendGuid,
-			@RequestParam(value="acceNum",required = false) Integer acceNum) throws ValidationException{
+//			@RequestParam(value="rrpairOrderGuid",required = false) String rrpairOrderGuid,
+//			@RequestParam(value="assetsExtendGuid",required = false) String [] assetsExtendGuid,
+//			@RequestParam(value="acceNum",required = false) Integer [] acceNum,
+			HttpServletRequest request,HttpServletResponse response) throws Exception{
+		ObjectMapper objectMapper = new ObjectMapper();
+		objectMapper.setDateFormat(new SimpleDateFormat("yyyy-MM-dd"));//配置项:默认日期格式
+		objectMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);//配置项:忽略未知属性
+
+		//订单备货信息
+		Map<String, Object> dto = objectMapper.readValue(request.getReader(), HashMap.class);
+		String rrpairOrderGuid = dto.get("rrpairOrderGuid").toString();
+		List<String> assetsExtendGuid = (List<String>)dto.get("assetsExtendGuid");
+		List<Integer> acceNum = (List<Integer>)dto.get("acceNum");
+		
+		
 		if (StringUtils.isBlank(rrpairOrderGuid)) {
 			throw new ValidationException("当前维修记录guid不允许为空");
-		}
-		if (StringUtils.isBlank(assetsExtendGuid)) {
-			throw new ValidationException("当前资产附件guid不允许为空");
-		}
-		if (acceNum == null || acceNum <=0 ) {
-			throw new ValidationException("当前数量必须是非0正整数");
 		}
 		RrpairOrder rrpairOrder = rrpairOrderService.find(RrpairOrder.class, rrpairOrderGuid);
 		if (rrpairOrder == null) {
 			throw new ValidationException("当前维修记录不存在");
-		}
-		AssetsExtend assetsExtend = rrpairOrderService.find(AssetsExtend.class, assetsExtendGuid);
-		if (assetsExtend == null) {
-			throw new ValidationException("当前资产附件不存在");
-		}
-		Equipment equipment = rrpairOrderService.find(Equipment.class, assetsExtend.getEquipmentCode());
-		if (equipment==null) {
-			throw new ValidationException("当前设备信息不存在");
-		}
-		if (StringUtils.isNotBlank(rrpairOrder.getAssetsRecord()) && acceNum > 1) {
-			throw new ValidationException("当前配件数量最多为1");
 		}
 		Pager<Map<String, Object>> pager = new Pager<Map<String,Object>>(false);
 		pager.addQueryParam("rrpairOrderGuid", rrpairOrderGuid);
@@ -812,20 +823,7 @@ public class RrpairOrderController {
 //				}
 //			}
 //		}
-		
-		if (flag) {
-			RrpairFittingUse rrpairFittingUse = new RrpairFittingUse();
-			rrpairFittingUse.setRrpairFittingUseGuid(IdentifieUtil.getGuId());
-			rrpairFittingUse.setRrpairOrderGuid(rrpairOrderGuid);
-			rrpairFittingUse.setEquipmentCode(assetsExtend.getEquipmentCode());
-			rrpairFittingUse.setAcceName(equipment.getEquipmentName());
-			rrpairFittingUse.setAssetsRecord(assetsExtend.getAssetsRecord());
-			rrpairFittingUse.setUnitPrice(assetsExtend.getPrice());
-			rrpairFittingUse.setAcceFmodel(equipment.getFmodel());
-			rrpairFittingUse.setAcceSpec(equipment.getSpec());
-			rrpairFittingUse.setAcceNum(BigDecimal.valueOf(acceNum));
-			rrpairOrderService.insertInfo(rrpairFittingUse);
-		}
+		rrpairOrderService.insertRrpairFitting(rrpairOrder,rrpairOrderGuid, assetsExtendGuid, acceNum);
 		
 	}
 
@@ -923,7 +921,7 @@ public class RrpairOrderController {
 		if (rrpairFittingUse == null) {
 			throw new ValidationException("当前维修记录不存在");
 		}
-		rrpairOrderService.deleteInfo(rrpairFittingUse);
+		rrpairOrderService.deleteInfo(rrpairFittingUse);	
 	}
 	
 	/**
@@ -931,6 +929,7 @@ public class RrpairOrderController {
 	 * @param rrpairOrderGuid 维修记录guid
 	 * @param rrAcceFstate 通过/不通过
 	 * @param tfRemark 备注
+	 * @param evaluate 评价
 	 * @param notCause 不通过原因
 	 * @throws ValidationException
 	 * @author zhangyanli
@@ -941,7 +940,8 @@ public class RrpairOrderController {
 			@RequestParam(value="rrpairOrderGuid",required = false) String rrpairOrderGuid,
 			@RequestParam(value="rrAcceFstate",required = false) String rrAcceFstate,
 			@RequestParam(value="tfRemark",required = false) String tfRemark,
-			@RequestParam(value="notCause",required = false) String notCause
+			@RequestParam(value="notCause",required = false) String notCause,
+			@RequestParam(value="evaluate",required = false) String evaluate
 			) throws ValidationException{
 		RrpairOrder rrpairOrder = rrpairOrderService.find(RrpairOrder.class, rrpairOrderGuid);
 		if (rrpairOrder==null) {
@@ -953,6 +953,7 @@ public class RrpairOrderController {
 //		rrpairOrderAcce.setRrAcceUserid(session.getAttribute(LoginUser.SESSION_USERID).toString());
 //		rrpairOrderAcce.setRrAcceUsername(session.getAttribute(LoginUser.SESSION_USERNAME).toString());
 		rrpairOrderAcce.setRrAcceFstate(rrAcceFstate);
+		rrpairOrderAcce.setEvaluate(evaluate);
 		rrpairOrderAcce.setTfRemark(tfRemark);
 		if (rrAcceFstate.equals("90")) {
 			rrpairOrderAcce.setNotCause(notCause);
@@ -1076,6 +1077,7 @@ public class RrpairOrderController {
 //				rrpairOrder.setInRrpairUsername(session.getAttribute(LoginUser.SESSION_USERNAME).toString());
 			}
 		}
+		
 		//如果外修拒绝维修单，则填写拒绝原因等信息
 		if (orderFstate.equals(CustomConst.RrpairOrderFstate.REJECT)) {
 			rrpairOrder.setRefuseCause(refuseCause);

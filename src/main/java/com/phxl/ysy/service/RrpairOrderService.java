@@ -8,11 +8,27 @@ import org.springframework.core.annotation.Order;
 import com.phxl.core.base.entity.Pager;
 import com.phxl.core.base.exception.ValidationException;
 import com.phxl.core.base.service.IBaseService;
+import com.phxl.ysy.entity.AssetsExtend;
 import com.phxl.ysy.entity.AssetsRecord;
+import com.phxl.ysy.entity.Equipment;
 import com.phxl.ysy.entity.RrpairOrder;
 import com.phxl.ysy.entity.RrpairOrderAcce;
 
 public interface RrpairOrderService extends IBaseService {
+	//查询维修工单信息——（验收信息）
+	Map<String, Object> selectRrpairDetailIsAcce(Pager pager);
+	
+	//查询维修工单信息——（维修信息）
+	Map<String, Object> selectRrpairDetailIsRrpair(Pager pager);
+	
+	//查询维修工单信息——（指派信息）
+	Map<String, Object> selectRrpairDetailIsCall(Pager pager);
+	
+	//查询维修工单信息——（报修信息）
+	Map<String, Object> selectRrpairDetailIsOrder(Pager pager);
+	
+	//查询维修工单信息——（资产信息）
+	Map<String, Object> selectRrpairDetailIsAssets(Pager pager);
 	//查询设备维修列表
 	List<Map<String, Object>> selectRrpairDetailList(Pager pager);
 
@@ -51,4 +67,6 @@ public interface RrpairOrderService extends IBaseService {
 	List<Map<String, Object>> selectRrpairFittingList(Pager pager);
 	
 	void insertRrpairOrderAcce(RrpairOrderAcce rrpairOrderAcce, RrpairOrder rrpairOrder);
+	
+	void insertRrpairFitting(RrpairOrder rrpairOrder,String rrpairOrderGuid, List<String> assetsExtendGuid, List<Integer> acceNum)throws ValidationException ;
 }
