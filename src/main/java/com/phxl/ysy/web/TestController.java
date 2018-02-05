@@ -60,10 +60,17 @@ public class TestController {
 	@Autowired
 	HttpSession session;
 	
+	/**
+	 * 维修扫一扫
+	 * @param model
+	 * @param request
+	 * @param response
+	 * @throws Exception
+	 */
 	@RequestMapping(value = "/test.html", method = RequestMethod.GET)
     public void testPage(Model model,HttpServletRequest request,HttpServletResponse response) throws Exception {
 
-        String url = "http://hsms.com.cn/test/test.html";
+        String url = "http://4bt9s8.natappfree.cc/test/test.html";
         WxJsUtils jsUtils = new WxJsUtils();
 		final String appId = SystemConfig.getProperty("wechat.config.appid");
         Map<String, String> ret = jsUtils.sign(url);
@@ -73,7 +80,7 @@ public class TestController {
             request.setAttribute(entry.getKey().toString(), entry.getValue());
             session.setAttribute(entry.getKey().toString(), entry.getValue());
         }
-        request.getRequestDispatcher("/index.jsp").forward(request, response);
+        request.getRequestDispatcher("/test.jsp").forward(request, response);
     }
 	
 	
@@ -94,6 +101,13 @@ public class TestController {
         return ret;
     }
 	
+	/**
+	 * 微信录音
+	 * @param serverId
+	 * @param luyintime
+	 * @param request
+	 * @param response
+	 */
 	@RequestMapping("/luyinTest")
 	@ResponseBody
 	public void luyinTest(String serverId , String luyintime , HttpServletRequest request , HttpServletResponse response){
@@ -214,7 +228,7 @@ public class TestController {
 	@RequestMapping("/permission")
 	@ResponseBody
 	public String permission(HttpServletRequest request ,HttpServletResponse response) throws Exception{
-		return "https://open.weixin.qq.com/connect/oauth2/authorize?appid=wxe1ba6ec9765d99ac&redirect_uri=http%3A%2F%2F69pbn9.natappfree.cc%2Ftest%2FgetPermission&response_type=code&scope=snsapi_base&state=binding#wechat_redirect";
+		return "https://open.weixin.qq.com/connect/oauth2/authorize?appid=wxe1ba6ec9765d99ac&redirect_uri=http%3A%2F%2F4bt9s8.natappfree.cc%2Ftest%2FgetPermission&response_type=code&scope=snsapi_base&state=binding#wechat_redirect";
 	}
 
 	@RequestMapping("/getPermission")
@@ -267,6 +281,14 @@ public class TestController {
 		}
 	}
 	
+	/**
+	 * 获取微信用户信息（用户昵称、用户头像）
+	 * @param openid
+	 * @param request
+	 * @param response
+	 * @return
+	 * @throws ValidationException
+	 */
 	@RequestMapping("/getWxUser")
 	@ResponseBody
 	public WeixinOpenUser getWxUser(@RequestParam(value="openid",required = false) String openid,
@@ -284,6 +306,12 @@ public class TestController {
 		return wxUser;
 	}
 	
+	/**
+	 * 向用户推送消息
+	 * @param id
+	 * @param request
+	 * @param response
+	 */
 	@RequestMapping("/pushMessage")
 	@ResponseBody
 	public void pushMessage(
