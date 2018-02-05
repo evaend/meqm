@@ -110,7 +110,7 @@
         tar.product_type "productType",--资产分类id(资产类别 )
         tar.custodian "custodian",--保管员
         (select dept_nam from td_dept_info t
-            where t.dept_code=tar.m_dept_code) mDeptName, --管理科室
+            where t.dept_code=tar.m_dept_code) "mDeptName", --管理科室
         tar.deposit "deposit"--放地点-a区b楼c层d房间(存放地点)
         from td_rrpair_order ro
         left join tb_rrpair_order_acce roa on ro.rrpair_order_no=roa.rrpair_order
