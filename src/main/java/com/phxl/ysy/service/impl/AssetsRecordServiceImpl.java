@@ -1,7 +1,5 @@
 package com.phxl.ysy.service.impl;
 
-import java.io.File;
-import java.io.InputStream;
 import java.text.MessageFormat;
 import java.util.Date;
 import java.util.List;
@@ -23,6 +21,7 @@ import com.phxl.core.base.util.IdentifieUtil;
 import com.phxl.core.base.util.LocalAssert;
 import com.phxl.core.base.util.SystemConfig;
 import com.phxl.ysy.constant.CustomConst.AssetsRecordInfoUpdate;
+import com.phxl.ysy.constant.CustomConst.LoginUser;
 import com.phxl.ysy.dao.AssetsExtendMapper;
 import com.phxl.ysy.dao.AssetsRecordMapper;
 import com.phxl.ysy.dao.CertInfoZcMapper;
@@ -32,7 +31,6 @@ import com.phxl.ysy.entity.CertInfoZc;
 import com.phxl.ysy.entity.EqOperationInfo;
 import com.phxl.ysy.entity.Equipment;
 import com.phxl.ysy.service.AssetsRecordService;
-import com.phxl.ysy.util.Base64FileHelper;
 
 @Service
 public class AssetsRecordServiceImpl extends BaseService implements AssetsRecordService {
@@ -184,6 +182,7 @@ public class AssetsRecordServiceImpl extends BaseService implements AssetsRecord
 		logger.info("产品证件文档存储路径: tfAccessory = " + certInfo.getTfAccessoryFile());
 		certInfo.setCertId(IdentifieUtil.getGuId());
 		certInfo.setCertCode(certCode);
+		certInfo.setCreateUserid(session.getAttribute(LoginUser.SESSION_USERID).toString());
 		certInfo.setCreateTime(new Date());
 		certInfo.setAssetsRecord(assetsRecord.getAssetsRecord());
 		certInfo.setEquipmentCode(assetsRecord.getEquipmentCode());
