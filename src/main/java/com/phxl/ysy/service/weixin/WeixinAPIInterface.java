@@ -1,6 +1,7 @@
 package com.phxl.ysy.service.weixin;
 
 import java.io.IOException;
+import java.util.Map;
 
 import org.apache.http.client.ClientProtocolException;
 
@@ -22,4 +23,7 @@ public interface WeixinAPIInterface {
 	
 	//根据token和用户的openid获取用户的其他信息
 	WeixinOpenUser getUserInfo(String openid);
+	
+	//微信生成临时二维码的ticket
+	String getWeixinTicket(String token,Map<String, Object> actionInfo) throws Exception;
 }

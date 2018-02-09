@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.phxl.ysy.dao.MessageItemGlobalMapper">
+
+	<resultMap id="BaseResultMap" type="com.phxl.ysy.entity.MessageItemGlobal">
+		<id column="MI_GLOBAL_GUID" property="miGlobalGuid" jdbcType="VARCHAR" />
+		<result column="MI_CODE" property="miCode" jdbcType="VARCHAR" />
+		<result column="MODULE_ID" property="moduleId" jdbcType="VARCHAR" />
+		<result column="MI_SEND_TYPE" property="miSendType" jdbcType="VARCHAR" />
+		<result column="MI_TITLE" property="miTitle" jdbcType="VARCHAR" />
+		<result column="MI_CONTENT" property="miContent" jdbcType="VARCHAR" />
+		<result column="WECHAT_TEMPLATEID" property="wechatTemplateid" jdbcType="VARCHAR" />
+		<result column="WECHAT_TEMPLATECONTENT" property="wechatTemplatecontent" jdbcType="VARCHAR" />
+		<result column="MI_SYS_TYPE" property="miSysType" jdbcType="VARCHAR" />
+		<result column="MI_FSORT" property="miFsort" jdbcType="DECIMAL" />
+		<result column="MI_SAVE_DATE" property="miSaveDate" jdbcType="VARCHAR" />
+		<result column="FSTATE" property="fstate" jdbcType="VARCHAR" />
+	</resultMap>
+	
+	<sql id="Base_Column_List">
+		MI_GLOBAL_GUID, MI_CODE, MODULE_ID, MI_SEND_TYPE, MI_TITLE, MI_CONTENT, WECHAT_TEMPLATEID,
+		WECHAT_TEMPLATECONTENT, MI_SYS_TYPE, MI_FSORT, MI_SAVE_DATE, FSTATE
+	</sql>
+	
+	<sql id="return_Column_List">
+		MI_GLOBAL_GUID "miGlobalGuid", MI_CODE "miCode", MODULE_ID "moduleId", MI_SEND_TYPE "miSendType", MI_TITLE "miTitle", MI_CONTENT "miContent", WECHAT_TEMPLATEID "wechatTemplateid",
+		WECHAT_TEMPLATECONTENT "wechatTemplatecontent", MI_SYS_TYPE "miSysType", MI_FSORT "miFsort", MI_SAVE_DATE "miSaveDate", FSTATE "fstate"
+	</sql>
+	
+	<!-- 查询全局消息项的列表 -->
+	<select id="selectMessageItemGlobalList" resultType="hashMap" parameterType="com.phxl.core.base.entity.Pager">
+		SELECT <include refid="return_Column_List" /> 
+		from TM_MESSAGEITEM_GLOBAL
+		where 1=1 
+		<if test="conditiions != null">
+			<if test="conditiions.searchParams != null and conditiions.searchParams != ''">
+				and (
+					regexp_like(MI_TITLE, #{conditiions.searchParams, jdbcType=VARCHAR})
+					or regexp_like(MI_CONTENT, #{conditiions.searchParams, jdbcType=VARCHAR})
+					or regexp_like(WECHAT_TEMPLATECONTENT, #{conditiions.searchParams, jdbcType=VARCHAR})
+				)
+		      </if> 
+	      </if>
+	</select>
+</mapper>

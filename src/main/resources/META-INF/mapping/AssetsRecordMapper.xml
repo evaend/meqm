@@ -55,6 +55,9 @@
     <result column="RR_ACCE_B" property="rrAcceB" jdbcType="VARCHAR" />
     <result column="GUARANTEE_FLAG" property="guaranteeFlag" jdbcType="VARCHAR" />
     <result column="SPARE" property="spare" jdbcType="VARCHAR" />
+    <result column="CERT_GUID" property="certGuid" jdbcType="VARCHAR" />
+    <result column="F_ORG_ID" property="fOrgId" jdbcType="VARCHAR" />
+    <result column="TF_BRAND" property="tfBrand" jdbcType="VARCHAR" />
     <result column="METERING_TYPE" property="meteringType" jdbcType="VARCHAR" />
     <result column="NEXT_MAINTAIN_DATE" property="nextMaintainDate" jdbcType="DATE" />
   </resultMap>
@@ -81,9 +84,9 @@
 		a.product_type "productType" ,
 		a.custodian "custodian" ,
 		a.use_dept_code "useDeptCode" , 
-		(select dept_nam from td_dept_info where dept_code = a.use_dept_code) "useDept" , 
+		(select dept_name from td_org_dept where dept_code = a.use_dept_code) "useDept" , 
 		a.b_dept_code "bDeptCode" , 
-		(select dept_nam from td_dept_info where dept_code = a.b_dept_code) "bDept" 
+		(select dept_name from td_org_dept where dept_code = a.b_dept_code) "bDept" 
 		from td_assets_record a left join td_equipment e
 		on (a.equipment_code = e.equipment_code)
   		where 1 = 1 
@@ -94,10 +97,10 @@
   		</if>
   		<if test="conditiions != null and conditiions.orderMark != null and conditiions.orderField != null and conditiions.orderField!=''">
 <!--   			<if test="conditiions.orderField == 'useDept'"> -->
-<!-- 	  			order by (select dept_nam from td_dept_info where dept_code = a.use_dept_code) ${conditiions.orderMark} -->
+<!-- 	  			order by (select dept_name from td_org_dept where dept_code = a.use_dept_code) ${conditiions.orderMark} -->
 <!--   			</if> -->
 <!--   			<if test="conditiions.orderField == 'bDept'"> -->
-<!-- 	  			order by (select dept_nam from td_dept_info where dept_code = a.b_dept_code) ${conditiions.orderMark} -->
+<!-- 	  			order by (select dept_name from td_org_dept where dept_code = a.b_dept_code) ${conditiions.orderMark} -->
 <!--   			</if> -->
 <!--   			<if test="conditiions.orderField == 'equipmetStandardName or conditiions.orderField == 'spec''"> -->
 <!-- 	  			order by e.[orderField] ${conditiions.orderMark} -->
@@ -122,10 +125,10 @@
 		e.register_no "certGuid" ,
 		a.product "product" ,
 		a.use_dept_code "useDeptCode" , 
-		(select dept_nam from td_dept_info where dept_code = a.use_dept_code) "useDept" , 
+		(select dept_name from td_org_dept where dept_code = a.use_dept_code) "useDept" , 
 		a.deposit "deposit" ,
 		a.b_dept_code "bDeptCode" , 
-		(select dept_nam from td_dept_info where dept_code = a.b_dept_code) "bDept" , 
+		(select dept_name from td_org_dept where dept_code = a.b_dept_code) "bDept" , 
 		a.custodian "custodian" ,
 		a.buy_price "buyPrice" ,
 		a.install_price "installPrice" ,
@@ -279,8 +282,8 @@
   select * from 
     <foreach collection="list" index="index" open="(" close=")" separator="union all"> 
     select 
-      #{list[${index}].assetsRecord,jdbcType=VARCHAR}, #{list[${index}].equipmentName,jdbcType=VARCHAR} , 
-       #{list[${index}].equipmentName,jdbcType=VARCHAR}, #{list[${index}].qrCode,jdbcType=VARCHAR} , 
+      guid(), #{list[${index}].equipmentName,jdbcType=VARCHAR} , 
+       #{list[${index}].equipmetStandardName,jdbcType=VARCHAR}, #{list[${index}].qrCode,jdbcType=VARCHAR} , 
         #{list[${index}].fmodel,jdbcType=VARCHAR}, #{list[${index}].spec,jdbcType=VARCHAR}
      from dual
      </foreach> 

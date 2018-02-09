@@ -29,6 +29,7 @@ import com.phxl.core.base.util.MD5Util;
 import com.phxl.core.base.util.SHAUtil;
 import com.phxl.core.base.util.SystemConfig;
 import com.phxl.ysy.constant.CustomConst;
+import com.phxl.ysy.entity.Message;
 import com.phxl.ysy.entity.WeixinOpenUser;
 import com.phxl.ysy.service.weixin.WeixinAPIInterface;
 import com.phxl.ysy.constant.CustomConst.LoginUser;
@@ -109,6 +110,58 @@ public class LoginController {
 		return resultMap;
 	}
 
+	/**
+	 * @author taoyou 获取用户模块和权限json
+	 * @param userId
+	 */
+	@ResponseBody
+	@RequestMapping(value = "/getUserM", produces = { "application/json;charset=UTF-8" })
+	public List<Map<String, Object>> getUserM(HttpServletRequest request, HttpServletResponse response)
+			throws ValidationException {
+		// String result = null;
+		String userId = (String) request.getSession().getAttribute(LoginUser.SESSION_USERID);
+		if (StringUtils.isBlank(userId)) {
+			throw new ValidationException("无登录信息");
+		}
+		// result =
+		// (String)request.getSession().getAttribute(LoginUser.CUR_USER_MENULIST);
+		return userService.selectUserMenu(userId);
+		// return result;
+	}
+
+	/**
+	 * @author taoyou 获取用户信息
+	 */
+	@ResponseBody
+	@RequestMapping(value = "/getUserInfo", produces = { "application/json;charset=UTF-8" })
+	public UserInfo getUserInfo(HttpServletRequest request, HttpServletResponse response) throws ValidationException {
+		UserInfo result = null;
+		String userId = (String) request.getSession().getAttribute(LoginUser.SESSION_USERID);
+		if (StringUtils.isBlank(userId)) {
+			throw new ValidationException("无登录信息");
+		}
+		
+		result = (UserInfo) request.getSession().getAttribute(LoginUser.SESSION_USER_INFO);
+		if (result == null) {
+			throw new ValidationException("无用户信息");
+		}
+		
+		//计算登录用户的未读消息数
+		Integer unread = 0;
+		Message message = new Message();
+		message.setMiReceiveUserid(userId);
+		message.setMiSendType("message");
+		message.setMessageSendfstate("00");
+		message.setMessageReadfstate("00");
+		message.setMiReceiveDelete("00");
+		List<Message> unreadList = userService.searchList(message);
+		if(unreadList!=null && !unreadList.isEmpty()){
+		    unread = unreadList.size();
+		}
+		return result;
+	}
+	
+	
 	// 查看微信用户是否被绑定
 		@ResponseBody
 		@RequestMapping("/weValidation")

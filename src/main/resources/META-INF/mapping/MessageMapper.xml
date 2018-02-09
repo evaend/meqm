@@ -1,0 +1,115 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.phxl.ysy.dao.MessageMapper">
+
+	<resultMap id="BaseResultMap" type="com.phxl.ysy.entity.Message">
+		<id column="MESSAGE_GUID" property="messageGuid" jdbcType="VARCHAR" />
+		<result column="MI_SEND_TYPE" property="miSendType" jdbcType="VARCHAR" />
+		<result column="MESSAGE_TITLE" property="messageTitle" jdbcType="VARCHAR" />
+		<result column="MESSAGE_CONTENT" property="messageContent" jdbcType="VARCHAR" />
+		<result column="MESSAGE_SENDFSTATE" property="messageSendfstate" jdbcType="VARCHAR" />
+		<result column="MI_CREATE_DATE" property="miCreateDate" jdbcType="TIMESTAMP" />
+		<result column="MI_LAST_SEND_DATE" property="miLastSendDate" jdbcType="TIMESTAMP" />
+		<result column="MI_SEND_ORG_ID" property="miSendOrgId" jdbcType="DECIMAL" />
+		<result column="MI_SEND_USERID" property="miSendUserid" jdbcType="VARCHAR" />
+		<result column="MI_SEND_USERNAME" property="miSendUsername" jdbcType="VARCHAR" />
+		<result column="MI_RECEIVE_ORG_ID" property="miReceiveOrgId" jdbcType="VARCHAR" />
+		<result column="MI_RECEIVE_USERNAME" property="miReceiveUsername" jdbcType="VARCHAR" />
+		<result column="MI_RECEIVE_USERID" property="miReceiveUserid" jdbcType="VARCHAR" />
+		<result column="MESSAGE_READFSTATE" property="messageReadfstate" jdbcType="VARCHAR" />
+		<result column="MI_READ_DATE" property="miReadDate" jdbcType="TIMESTAMP" />
+		<result column="MI_SEND_DELETE" property="miSendDelete" jdbcType="VARCHAR" />
+		<result column="MI_RECEIVE_DELETE" property="miReceiveDelete" jdbcType="VARCHAR" />
+		<result column="MESSAGE_CODE" property="messageCode" jdbcType="VARCHAR" />
+		<result column="MI_SEND_NUM" property="miSendNum" jdbcType="DECIMAL" />
+		<result column="MI_CODE" property="miCode" jdbcType="VARCHAR" />
+		<result column="MI_SYS_TYPE" property="miSysType" jdbcType="VARCHAR" />
+		<result column="MI_SAVE_DATE" property="miSaveDate" jdbcType="VARCHAR" />
+	</resultMap>
+	
+	<sql id="Base_Column_List">
+		MESSAGE_GUID, MI_SEND_TYPE, MESSAGE_TITLE, MESSAGE_CONTENT, MESSAGE_SENDFSTATE, MI_CREATE_DATE,
+		MI_LAST_SEND_DATE, MI_SEND_ORG_ID, MI_SEND_USERID, MI_SEND_USERNAME, MI_RECEIVE_ORG_ID,
+		MI_RECEIVE_USERNAME, MI_RECEIVE_USERID, MESSAGE_READFSTATE, MI_READ_DATE, MI_SEND_DELETE,
+		MI_RECEIVE_DELETE, MESSAGE_CODE, MI_SEND_NUM, MI_CODE, MI_SYS_TYPE, MI_SAVE_DATE
+	</sql>
+	
+	<select id="getOrgListByType" resultType="hashMap" parameterType="com.phxl.core.base.entity.Pager">
+	  	select TD_ORG_INFO.ORG_ID AS "value",TD_ORG_INFO.ORG_NAME AS "text" from TD_ORG_INFO,TS_USER_INFO 
+	  	where TD_ORG_INFO.ORG_ID = TS_USER_INFO.ORG_ID and TS_USER_INFO.USER_LEVEL = '02' and TD_ORG_INFO.FSTATE = '01'
+	  	<if test="conditiions != null and conditiions.orgType != null and conditiions.orgType != '-1'">
+		  	and TD_ORG_INFO.ORG_TYPE = #{conditiions.orgType,jdbcType=VARCHAR}
+	  	</if>
+	  	<if test="conditiions !=null and conditiions.searchName !=null and conditiions.searchName != ''">
+		  	and regexp_like(TD_ORG_INFO.ORG_NAME, #{conditiions.searchName,jdbcType=VARCHAR}) 
+	  	</if>
+	 </select>
+	 
+	 <select id="getCodeByOrgId" resultType="hashMap" parameterType="com.phxl.core.base.entity.Pager">
+	  	select g.mi_code AS "value",g.mi_sys_type AS "text" from TM_MESSAGEITEM_ORG o left join TM_MESSAGEITEM_GLOBAL g on g.mi_global_guid = o.mi_global_guid
+        where o.org_id = #{conditiions.sessionOrgId,jdbcType=DECIMAL}
+	 </select>
+	 
+	 <select id="getTypeByOrgId" resultType="string">
+		SELECT ORG_TYPE FROM TD_ORG_INFO where ORG_ID = #{orgId,jdbcType=DECIMAL}
+	 </select>
+	 
+	 <select id="getUserByOrgId" resultType="hashMap" >
+	  	select t.USER_ID,t.USER_NAME from TS_USER_INFO t where t.FSTATE = '01' and t.org_id = #{orgId,jdbcType=DECIMAL}
+	  	<if test="userLevel != null and userLevel == ''">
+			and t.user_level = #{userLevel,jdbcType=VARCHAR}
+	    </if>
+	 </select>
+	 
+	 <select id="getMessageList" resultType="HashMap" parameterType="com.phxl.core.base.entity.Pager">
+	  <if test="conditiions != null and conditiions.messageTag != null and conditiions.messageTag == 'inbox'"><!-- 收件箱 -->
+		select m.message_guid,m.mi_send_userid,(case when m.MI_CODE is not null then '系统' else m.mi_send_username end) mi_send_username,m.mi_sys_type,
+		       m.MI_CODE,m.message_title,m.message_content,to_char(m.mi_last_send_date,'YYYY-MM-DD HH24:MI:SS') mi_last_send_date,m.message_readfstate
+		from TM_MESSAGE m 
+        where m.mi_send_type = 'message' and m.message_sendfstate = '00' and m.mi_receive_delete = '00' and m.mi_receive_userid = #{conditiions.userId,jdbcType=VARCHAR}
+	  </if>
+	  <if test="conditiions != null and conditiions.messageTag != null and conditiions.messageTag == 'outbox'"><!-- 已发送 -->
+		select m.mi_receive_org_id,m.mi_receive_org_name,m.mi_receive_username,m.mi_receive_userid,m.message_code,m.message_title,m.message_content,
+		       to_char(m.mi_last_send_date,'YYYY-MM-DD HH24:MI:SS') mi_last_send_date,m.mi_send_userid 
+		from v_send_message m where m.mi_send_userid = #{conditiions.userId,jdbcType=VARCHAR}
+	  </if>
+	  <if test="conditiions != null and conditiions.startTime != null and conditiions.startTime != ''">
+		  and <![CDATA[ to_char(m.mi_last_send_date,'yyyy-MM-dd') >= #{conditiions.startTime, jdbcType=VARCHAR}]]>
+	  </if>
+	  <if test="conditiions != null and conditiions.endTime != null and conditiions.endTime != ''">
+		  and <![CDATA[ to_char(m.mi_last_send_date,'yyyy-MM-dd') <= #{conditiions.endTime, jdbcType=VARCHAR}]]>
+	  </if>
+	  <if test="conditiions != null and conditiions.searchName != null and conditiions.searchName != ''">
+		and <![CDATA[regexp_like(m.message_title, #{conditiions.searchName, jdbcType=VARCHAR}) ]]>
+	  </if>
+	  <if test="conditiions != null and conditiions.messageReadFstate != null and conditiions.messageReadFstate != '-1'">
+		and m.MESSAGE_READFSTATE = #{conditiions.messageReadFstate, jdbcType=VARCHAR}
+	  </if>
+	  <if test="conditiions != null and conditiions.messageReType != null and conditiions.messageReType != '-1'">
+		<choose>
+			   <when test="conditiions != null and conditiions.messageReType != null and conditiions.messageReType == '00'">
+			     and m.MI_CODE is null
+			   </when>
+			   <otherwise>
+			     and m.MI_CODE = #{conditiions.messageReType, jdbcType=VARCHAR}
+			   </otherwise>
+		</choose>
+	  </if>
+	  <choose>
+		   <when test="conditiions != null and conditiions.sortCol!= null and conditiions.sortCol != ''">
+		    order by ${conditiions.sortCol} ${conditiions.sortType}
+		   </when>
+		   <otherwise>
+		   order by m.MI_LAST_SEND_DATE desc
+		   </otherwise>
+	  </choose> 
+    </select>
+	
+	<!-- 查询发送次数在3次以下的且发送失败的微信消息 -->
+	<select id="selectWechatMessage" resultMap="BaseResultMap" >
+	    select 
+	    <include refid="Base_Column_List" />
+	    from TM_MESSAGE where MI_SEND_TYPE = 'wechat' and <![CDATA[ MESSAGE_SENDFSTATE <> '00']]> and <![CDATA[ MI_SEND_NUM < 3]]>
+	</select>
+	
+</mapper>

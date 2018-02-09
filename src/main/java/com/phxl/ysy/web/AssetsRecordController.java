@@ -1,22 +1,42 @@
 package com.phxl.ysy.web;
 
+import java.io.BufferedReader;
+import java.io.ByteArrayInputStream;
+import java.io.File;
+import java.io.InputStream;
+import java.text.MessageFormat;
+import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.tools.FileObject;
 
+import org.apache.commons.codec.binary.Base64;
+import org.apache.commons.fileupload.FileItem;
+import org.apache.commons.fileupload.disk.DiskFileItemFactory;
+import org.apache.commons.fileupload.servlet.ServletFileUpload;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.multipart.MultipartFile;
 
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 import com.phxl.core.base.entity.Pager;
 import com.phxl.core.base.exception.ValidationException;
-import com.phxl.ysy.entity.CertInfo;
-import com.phxl.ysy.entity.DeptInfo;
+import com.phxl.core.base.util.DateUtils;
+import com.phxl.core.base.util.FTPUtils;
+import com.phxl.core.base.util.JSONUtils;
+import com.phxl.core.base.util.SystemConfig;
+import com.phxl.ysy.entity.CertInfoZc;
+import com.phxl.ysy.entity.OrgDept;
 import com.phxl.ysy.entity.EqOperationInfo;
 import com.phxl.ysy.service.AssetsRecordService;
 
@@ -227,7 +247,7 @@ public class AssetsRecordController {
 		if (StringUtils.isBlank(certId)) {
 			throw new ValidationException("证件ID不允许为空");
 		}
-		CertInfo certInfo = assetsRecordService.find(CertInfo.class, certId);
+		CertInfoZc certInfo = assetsRecordService.find(CertInfoZc.class, certId);
 		if (certInfo==null) {
 			throw new ValidationException("当前证件不存在");
 		}
@@ -300,9 +320,82 @@ public class AssetsRecordController {
 	@ResponseBody
 	public void selectdept(
 			@RequestParam(value="deptGuid",required = false) String deptGuid) throws ValidationException{
-		DeptInfo deptInfo = new DeptInfo();
+		OrgDept deptInfo = new OrgDept();
 		deptInfo.setDeptCode(deptGuid);
-		DeptInfo newDept = assetsRecordService.searchEntity(deptInfo);
+		OrgDept newDept = assetsRecordService.searchEntity(deptInfo);
 		System.out.println(newDept.getDeptCode());
+	}
+	
+	/**
+	 * 上传资产附件
+	 * @param assetsRecordGuid 资产附件guid
+	 * @param certCode 资产附件类型
+	 * @param file 文件
+	 * @param request
+	 * @param response
+	 * @throws Exception
+	 */
+	@RequestMapping("/assetsFileUpLoad")
+	@ResponseBody
+	public void assetsFileUpLoad(
+			@RequestParam(value="assetsRecordGuid",required = false) String assetsRecordGuid,
+			@RequestParam(value="certCode",required = false) String certCode,
+			@RequestParam(value="file",required = false) FileItem file,
+			HttpServletRequest request,HttpServletResponse response) throws Exception{
+//		//使用Apache文件上传组件处理文件上传步骤：
+//        //1、创建一个DiskFileItemFactory工厂
+//        DiskFileItemFactory diskFileItemFactory = new DiskFileItemFactory();
+//        //2、创建一个文件上传解析器
+//        ServletFileUpload fileUpload = new ServletFileUpload(diskFileItemFactory);
+//        //解决上传文件名的中文乱码
+//        fileUpload.setHeaderEncoding("UTF-8");
+//		List<FileItem> list = fileUpload.parseRequest(request);
+//		if (list==null || list.size()==0) {
+//			throw new ValidationException("当前没有上传文件");
+//		}
+//		FileItem file = list.get(0);
+		long startTime = System.currentTimeMillis();
+		if (file == null) {
+			throw new ValidationException("请上传文件");
+		}
+		//获取文件名称
+		String filename = file.getName();
+		
+		filename = filename.substring(filename.lastIndexOf(File.separator)+1);
+        //获取item中的上传文件的输入流
+        InputStream in = file.getInputStream();
+        
+        String configKey="resource.ftp.ysyFile.organization.cert.product";
+        String[] args=new String[]{assetsRecordGuid};//资产档案GUID
+
+        String directory = MessageFormat.format(SystemConfig.getProperty(configKey), args);//目录位置
+        //确定存储文件名
+        int index = filename.lastIndexOf(".");
+        if(index<0){
+            throw new ValidationException("未知的上传文件类型!");
+        }
+        String fileName=assetsRecordGuid+filename.substring(index);
+        System.out.println("filename = "+filename);
+        String filePath=directory+fileName;
+        System.out.println("filePath="+filePath);
+        assetsRecordService.insertAssetsFile(directory, fileName, in, assetsRecordGuid, certCode);
+	}
+
+	/**
+	 * 删除资产附件信息
+	 * @param certId 资产附件id
+	 * @param request
+	 * @param response
+	 * @throws Exception
+	 */
+	@RequestMapping("/deleteAssetsFile")
+	@ResponseBody
+	public void deleteAssetsFile(
+			@RequestParam(value="certId",required = false) String certId,
+			HttpServletRequest request,HttpServletResponse response) throws Exception {
+		if (StringUtils.isBlank(certId)) {
+			throw new ValidationException("附件ID不允许为空");
+		}
+		assetsRecordService.deleteAssetsFile(certId);
 	}
 }

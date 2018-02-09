@@ -8,10 +8,10 @@ String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.
 <html>
 <head>
 
-<script src="http://apps.bdimg.com/libs/jquery/2.1.4/jquery.min.js" type="text/javascript"></script>
+<script src="http://apps.bdimg.com/libs/jquery/2.1.3/jquery.min.js" type="text/javascript"></script>
 <script src="http://res.wx.qq.com/open/js/jweixin-1.0.0.js"></script>
 <script type="text/javascript">
-	var appId = $("#appId").val();//时间戳
+	var appId = $("#appId").val();//appid
 	var timestamp = $("#timestamp").val();//时间戳
 	var nonceStr = $("#noncestr").val();//随机串
 	var signature = $("#signature").val();//签名
@@ -45,12 +45,14 @@ String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.
 </head>
 
 <body>
-    <input id="appId" type="text" value="${requestScope.appId}" />
-    <input id="timestamp" type="text" value="${requestScope.timestamp}" />
-    <input id="noncestr" type="text" value="${requestScope.nonceStr}" />
-    <input id="signature" type="text" value="${requestScope.signature}" />
+    <input id="appId" type="text" value="${sessionScope.appId}" />
+    <input id="timestamp" type="text" value="${sessionScope.timestamp}" />
+    <input id="noncestr" type="text" value="${sessionScope.nonceStr}" />
+    <input id="signature" type="text" value="${sessionScope.signature}" />
     
 	<button class="luyin">开始</button>
+	
+	<button class="bofang">播放</button>
 	
 	<script type="text/javascript">
 		$('.luyin').on('touchstart',function () {
@@ -63,7 +65,7 @@ String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.
 	                    complete: function (res) {
 	                        alert('最多只能录制一分钟');
 	                        var localId = res.localId;
-	                        uploadluyin(localId,60000);
+// 	                        uploadluyin(localId,60000);
 	                    }
 	                });
 	            },
@@ -89,12 +91,19 @@ String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.
 	            wx.stopRecord({
 	                success: function (res) {
 	                    localId = res.localId;
-	                    uploadluyin(localId,luyintime);
+// 	                    uploadluyin(localId,luyintime);
 	
 	                }
 	            });
 	        }
 	    })
+	    
+	    function bofang(localId,luyintime){
+			wx.playVoice({
+	    		localId: localId // 需要播放的音频的本地ID，由stopRecord接口获得
+	    		});
+		}
+	   
 	    
 	    function uploadluyin(localId,luyintime) {
 	        wx.uploadVoice({

@@ -2,11 +2,11 @@ package com.phxl.ysy.entity;
 
 import com.phxl.core.base.annotation.BaseSql;
 
-@BaseSql(tableName="TD_DEPT_INFO", resultName="com.phxl.ysy.dao.DeptInfoMapper.BaseResultMap")
-public class DeptInfo {
+@BaseSql(tableName="TD_ORG_DEPT", resultName="com.phxl.ysy.dao.OrgDeptMapper.BaseResultMap")
+public class OrgDept {
     private String deptCode;
 
-    private String deptNam;
+    private String deptName;
 
     public String getDeptCode() {
         return deptCode;
@@ -16,11 +16,11 @@ public class DeptInfo {
         this.deptCode = deptCode == null ? null : deptCode.trim();
     }
 
-    public String getDeptNam() {
-        return deptNam;
+    public String getDeptName() {
+        return deptName;
     }
 
-    public void setDeptNam(String deptNam) {
-        this.deptNam = deptNam == null ? null : deptNam.trim();
+    public void setDeptNam(String deptName) {
+        this.deptName = deptName == null ? null : deptName.trim();
     }
 }

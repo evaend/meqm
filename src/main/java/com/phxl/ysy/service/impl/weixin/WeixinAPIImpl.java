@@ -3,6 +3,8 @@ package com.phxl.ysy.service.impl.weixin;
 import java.io.IOException;
 import java.nio.charset.Charset;
 import java.text.MessageFormat;
+import java.util.HashMap;
+import java.util.Map;
 
 import org.apache.http.RequestLine;
 import org.apache.http.client.ClientProtocolException;
@@ -11,6 +13,7 @@ import org.apache.http.client.methods.HttpPost;
 import org.apache.http.client.methods.HttpUriRequest;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.BasicResponseHandler;
+import org.apache.http.message.BasicHeader;
 import org.apache.http.params.HttpParams;
 import org.apache.http.protocol.HTTP;
 import org.springframework.stereotype.Component;
@@ -19,12 +22,14 @@ import com.alibaba.druid.support.logging.Log;
 import com.alibaba.druid.support.logging.LogFactory;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.gson.JsonObject;
 import com.phxl.core.base.exception.ValidationException;
 import com.phxl.ysy.entity.WeixinOpenUser;
 import com.phxl.ysy.service.weixin.WeixinAPIInterface;
 import com.phxl.ysy.util.WebConnect;
 import com.phxl.ysy.web.weixin.AccessTokenInfo;
 
+import net.sf.json.JSON;
 import net.sf.json.JSONObject;
 
 @Component
@@ -49,7 +54,12 @@ public class WeixinAPIImpl implements WeixinAPIInterface
     //private String sendMsgUrl = "https://api.weixin.qq.com/cgi-bin/message/mass/sendall?access_token={0}";
     private String templateMsgUrl = "https://api.weixin.qq.com/cgi-bin/message/template/send?access_token={0}";
     
+    // 获取临时二维码的ticket
+    private String getTicket = "https://api.weixin.qq.com/cgi-bin/qrcode/create?access_token={0}";
  
+    //微信生成临时二维码
+    private String getAsCode = "https://mp.weixin.qq.com/cgi-bin/showqrcode?ticket={0}";
+    
     private Log log = LogFactory.getLog(getClass());   
     
     /**
@@ -152,6 +162,37 @@ public class WeixinAPIImpl implements WeixinAPIInterface
             userOpenId = obj.getString("openid"); 
         return userOpenId;
 	}
+    
+    /**
+     * 微信生成临时二维码的ticket
+     */
+    public String getWeixinTicket(String token,Map<String, Object> actionInfo) throws Exception{
+//        Map<String, Object> resultMap = new HashMap<String, Object>();
+    	String resultUrl = null;
+    	System.out.println("token="+token);
+        String url = MessageFormat.format(this.getTicket,token);
+        WebConnect webConnect = new WebConnect();//发起http请求的对象 
+    	webConnect.initWebClient();
+        HttpPost post = new HttpPost(url);
+        ResponseHandler<?> responseHandler = new BasicResponseHandler();
+        //生成临时二维码需要的json数据
+        JSONObject json = new JSONObject();
+        json.put("expire_seconds", "604800");
+        json.put("action_name", "QR_SCENE");
+        json.put("action_info", actionInfo);
+        post.setHeader("Content-Type", "application/json");
+        //将json数据封装
+        StringEntity s = new StringEntity(json.toString(), "utf-8");
+        s.setContentEncoding(new BasicHeader(HTTP.CONTENT_TYPE,"application/json"));
+        post.setEntity(s);
+        //响应数据
+        JSONObject j = JSONObject.fromObject(webConnect.getWebClient().execute(post, responseHandler)); 
+        if (j == null) {
+			throw new ValidationException("当前网络较弱，请退出重新进入");
+		}
+        String ticket = j.get("ticket").toString();
+        return ticket;
+    }
  
     /**
   	 * 初始化或重启时，自动执行一次更新token的任务

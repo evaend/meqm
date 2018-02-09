@@ -61,7 +61,7 @@ public interface RrpairOrderService extends IBaseService {
 	 * 添加维修记录
 	 * @param rrpairOrder
 	 */
-	void insertRrpairOrder(RrpairOrder rrpairOrder,AssetsRecord assetsRecord);
+	void insertRrpairOrder(RrpairOrder rrpairOrder,AssetsRecord assetsRecord,List<String> assetsExtendGuid,List<Integer> acceNum) throws Exception;
 	
 	//查询当前维修记录的维修配件使用列表
 	List<Map<String, Object>> selectRrpairFittingList(Pager pager);

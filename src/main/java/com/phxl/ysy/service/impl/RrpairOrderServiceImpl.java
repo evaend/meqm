@@ -287,7 +287,8 @@ public class RrpairOrderServiceImpl extends BaseService implements RrpairOrderSe
 	 * 添加修改维修记录
 	 * @param rrpairOrder
 	 */
-	public void insertRrpairOrder(RrpairOrder rrpairOrder,AssetsRecord assetsRecord) {
+	public void insertRrpairOrder(RrpairOrder rrpairOrder,AssetsRecord assetsRecord,
+			List<String> assetsExtendGuid,List<Integer> acceNum) throws Exception {
 		RrpairOrder rrpair = find(RrpairOrder.class, rrpairOrder.getRrpairOrderGuid());
 		if (rrpair==null) {
 			insertInfo(rrpairOrder);
@@ -297,11 +298,16 @@ public class RrpairOrderServiceImpl extends BaseService implements RrpairOrderSe
 			eqOperation.setUserId("11");
 			eqOperation.setCreatetime(new Date());
 			eqOperation.setOpType("");
-			eqOperation.setTfRemark(rrpairOrder.getTfRemark());
+			eqOperation.setTfRemark(rrpairOrder.getTfRemarkBx());
 			insertInfo(eqOperation);
 		}else{
 			updateInfo(rrpairOrder);
 		}
+		//添加配件信息
+		if (assetsExtendGuid!=null && assetsExtendGuid.size()!=0) {
+			insertRrpairFitting(rrpairOrder,rrpairOrder.getRrpairOrderGuid(),assetsExtendGuid,acceNum);
+		}
+		//修改资产信息，是否在用
 		if (assetsRecord!=null) {
 			updateInfo(assetsRecord);
 		}

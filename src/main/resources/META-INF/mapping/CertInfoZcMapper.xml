@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
-<mapper namespace="com.phxl.ysy.dao.CertInfoMapper" >
-  <resultMap id="BaseResultMap" type="com.phxl.ysy.entity.CertInfo" >
+<mapper namespace="com.phxl.ysy.dao.CertInfoZcMapper" >
+  <resultMap id="BaseResultMap" type="com.phxl.ysy.entity.CertInfoZc" >
     <id column="CERT_ID" property="certId" jdbcType="VARCHAR" />
     <result column="ORG_ID" property="orgId" jdbcType="DECIMAL" />
     <result column="CERT_NO" property="certNo" jdbcType="VARCHAR" />
@@ -32,7 +32,7 @@
 			c.create_time "createTime" , 
 			c.assets_record "assetsRecord" , 
 			c.equipment_code "equipmentCode" 
-			from TD_CERT_INFO c left join ts_user_info u on (c.create_userid = u.user_id)
+			from TD_CERT_INFO_ZC c left join ts_user_info u on (c.create_userid = u.user_id)
   			where c.assets_record = #{conditiions.assetsRecord}
   		<if test="conditiions != null and conditiions.orderMark != null and conditiions.orderField != null and conditiions.orderField!=''">
   			order by "${conditiions.orderField}" ${conditiions.orderMark}

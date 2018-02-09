@@ -1,11 +1,14 @@
 package com.phxl.ysy.service.impl;
 
+import java.io.File;
+import java.io.InputStream;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
 import javax.servlet.http.HttpSession;
 
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -13,15 +16,17 @@ import org.springframework.stereotype.Service;
 import com.phxl.core.base.entity.Pager;
 import com.phxl.core.base.exception.ValidationException;
 import com.phxl.core.base.service.impl.BaseService;
+import com.phxl.core.base.util.FTPUtils;
 import com.phxl.core.base.util.IdentifieUtil;
 import com.phxl.ysy.constant.CustomConst;
 import com.phxl.ysy.constant.CustomConst.AssetsRecordInfoUpdate;
 import com.phxl.ysy.constant.CustomConst.LoginUser;
 import com.phxl.ysy.dao.AssetsExtendMapper;
 import com.phxl.ysy.dao.AssetsRecordMapper;
-import com.phxl.ysy.dao.CertInfoMapper;
+import com.phxl.ysy.dao.CertInfoZcMapper;
 import com.phxl.ysy.dao.EqOperationInfoMapper;
 import com.phxl.ysy.entity.AssetsRecord;
+import com.phxl.ysy.entity.CertInfoZc;
 import com.phxl.ysy.entity.EqOperationInfo;
 import com.phxl.ysy.entity.Equipment;
 import com.phxl.ysy.service.AssetsRecordService;
@@ -32,7 +37,7 @@ public class AssetsRecordServiceImpl extends BaseService implements AssetsRecord
 	AssetsRecordMapper assetsRecordMapper;
 	
 	@Autowired
-	CertInfoMapper certInfoMapper;
+	CertInfoZcMapper certInfoMapper;
 	
 	@Autowired
 	EqOperationInfoMapper eqOperationInfoMapper;
@@ -147,6 +152,38 @@ public class AssetsRecordServiceImpl extends BaseService implements AssetsRecord
 	//查询资产档案明细
 	public Map<String, Object> selectAssetsRecordDetail(Pager pager) {
 		return assetsRecordMapper.selectAssetsRecordDetail(pager);
+	}
+
+	//添加资产档案附件
+	@Override
+	public void insertAssetsFile(String directory, String fileName,
+			InputStream in, String assetsRecordGuid, String certCode) throws Exception {
+		AssetsRecord assetsRecord = find(AssetsRecord.class, assetsRecordGuid);
+		if (assetsRecord==null) {
+			throw new ValidationException("当前资产档案不存在");
+		}
+		FTPUtils.upload(directory, fileName, in);
+		CertInfoZc certInfo = new CertInfoZc();
+		certInfo.setCertId(IdentifieUtil.getGuId());
+		certInfo.setTfAccessory(directory+fileName);
+		certInfo.setCertCode(certCode);
+		certInfo.setTfAccessoryFile(directory+fileName);
+//		certInfo.setCreateUserid(session.getAttribute(LoginUser.SESSION_USERID).toString());
+		certInfo.setCreateTime(new Date());
+		certInfo.setAssetsRecord(assetsRecord.getAssetsRecord());
+		certInfo.setEquipmentCode(assetsRecord.getEquipmentCode());
+		insertInfo(certInfo);
+	}
+
+	@Override
+	public void deleteAssetsFile(String certId) throws Exception {
+		CertInfoZc certInfo = find(CertInfoZc.class, certId);
+		if (certInfo==null) {
+			throw new ValidationException("当前资产附件不存在");
+		}
+		File file = new File(certInfo.getTfAccessory());
+		file.delete();
+		deleteInfo(certInfo);
 	}
 
 }

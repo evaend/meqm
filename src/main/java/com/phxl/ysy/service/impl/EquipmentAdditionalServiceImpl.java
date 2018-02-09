@@ -7,6 +7,7 @@ import java.util.Map;
 
 import javax.sql.DataSource;
 
+import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
@@ -23,7 +24,7 @@ import com.phxl.core.base.util.LocalCollectionUtils;
 import com.phxl.core.base.util.LocalCollectionUtils.Processer;
 import com.phxl.ysy.constant.CustomConst;
 import com.phxl.ysy.dao.AssetsRecordMapper;
-import com.phxl.ysy.entity.DeptInfo;
+import com.phxl.ysy.entity.OrgDept;
 import com.phxl.ysy.entity.Equipment;
 import com.phxl.ysy.entity.Register;
 import com.phxl.ysy.service.EquipmentAdditionalService;
@@ -47,7 +48,11 @@ public class EquipmentAdditionalServiceImpl  extends BaseService implements Equi
 		// 从字典里的值转成码：资产分类、使用科室、管理科室、折旧算法、维修标志
 		for(EquipmentDto equipmentDto:entityList){
 			equipmentDto.setCreateUserid(userId);
-			equipmentDto.setOrgId(Long.valueOf(orgId));
+			System.out.println("orgId------------------------------"+orgId);
+			if (StringUtils.isNotBlank(orgId) ) {
+				equipmentDto.setOrgId(Long.valueOf(orgId));
+			}
+			
 			if(equipmentDto.getProductType() != null){
 				String productType = CustomConst.ProductTypeMap.get(equipmentDto.getProductType());//获取资产分类的转化值
 				equipmentDto.setProductType(productType);
@@ -61,21 +66,21 @@ public class EquipmentAdditionalServiceImpl  extends BaseService implements Equi
 //				equipmentDto.setRepairFlag(repairFlag);
 //			}
 			if(equipmentDto.getUseDeptCode() != null){
-				DeptInfo deptnew = new DeptInfo();
+				OrgDept deptnew = new OrgDept();
 				deptnew.setDeptNam(equipmentDto.getUseDeptCode());
-				DeptInfo deptInfo = this.searchEntity(deptnew);
+				OrgDept deptInfo = this.searchEntity(deptnew);
 				equipmentDto.setUseDeptCode(deptInfo.getDeptCode());
 			}
 			if(equipmentDto.getbDeptCode() != null){
-				DeptInfo deptnew = new DeptInfo();
+				OrgDept deptnew = new OrgDept();
 				deptnew.setDeptNam(equipmentDto.getbDeptCode());
-				DeptInfo deptInfo = this.searchEntity(deptnew);
+				OrgDept deptInfo = this.searchEntity(deptnew);
 				equipmentDto.setbDeptCode(deptInfo.getDeptCode());
 			}
 			//生成资产编号
 			String zcCode = procedureService.callSpGetBill(Long.valueOf(orgId),"资产编码", "AS", 5);// 调用生成资产编码的存储过程
 			//生成二维码
-			String qrCode = procedureService.callSpGetQrBill(orgId, "AS", 5);// 调用生成二维码的存储过程
+			String qrCode = procedureService.callSpGetQrBill(Long.valueOf(orgId), "AS");// 调用生成二维码的存储过程
 			equipmentDto.setAssetsRecord(qrCode);
 			equipmentDto.setQrCode(qrCode);
 			eList.add(equipmentDto);

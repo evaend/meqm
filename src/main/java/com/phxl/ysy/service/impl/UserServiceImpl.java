@@ -12,6 +12,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.phxl.core.base.entity.Pager;
@@ -63,7 +66,7 @@ public class UserServiceImpl extends BaseService implements UserService {
 		//由于用户账号是唯一的，所以使用账号验证用户是否存在
 		UserInfo newUserInfo = this.searchEntity(userInfo);
 		boolean loginSuccess = true;
-		
+		System.out.println("pwd++++++++++++++++++++++++++"+pwd);
 		if(newUserInfo == null){
 			loginSuccess = false;
 			result = "用户名不存在";
@@ -73,6 +76,7 @@ public class UserServiceImpl extends BaseService implements UserService {
 				String[] strArray =  {newUserInfo.getPwd().toUpperCase(),token};
 			    String shastr = BaseUtils.sort(strArray);//将待加密的字符组排序并组成一个字符串    
 				sysPwd = SHAUtil.shaEncode(shastr);//字符串加密
+				System.out.println("sysPwd++++++++++++++++++++++++"+sysPwd);
 			}catch(Exception e)
 			{
 				return null;
@@ -356,4 +360,5 @@ public class UserServiceImpl extends BaseService implements UserService {
 			}
 		}
 	}
+	
 }

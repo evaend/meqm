@@ -31,19 +31,19 @@ public class FtpSourceController {
 	public final Logger logger = LoggerFactory.getLogger(FTPUtils.class);
 	
 	FTPUtils service = new FTPUtils();
-	
-	@RequestMapping("/**/*.*")
-	@ResponseBody
-	public void download(HttpServletRequest request, HttpServletResponse response, HttpSession session) throws Exception{
-		String uri=URLDecoder.decode(request.getRequestURI(), "UTF-8");
-		logger.debug("uri: "+uri);
-		String ftpBaseUri=request.getContextPath()+"/ftp";
-		String filePath=uri.substring(uri.indexOf(ftpBaseUri)+ftpBaseUri.length());
-		logger.debug("FTP资源访问, filePath="+filePath);
-		
-		Assert.notNull(filePath, "filePath不能为空!");
-		FTPUtils.download(filePath, response, null);
-	}
+//	
+//	@RequestMapping("/**/*.*")
+//	@ResponseBody
+//	public void download(HttpServletRequest request, HttpServletResponse response, HttpSession session) throws Exception{
+//		String uri=URLDecoder.decode(request.getRequestURI(), "UTF-8");
+//		logger.debug("uri: "+uri);
+//		String ftpBaseUri=request.getContextPath()+"/ftp";
+//		String filePath=uri.substring(uri.indexOf(ftpBaseUri)+ftpBaseUri.length());
+//		logger.debug("FTP资源访问, filePath="+filePath);
+//		
+//		Assert.notNull(filePath, "filePath不能为空!");
+//		FTPUtils.download(filePath, response, null);
+//	}
 	
 	@RequestMapping("/post")
 	@ResponseBody

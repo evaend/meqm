@@ -4,7 +4,9 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.text.MessageFormat;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -44,6 +46,7 @@ import com.phxl.ysy.entity.RrpairOrder;
 import com.phxl.ysy.entity.RrpairOrderAcce;
 import com.phxl.ysy.entity.WeixinOpenUser;
 import com.phxl.ysy.service.RrpairOrderService;
+import com.phxl.ysy.web.dto.InsertRrpairOrderDto;
 
 @Controller
 @RequestMapping("/rrpairOrderController")
@@ -468,8 +471,13 @@ public class RrpairOrderController {
 		pager.addQueryParam("rrpairOrderGuid", rrpairOrderGuid);
 
 		Map<String, Object> result = new HashMap<String, Object>();
+		Map<String, Object> selectRrpairDetailIsOrder = rrpairOrderService.selectRrpairDetailIsOrder(pager);
+		if (selectRrpairDetailIsOrder.get("faultDescribe")!=null) {
+			String [] faultDescribe = StringUtils.split(selectRrpairDetailIsOrder.get("faultDescribe").toString(), ',');
+			selectRrpairDetailIsOrder.put("faultDescribe",faultDescribe);
+		}
 		result.put("selectRrpairDetailIsAssets", rrpairOrderService.selectRrpairDetailIsAssets(pager));
-		result.put("selectRrpairDetailIsOrder", rrpairOrderService.selectRrpairDetailIsOrder(pager));
+		result.put("selectRrpairDetailIsOrder", selectRrpairDetailIsOrder);
 		result.put("selectRrpairDetailIsCall", rrpairOrderService.selectRrpairDetailIsCall(pager));
 		result.put("selectRrpairDetailIsRrpair", rrpairOrderService.selectRrpairDetailIsRrpair(pager));
 		result.put("selectRrpairDetailIsAcce", rrpairOrderService.selectRrpairDetailIsAcce(pager));
@@ -491,7 +499,7 @@ public class RrpairOrderController {
 	 */
 	@RequestMapping("/selectRrpairList")
 	@ResponseBody
-	public List<Map<String, Object>> selectRrpairList(
+	public Pager<Map<String, Object>> selectRrpairList(
 			@RequestParam(value="params",required = false) String params,
 			@RequestParam(value="pagesize",required = false) Integer pagesize,
 			@RequestParam(value="page",required = false) Integer page,
@@ -509,7 +517,15 @@ public class RrpairOrderController {
 		pager.addQueryParam("params", params);
 
 		List<Map<String, Object>> list = rrpairOrderService.selectRrpairList(pager);
-		return list;
+		for (Map<String, Object> map : list) {
+			if (map.get("faultDescribe")!=null) {
+				String [] faultDescribe = StringUtils.split(map.get("faultDescribe").toString(), ',');
+				map.put("faultDescribe",faultDescribe);
+			}
+		}
+		
+		pager.setRows(list);
+		return pager;
 	}
 
 	/**@author XiongChao
@@ -562,7 +578,7 @@ public class RrpairOrderController {
 	 * @param rrpairPhone 报修人联系电话
 	 * @param faultDescribe 故障现象
 	 * @param useFstate 是否在用 (01在用，02停用)
-	 * @param tfRemark 备注
+	 * @param tfRemarkBx 备注
 	 * @param failCause 故障描述
 	 * @param tfAccessory 附件（多个附件一,拆分）
 	 * @param rrpairType 维修方式（00内修，01外修）（如果不填写维修信息，则为空）
@@ -585,49 +601,55 @@ public class RrpairOrderController {
 	@RequestMapping("/insertOrUpdateRrpair")
 	@ResponseBody
 	public void insertOrUpdateRrpair(
-			@RequestParam(value="rrpairOrderGuid",required = false) String rrpairOrderGuid,
-			@RequestParam(value="assetsRecordGuid",required = false) String assetsRecordGuid,
-			@RequestParam(value="isRepairs",required = false) Boolean isRepairs,
-			@RequestParam(value="orderFstate",required = false) String orderFstate,
-			@RequestParam(value="equipmentCode",required = false) String equipmentCode,
-			@RequestParam(value="urgentFlag",required = false) String urgentFlag,
-			@RequestParam(value="rrpairSend",required = false) String rrpairSend,
-			@RequestParam(value="spare",required = false) String spare,
-			@RequestParam(value="rrpairPhone",required = false) String rrpairPhone,
-			@RequestParam(value="faultDescribe",required = false) String faultDescribe,
-			@RequestParam(value="useFstate",required = false) String useFstate,
-			@RequestParam(value="tfRemark",required = false) String tfRemark,
-			@RequestParam(value="failCause",required = false) String failCause,
-			@RequestParam(value="tfAccessory",required = false) String [] tfAccessory,
-			@RequestParam(value="rrpairType",required = false) String rrpairType,
-			@RequestParam(value="inRrpairPhone",required = false) String inRrpairPhone,
-			@RequestParam(value="repairContentType",required = false) String repairContentType,
-			@RequestParam(value="repairContentTyp",required = false) String repairContentTyp,
-			@RequestParam(value="repairResult",required = false) String repairResult,
-			@RequestParam(value="actualPrice",required = false) String actualPrice,
-			@RequestParam(value="tfRemarkWx",required = false) String tfRemarkWx,
-			@RequestParam(value="offCause",required = false) String offCause,
-			@RequestParam(value="followupTreatment",required = false) String followupTreatment,
-			@RequestParam(value="tfRemarkGb",required = false) String tfRemarkGb,
-			@RequestParam(value="outOrg",required = false) String outOrg,
-			@RequestParam(value="outRrpairPhone",required = false) String outRrpairPhone,
-			@RequestParam(value="completTime",required = false) Date completTime,
-			@RequestParam(value="tfRemarkZp",required = false) String tfRemarkZp
+//			@RequestParam(value="rrpairOrderGuid",required = false) String rrpairOrderGuid,
+//			@RequestParam(value="assetsRecordGuid",required = false) String assetsRecordGuid,
+//			@RequestParam(value="isRepairs",required = false) Boolean isRepairs,
+//			@RequestParam(value="orderFstate",required = false) String orderFstate,
+//			@RequestParam(value="equipmentCode",required = false) String equipmentCode,
+//			@RequestParam(value="urgentFlag",required = false) String urgentFlag,
+//			@RequestParam(value="rrpairSend",required = false) String rrpairSend,
+//			@RequestParam(value="spare",required = false) String spare,
+//			@RequestParam(value="rrpairPhone",required = false) String rrpairPhone,
+//			@RequestParam(value="faultDescribe",required = false) String faultDescribe,
+//			@RequestParam(value="useFstate",required = false) String useFstate,
+//			@RequestParam(value="tfRemarkBx",required = false) String tfRemarkBx,
+//			@RequestParam(value="faultWords",required = false) String faultWords,
+//			@RequestParam(value="tfAccessory",required = false) String [] tfAccessory,
+//			@RequestParam(value="rrpairType",required = false) String rrpairType,
+//			@RequestParam(value="inRrpairPhone",required = false) String inRrpairPhone,
+//			@RequestParam(value="repairContentType",required = false) String repairContentType,
+//			@RequestParam(value="repairContentTyp",required = false) String repairContentTyp,
+//			@RequestParam(value="repairResult",required = false) String repairResult,
+//			@RequestParam(value="actualPrice",required = false) String actualPrice,
+//			@RequestParam(value="tfRemarkWx",required = false) String tfRemarkWx,
+//			@RequestParam(value="offCause",required = false) String offCause,
+//			@RequestParam(value="followupTreatment",required = false) String followupTreatment,
+//			@RequestParam(value="tfRemarkGb",required = false) String tfRemarkGb,
+//			@RequestParam(value="outOrg",required = false) String outOrg,
+//			@RequestParam(value="outRrpairPhone",required = false) String outRrpairPhone,
+//			@RequestParam(value="completTime",required = false) String completTime,
+//			@RequestParam(value="tfRemarkZp",required = false) String tfRemarkZp
+			HttpServletRequest request,HttpServletResponse response
 			) throws Exception{
+		ObjectMapper objectMapper = new ObjectMapper();
+		objectMapper.setDateFormat(new SimpleDateFormat("yyyy-MM-dd"));//配置项:默认日期格式
+		objectMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);//配置项:忽略未知属性
+		//获取当前要添加或修改的维修工单信息
+		InsertRrpairOrderDto dto = objectMapper.readValue(request.getReader(), InsertRrpairOrderDto.class);
 		AssetsRecord assetsRecord = null;
-		if (assetsRecordGuid!=null) {
-			assetsRecord = rrpairOrderService.find(AssetsRecord.class, assetsRecordGuid);
+		if (dto.getAssetsRecordGuid()!=null) {
+			assetsRecord = rrpairOrderService.find(AssetsRecord.class, dto.getAssetsRecordGuid());
 			if (assetsRecord==null) {
 				throw new ValidationException("当前资产信息不存在");
 			}else{
-				assetsRecord.setUseFstate(useFstate);
+				assetsRecord.setUseFstate(dto.getUseFstate());
 			}
 		}
 		RrpairOrder rrpair = null;
 		String rrpairOrder = null;
 		
-		if (StringUtils.isNotBlank(rrpairOrderGuid)) {
-			rrpair = rrpairOrderService.find(RrpairOrder.class, rrpairOrderGuid);
+		if (StringUtils.isNotBlank(dto.getRrpairOrderGuid())) {
+			rrpair = rrpairOrderService.find(RrpairOrder.class, dto.getRrpairOrderGuid());
 			if (rrpair==null) {
 				throw new ValidationException("当前维修记录不存在");
 			}
@@ -641,20 +663,26 @@ public class RrpairOrderController {
 			rrpair.setCreateDate(new Date());
 		}
 		
-		if (StringUtils.isNotBlank(orderFstate)) {
-			rrpair.setOrderFstate(orderFstate);
+		if (StringUtils.isNotBlank(dto.getOrderFstate())) {
+			rrpair.setOrderFstate(dto.getOrderFstate());
 		}
-		
 		//如果需要填写报修信息
-		if (isRepairs) {
-			rrpair.setEquipmentCode(equipmentCode);
-			rrpair.setUrgentFlag(urgentFlag);
-			rrpair.setRrpairSend(rrpairSend);
-			rrpair.setSpare(spare);
-			rrpair.setRrpairPhone(rrpairPhone);
+		if (dto.getIsRepairs()) {
+			rrpair.setEquipmentCode(dto.getEquipmentCode());
+			rrpair.setUrgentFlag(dto.getUrgentFlag());
+			rrpair.setRrpairSend(dto.getRrpairSend());
+			rrpair.setSpare(dto.getSpare());
+			rrpair.setRrpairPhone(dto.getRrpairPhone());
+			String faultDescribe = "";
+			if (dto.getFaultDescribe()!=null) {
+				for (String s : dto.getFaultDescribe()) {
+					faultDescribe = faultDescribe+s+",";
+				}
+			}
+			
 			rrpair.setFaultDescribe(faultDescribe);
-			rrpair.setTfRemark(tfRemark);
-			rrpair.setFailCause(failCause);
+			rrpair.setTfRemarkBx(dto.getTfRemarkBx());
+			rrpair.setFaultWords(dto.getFaultWords());
 			rrpair.setCreateDate(new Date());
 //			rrpair.setRrpairUserid(session.getAttribute("openid").toString());
 //			WeixinOpenUser wxUser = (WeixinOpenUser)session.getAttribute("wxUser");
@@ -662,12 +690,13 @@ public class RrpairOrderController {
 			rrpair.setRrpairUserid("11");
 			rrpair.setRrpairUsername("11");
 			String fault = "";
-			if (tfAccessory!=null && tfAccessory.length!=0) {
-				for (int i = 0; i < tfAccessory.length; i++) {
+			if (dto.getTfAccessory()!=null && dto.getTfAccessory().size()!=0) {
+				int i = 0;
+				for (String str : dto.getTfAccessory()) {
 					 //获取文件类型
-			        int beginIndex = tfAccessory[i].indexOf("/");
-			        int endIndex = tfAccessory[i].indexOf(";");
-			        String filename = tfAccessory[i].substring(beginIndex+1,endIndex==-1 ? tfAccessory[i].length() : endIndex);
+			        int beginIndex = str.indexOf("/");
+			        int endIndex = str.indexOf(";");
+			        String filename = str.substring(beginIndex+1,endIndex==-1 ? str.length() : endIndex);
 			        StringBuffer buf = new StringBuffer(".");
 			        if(StringUtils.isNotBlank(filename)){
 			            filename = buf.append(filename).toString();
@@ -675,7 +704,7 @@ public class RrpairOrderController {
 			            throw new ValidationException("未知的上传文件类型!");
 			        }
 			        //获取文件
-			        String file = tfAccessory[i];
+			        String file = str;
 			        file = file.replaceAll("data:image/jpeg;base64,", "");  
 			        file = file.replaceAll("data:image/jpg;base64,", "");
 			        file = file.replaceAll("data:image/png;base64,", ""); 
@@ -705,7 +734,9 @@ public class RrpairOrderController {
 			        String filePath=directory+fileName;
 			        FTPUtils.upload(directory, fileName, in);
 			        fault += filePath+";";
+			        i++;
 				}
+
 			}
 			rrpair.setFaultAccessory(fault);
 		}
@@ -716,28 +747,47 @@ public class RrpairOrderController {
 			rrpair.setUseDeptCode(assetsRecord.getUseDeptCode());
 		}
 		rrpair.setModifyTime(new Date());
-		if (StringUtils.isNotBlank(rrpairType)) {
-			if (rrpairType.equals("00")) {
-				rrpair.setInRrpairPhone(inRrpairPhone==null ? rrpair.getInRrpairPhone() : inRrpairPhone);
-				rrpair.setRepairContentType(repairContentType==null ? rrpair.getRepairContentType() : repairContentType);
-				rrpair.setRepairContentTyp(repairContentTyp==null ? rrpair.getRepairContentTyp() : repairContentTyp);
-				rrpair.setRepairResult(repairResult==null ? rrpair.getRepairResult() : repairResult);
-				if (StringUtils.isNotBlank(actualPrice)) {
-					rrpair.setActualPrice(BigDecimal.valueOf(Long.valueOf(actualPrice)));
+		SimpleDateFormat format = new SimpleDateFormat("yyyy-mm-dd");
+		if (StringUtils.isNotBlank(dto.getRrpairType())) {
+			rrpair.setRrpairType(dto.getRrpairType());
+			if (dto.getRrpairType().equals("00")) {
+				rrpair.setInRrpairPhone(dto.getInRrpairPhone()==null ? rrpair.getInRrpairPhone() : dto.getInRrpairPhone());
+				rrpair.setRepairContentType(dto.getRepairContentType()==null ? rrpair.getRepairContentType() : dto.getRepairContentType());
+				rrpair.setRepairContentTyp(dto.getRepairContentTyp()==null ? rrpair.getRepairContentTyp() : dto.getRepairContentTyp());
+				rrpair.setRepairResult(dto.getRepairResult()==null ? rrpair.getRepairResult() : dto.getRepairResult());
+				if (StringUtils.isNotBlank(dto.getActualPrice())) {
+					rrpair.setActualPrice(BigDecimal.valueOf(Long.valueOf(dto.getActualPrice())));
 				}
-				rrpair.setTfRemarkWx(tfRemarkWx==null ? rrpair.getTfRemarkWx() : tfRemarkWx);
-				rrpair.setOffCause(offCause==null ? rrpair.getOffCause() : offCause);
-				rrpair.setFollowupTreatment(followupTreatment==null ? rrpair.getFollowupTreatment() : followupTreatment);
-				rrpair.setTfRemarkGb(tfRemarkGb==null ? rrpair.getTfRemarkGb() : tfRemarkGb);
-			}else{
-				rrpair.setOutOrg(outOrg==null ? rrpair.getOutOrg() : outOrg);
-				rrpair.setOutRrpairPhone(outRrpairPhone==null ? rrpair.getOutRrpairPhone() : outRrpairPhone);
-				rrpair.setCompletTime(completTime==null ? rrpair.getCompletTime() : completTime);
-				rrpair.setTfRemarkZp(tfRemarkZp==null ? rrpair.getTfRemarkZp() : tfRemarkZp);
+				rrpair.setTfRemarkWx(dto.getTfRemarkWx()==null ? rrpair.getTfRemarkWx() : dto.getTfRemarkWx());
+				rrpair.setOffCause(dto.getOffCause()==null ? rrpair.getOffCause() : dto.getOffCause());
+				rrpair.setFollowupTreatment(dto.getFollowupTreatment()==null ? rrpair.getFollowupTreatment() : dto.getFollowupTreatment());
+				rrpair.setTfRemarkGb(dto.getTfRemarkGb()==null ? rrpair.getTfRemarkGb() : dto.getTfRemarkGb());
+			}else if (dto.getRrpairType().equals("01")){
+				rrpair.setOutOrg(dto.getOutOrg()==null ? rrpair.getOutOrg() : dto.getOutOrg());
+				rrpair.setOutRrpairPhone(dto.getOutRrpairPhone()==null ? rrpair.getOutRrpairPhone() : dto.getOutRrpairPhone());
+				rrpair.setCompletTime(dto.getCompletTime()==null ? rrpair.getCompletTime() : format.parse(dto.getCompletTime()));
+				rrpair.setTfRemarkZp(dto.getTfRemarkZp()==null ? rrpair.getTfRemarkZp() : dto.getTfRemarkZp());
+			}else {
+				throw new ValidationException("当前维修类型有误！");
 			}
 		}
 
-		rrpairOrderService.insertRrpairOrder(rrpair,assetsRecord);
+		List<String> assetsExtendGuid = new ArrayList<String>();
+		List<Integer> acceNum = new ArrayList<Integer>();
+		if (dto.getAssetsExtendGuids() == null) {
+			
+		}else{
+			List<Map<String, Object>> maps = dto.getAssetsExtendGuids();
+			if (dto.getAssetsExtendGuids()!=null || dto.getAssetsExtendGuids().size()!=0) {
+				for (Map<String, Object> m : maps) {
+					assetsExtendGuid.add(m.get("assetsExtendGuid").toString());
+					acceNum.add(Integer.valueOf(m.get("acceNum").toString()));
+				}
+			}
+		}
+		
+		
+		rrpairOrderService.insertRrpairOrder(rrpair,assetsRecord,assetsExtendGuid,acceNum);
 	}
 	
 	/**
@@ -786,9 +836,18 @@ public class RrpairOrderController {
 		//订单备货信息
 		Map<String, Object> dto = objectMapper.readValue(request.getReader(), HashMap.class);
 		String rrpairOrderGuid = dto.get("rrpairOrderGuid").toString();
-		List<String> assetsExtendGuid = (List<String>)dto.get("assetsExtendGuid");
-		List<Integer> acceNum = (List<Integer>)dto.get("acceNum");
-		
+		List<Map<String, Object>> maps = (List<Map<String, Object>>)dto.get("assetsExtendGuids");
+
+		List<String> assetsExtendGuid = new ArrayList<String>();
+		List<Integer> acceNum = new ArrayList<Integer>();
+		if (maps!=null || maps.size()!=0) {
+			for (Map<String, Object> m : maps) {
+				assetsExtendGuid.add(m.get("assetsExtendGuid").toString());
+				acceNum.add(Integer.valueOf(m.get("acceNum").toString()));
+			}
+		}else{
+			throw new ValidationException("当前添加列表为空！");
+		}
 		
 		if (StringUtils.isBlank(rrpairOrderGuid)) {
 			throw new ValidationException("当前维修记录guid不允许为空");
@@ -927,7 +986,7 @@ public class RrpairOrderController {
 	/**
 	 * 验收
 	 * @param rrpairOrderGuid 维修记录guid
-	 * @param rrAcceFstate 通过/不通过
+	 * @param rrAcceFstate 通过/不通过 65通过 66不通过
 	 * @param tfRemark 备注
 	 * @param evaluate 评价
 	 * @param notCause 不通过原因
@@ -955,12 +1014,12 @@ public class RrpairOrderController {
 		rrpairOrderAcce.setRrAcceFstate(rrAcceFstate);
 		rrpairOrderAcce.setEvaluate(evaluate);
 		rrpairOrderAcce.setTfRemark(tfRemark);
-		if (rrAcceFstate.equals("90")) {
+		if (rrAcceFstate.equals("66")) {
 			rrpairOrderAcce.setNotCause(notCause);
 		}
 		rrpairOrderAcce.setRrAcceDate(new Date());
 		
-		rrpairOrder.setOrderFstate("80");
+		rrpairOrder.setOrderFstate("90");
 		rrpairOrderService.insertRrpairOrderAcce(rrpairOrderAcce, rrpairOrder);
 	}
 	
@@ -983,6 +1042,7 @@ public class RrpairOrderController {
 	 * @param completTime 预计完成时间
 	 * @param tfRemarkZp 指派备注（外修）
 	 * @author zhangyanli
+	 * @throws ParseException 
 	 */
 	@RequestMapping("/designateInOrOut")
 	@ResponseBody
@@ -1001,9 +1061,9 @@ public class RrpairOrderController {
 			@RequestParam(value="tfRemarkGb",required = false) String tfRemarkGb,
 			@RequestParam(value="outOrg",required = false) String outOrg,
 			@RequestParam(value="outRrpairPhone",required = false) String outRrpairPhone,
-			@RequestParam(value="completTime",required = false) Date completTime,
+			@RequestParam(value="completTime",required = false) String completTime,
 			@RequestParam(value="tfRemarkZp",required = false) String tfRemarkZp
-			) throws ValidationException{
+			) throws ValidationException, ParseException{
 		RrpairOrder rrpair = rrpairOrderService.find(RrpairOrder.class, rrpairOrderGuid);
 		if (rrpair==null) {
 			throw new ValidationException("当前维修记录不存在");
@@ -1013,7 +1073,7 @@ public class RrpairOrderController {
 			rrpair.setOrderFstate(orderFstate);
 		}
 		rrpair.setModifyTime(new Date());
-				
+		SimpleDateFormat format = new SimpleDateFormat("yyyy-mm-dd");	
 		if (StringUtils.isNotBlank(rrpairType)) {
 			//如果指派信息是内修，则填写内修信息
 			if (rrpairType.equals("00")) {
@@ -1024,15 +1084,15 @@ public class RrpairOrderController {
 				rrpair.setInRrpairUsername(inRrpairUsername);
 				rrpair.setTfRemarkWx(tfRemarkWx);
 				rrpair.setCallTime(new Date());
-				rrpair.setCompletTime(completTime);
+				rrpair.setCompletTime(StringUtils.isBlank(completTime)==true ? null : format.parse(completTime));
 			}
 			//如果指派信息是外修，则填写外修信息
-			else if (rrpairType.equals("10")){
+			else if (rrpairType.equals("01")){
 				rrpair.setRrpairType(rrpairType);
 				rrpair.setOutOrg(outOrg);
 				rrpair.setOutRrpairPhone(outRrpairPhone);
 				rrpair.setCallTime(new Date());
-				rrpair.setCompletTime(completTime);
+				rrpair.setCompletTime(format.parse(completTime));
 				rrpair.setTfRemarkZp(tfRemarkZp);
 			}
 			//如果指派时关闭维修单，则填写关闭原因等信息
@@ -1063,16 +1123,20 @@ public class RrpairOrderController {
 			@RequestParam(value="otherCause",required = false) String otherCause,
 			@RequestParam(value="tfRemarkJj",required = false) String tfRemarkJj
 			) throws ValidationException{
-		RrpairOrder rrpairOrder = rrpairOrderService.find(RrpairOrder.class, rrpairOrderGuid);
-		if (rrpairOrder==null) {
+		if (StringUtils.isBlank(rrpairOrderGuid)) {
+			throw new ValidationException("维修工单GUID不允许为空");
+		}
+		RrpairOrder rrpair = rrpairOrderService.find(RrpairOrder.class, rrpairOrderGuid);
+		if (rrpair==null) {
 			throw new ValidationException("当前维修记录不存在");
 		}
+		System.out.println("rrpair.getRrpairOrderGuid()"+rrpair.getRrpairOrderGuid());
 		if (StringUtils.isBlank(orderFstate)) {
 			throw new ValidationException("维修状态不允许为空");
 		}
 		//如果是内修人主动接修，则自动填写内修人信息
 		if (orderFstate.equals(CustomConst.RrpairOrderFstate.MAINTENANCE)) {
-			if (rrpairOrder.getOrderFstate().equals(CustomConst.RrpairOrderFstate.AWAITING_REPAIR)) {
+			if ((CustomConst.RrpairOrderFstate.AWAITING_REPAIR).equals(rrpair.getOrderFstate())) {
 //				rrpairOrder.setInRrpairUserid(session.getAttribute(LoginUser.SESSION_USERID).toString());
 //				rrpairOrder.setInRrpairUsername(session.getAttribute(LoginUser.SESSION_USERNAME).toString());
 			}
@@ -1080,12 +1144,12 @@ public class RrpairOrderController {
 		
 		//如果外修拒绝维修单，则填写拒绝原因等信息
 		if (orderFstate.equals(CustomConst.RrpairOrderFstate.REJECT)) {
-			rrpairOrder.setRefuseCause(refuseCause);
-			rrpairOrder.setOtherCause(otherCause);
-			rrpairOrder.setTfRemarkJj(tfRemarkJj);
+			rrpair.setRefuseCause(refuseCause);
+			rrpair.setOtherCause(otherCause);
+			rrpair.setTfRemarkJj(tfRemarkJj);
 		}
-		rrpairOrder.setOrderFstate(orderFstate);
-		rrpairOrder.setModifyTime(new Date());
-		rrpairOrderService.updateInfo(rrpairOrder);
+		rrpair.setOrderFstate(orderFstate);
+		rrpair.setModifyTime(new Date());
+		rrpairOrderService.updateInfo(rrpair);
 	}
 }

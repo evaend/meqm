@@ -134,9 +134,10 @@ public class EquipmentAdditionalController {
 
 		Assert.notEmpty(entityList, "没有发现资产信息，请检查文档中的资产");
 		String userId = (String) session.getAttribute(LoginUser.SESSION_USERID);
-		String orgId = (String) session.getAttribute(LoginUser.SESSION_USER_ORGID);
+		String orgId = String.valueOf(session.getAttribute(LoginUser.SESSION_USER_ORGID));
+		System.out.println("orgId+++++++++++++++++++++++"+orgId);
 		if(StringUtils.isBlank(orgId)){
-			orgId = "212";
+			orgId = "197";
 		}
 		//导入资产
 		equipmentAdditionalService.importEquipments(entityList,userId,orgId );
@@ -207,9 +208,12 @@ public class EquipmentAdditionalController {
 		pager.addQueryParam("searchName", searchName);
 		pager.addQueryParam("specCertGuid", specCertGuid);
 		pager.addQueryParam("excludeCertGuid", excludeCertGuid);
-
-		request.setAttribute(ResResultBindingInterceptor.IGNORE_STD_RESULT, true);//忽略标准结果
-		return equipmentAdditionalService.searchCertList(pager);
+		if (StringUtils.isBlank(specCertGuid)) {
+			return null;
+		}else{
+			request.setAttribute(ResResultBindingInterceptor.IGNORE_STD_RESULT, true);//忽略标准结果
+			return equipmentAdditionalService.searchCertList(pager);
+		}
 	}
 
 	private String validLengthOfEquipment(EquipmentDto entity) {
@@ -228,4 +232,6 @@ public class EquipmentAdditionalController {
 		}
 		return error;
 	}
+	
+//	public void 
 }

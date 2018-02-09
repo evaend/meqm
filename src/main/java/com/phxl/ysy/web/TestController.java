@@ -8,6 +8,7 @@ import java.io.FileOutputStream;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.net.URLEncoder;
 import java.security.MessageDigest;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -70,7 +71,7 @@ public class TestController {
 	@RequestMapping(value = "/test.html", method = RequestMethod.GET)
     public void testPage(Model model,HttpServletRequest request,HttpServletResponse response) throws Exception {
 
-        String url = "http://4bt9s8.natappfree.cc/test/test.html";
+        String url = "http://6bu3kf.natappfree.cc/test/test.html";
         WxJsUtils jsUtils = new WxJsUtils();
 		final String appId = SystemConfig.getProperty("wechat.config.appid");
         Map<String, String> ret = jsUtils.sign(url);
@@ -80,7 +81,7 @@ public class TestController {
             request.setAttribute(entry.getKey().toString(), entry.getValue());
             session.setAttribute(entry.getKey().toString(), entry.getValue());
         }
-        request.getRequestDispatcher("/test.jsp").forward(request, response);
+        request.getRequestDispatcher("/index.jsp").forward(request, response);
     }
 	
 	
@@ -334,4 +335,19 @@ public class TestController {
         imessageService.pushMessages(message);
 	}
 	
+	@RequestMapping("/getWeixinTicket")
+	@ResponseBody
+	public ModelAndView getWeixinTicket(
+			@RequestParam(value="orgId",required = false) String orgId,
+			HttpServletRequest request,HttpServletResponse response) throws Exception {
+	    String access_token = AccessTokenInfo.accessToken.getAccessToken();
+	    Map<String, Object> m = new HashMap<String, Object>();
+	    Map<String, Object> map = new HashMap<String, Object>();
+	    map.put("scene_id", "123");
+//	    map.put("scene_id", "orgId=197;groupId=3BB4F32DBA2F47AB952386414CEFAC7D");
+//	    map.put("scene_str", "108");
+	    m.put("scene", map);
+	    String ticket = weixinAPIInterface.getWeixinTicket(access_token, m);
+	    return new ModelAndView(new RedirectView("https://mp.weixin.qq.com/cgi-bin/showqrcode?ticket="+ticket));
+	}
 }

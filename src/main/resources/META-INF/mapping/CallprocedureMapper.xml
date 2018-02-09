@@ -10,7 +10,7 @@
 	
 	<!-- 获取单号 -->
 	<select id="SP_GET_BILL_NOSTORAGE" parameterType="map" statementType="CALLABLE">
-		{ call sp_get_bill_nostorage(
+		{ call sp_get_bill_zc(
 			#{billOrgId, jdbcType=NUMERIC, mode=IN},
 			#{asLen, jdbcType=NUMERIC, mode=IN},
 			#{billName, jdbcType=VARCHAR, mode=IN},
@@ -23,6 +23,7 @@
 	<!-- 获取二维码单号 -->
 	<select id="SP_GET_QRBILL" parameterType="map" statementType="CALLABLE">
 		{ call sp_get_asbill(
+			#{billOrgId, jdbcType=NUMERIC, mode=IN},
 			#{billPrefix, jdbcType=VARCHAR, mode=IN},
 			#{cursor, jdbcType=CURSOR, javaType=ResultSet, mode=OUT, resultMap=com.phxl.ysy.dao.CallprocedureMapper.BillResultMap}
 		  )

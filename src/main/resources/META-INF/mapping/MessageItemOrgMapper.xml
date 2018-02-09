@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.phxl.ysy.dao.MessageItemOrgMapper">
+
+	<resultMap id="BaseResultMap" type="com.phxl.ysy.entity.MessageItemOrg">
+		<id column="MI_LOCAL_GUID" property="miLocalGuid" jdbcType="VARCHAR" />
+		<result column="ORG_ID" property="orgId" jdbcType="DECIMAL" />
+		<result column="MI_GLOBAL_GUID" property="miGlobalGuid" jdbcType="VARCHAR" />
+		<result column="MI_SEND_TYPE" property="miSendType" jdbcType="VARCHAR" />
+		<result column="MI_ISRECEIVE_AUTO" property="miIsreceiveAuto" jdbcType="VARCHAR" />
+		<result column="MI_RECEIVE_USERID" property="miReceiveUserid" jdbcType="VARCHAR" />
+		<result column="FSTATE" property="fstate" jdbcType="VARCHAR" />
+	</resultMap>
+	
+	<sql id="Base_Column_List">
+		MI_LOCAL_GUID, ORG_ID, MI_GLOBAL_GUID, MI_SEND_TYPE, MI_ISRECEIVE_AUTO,
+		MI_RECEIVE_USERID, FSTATE
+	</sql>
+
+   <sql id="return_Column_List">
+		mg.MI_GLOBAL_GUID "miGlobalGuid", MI_CODE "miCode",  mg.MI_SEND_TYPE "gmiSendType", MI_TITLE "miTitle", MI_CONTENT "miContent", WECHAT_TEMPLATEID "wechatTemplateid",
+		 MI_SYS_TYPE "miSysType", MI_FSORT "miFsort", MI_SAVE_DATE "miSaveDate",
+		 mo.FSTATE "fstate",mo.MI_LOCAL_GUID "miLocalGuid", mo.MI_SEND_TYPE "omiSendType",
+		 MI_ISRECEIVE_AUTO "miIsreceiveAuto"
+	</sql>
+	<!-- 查询机构消息项的列表 -->
+	<select id="selectMessageItemOrgList" resultType="hashMap"  parameterType="com.phxl.core.base.entity.Pager">
+		SELECT <include refid="return_Column_List" />,
+		ur."selectedReceivers" 
+		from TM_MESSAGEITEM_ORG mo
+		LEFT JOIN TM_MESSAGEITEM_GLOBAL mg on mo.MI_GLOBAL_GUID = mg.MI_GLOBAL_GUID
+		left join (select m.MI_LOCAL_GUID,wm_concat(u.user_name) "selectedReceivers"   
+ 					from TM_MESSAGEITEM_ORG m,ts_user_info u 
+ 					where instr(m.MI_RECEIVE_USERID,u.user_id)>0 and u.fstate='01' group by m.MI_LOCAL_GUID) ur on ur.MI_LOCAL_GUID = mo.MI_LOCAL_GUID
+		where mo.org_id=#{conditiions.orgId} and mg.fstate = '01' and mo.fstate = '01'
+		<if test="conditiions.searchParams != null and conditiions.searchParams != ''">
+			and regexp_like(mg.MI_TITLE, #{conditiions.searchParams, jdbcType=VARCHAR})
+	      </if> 
+	</select>
+	
+	<!-- 删除机构消息项的列表 -->
+	<select id="deleteOldOrgItem" parameterType="string">
+		DELETE FROM TM_MESSAGEITEM_ORG mo WHERE mo.MI_GLOBAL_GUID = #{miGlobalGuid}
+	</select>
+	
+	<!-- 根据模块查询机构id -->
+	<select id="selectOrgsByModuleIds" parameterType="string"  resultType="string">
+	    SELECT om.org_id FROM TD_ORG_MODULE om  where om.module_id = #{moduleId}
+	</select>
+	
+	<!-- 查询用户的微信openid -->
+	<select id="selectWechatIdByUserId" parameterType="string"  resultType="string">
+	    SELECT u.WECHAT_OPENID FROM TS_USER_INFO u  where u.user_id = #{userId}
+	</select>
+	
+	<!-- 自动匹配机构的消息接收人 -->
+	<select id="selectMRceByOrgId" parameterType="long"  resultType="string">
+	    SELECT u.user_id FROM TS_USER_INFO u  where u.USER_LEVEL='02' and u.org_id = #{orgId}
+	</select>
+	
+	<!-- 批量新增机构消息项  -->
+	<insert id="insertmessageItemOrgBatch">
+		INSERT INTO TM_MESSAGEITEM_ORG(MI_LOCAL_GUID, 
+		ORG_ID, 
+		MI_GLOBAL_GUID, 
+		MI_SEND_TYPE, 
+		MI_ISRECEIVE_AUTO,
+		FSTATE)
+		SELECT gm.MI_LOCAL_GUID,gm.ORG_ID, 
+		mg.MI_GLOBAL_GUID,mg.MI_SEND_TYPE,
+		'01','01'
+		FROM (
+	    	<foreach collection="orgIds" item="orgId" open=" " close=" " separator="UNION">
+	    		SELECT sys_guid() MI_LOCAL_GUID,#{orgId} ORG_ID from dual
+	    	</foreach>
+	 	) gm 
+	 	left join TM_MESSAGEITEM_GLOBAL mg on mg.MI_GLOBAL_GUID = #{miGlobalGuid}
+	</insert>
+	
+	<!-- 查询机构消息项的用户-->
+	<select id="findMiUsers"  parameterType="com.phxl.core.base.entity.Pager"  resultType="hashMap">
+	    select m.MI_LOCAL_GUID "miLocalGuid",
+		u.user_id "userId",u.user_no "userNo",u.user_name "userName",
+		case when instr(m.MI_RECEIVE_USERID,u.user_id)>0 then 1 
+		else 0  end as "choosed"
+ 		from ts_user_info u
+ 		left join TM_MESSAGEITEM_ORG m on m.MI_LOCAL_GUID=#{conditiions.miLocalGuid} 
+ 		where u.fstate = '01' and u.org_id = #{conditiions.orgId}
+ 		<if test="conditiions.searchParams != null and conditiions.searchParams != ''">
+			and (
+				regexp_like(u.USER_NO, #{conditiions.searchParams, jdbcType=VARCHAR})
+				or regexp_like(u.USER_NAME, #{conditiions.searchParams, jdbcType=VARCHAR})
+				or regexp_like(u.JOB_NUM, #{conditiions.searchParams, jdbcType=VARCHAR})
+			)
+	      </if> 
+	</select>
+</mapper>

@@ -4,8 +4,8 @@ import java.util.Date;
 
 import com.phxl.core.base.annotation.BaseSql;
 
-@BaseSql(tableName="TD_CERT_INFO", resultName="com.phxl.ysy.dao.CertInfoMapper.BaseResultMap")
-public class CertInfo {
+@BaseSql(tableName="TD_CERT_INFO_ZC", resultName="com.phxl.ysy.dao.CertInfoZcMapper.BaseResultMap")
+public class CertInfoZc {
     private String certId;
 
     private Long orgId;

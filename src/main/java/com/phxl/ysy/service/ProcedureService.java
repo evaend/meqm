@@ -12,5 +12,5 @@ public interface ProcedureService extends IBaseService {
 	/**
 	 * 生成二维码单号
 	 */
-	public abstract String callSpGetQrBill(String billOrgId, String billPrefix, Integer asLen) throws ValidationException;
+	public abstract String callSpGetQrBill(Long billOrgId, String billPrefix) throws ValidationException;
 }

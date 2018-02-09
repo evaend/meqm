@@ -113,6 +113,12 @@ public class AssetsRecord {
 
     private String spare;
     
+    private String certGuid;
+    
+    private String fOrgId;
+    
+    private String tfBrand;
+    
     private String meteringType;
     
     private Date nextMaintainDate;
@@ -531,6 +537,30 @@ public class AssetsRecord {
 
 	public void setGuaranteeFlag(String guaranteeFlag) {
 		this.guaranteeFlag = guaranteeFlag;
+	}
+
+	public String getCertGuid() {
+		return certGuid;
+	}
+
+	public void setCertGuid(String certGuid) {
+		this.certGuid = certGuid;
+	}
+
+	public String getfOrgId() {
+		return fOrgId;
+	}
+
+	public void setfOrgId(String fOrgId) {
+		this.fOrgId = fOrgId;
+	}
+
+	public String getTfBrand() {
+		return tfBrand;
+	}
+
+	public void setTfBrand(String tfBrand) {
+		this.tfBrand = tfBrand;
 	}
 
 	public String getSpare() {

@@ -69,13 +69,12 @@ public class ProcedureServiceImpl extends BaseService implements ProcedureServic
 	 * @return	String				生成的单号
 	 */
 	@Override
-	public String callSpGetQrBill(String billOrgId, String billPrefix, Integer asLen) throws ValidationException {
+	public String callSpGetQrBill(Long billOrgId, String billPrefix) throws ValidationException {
 		Assert.notNull(billOrgId, "生成新单号: 机构id，不能为空");
 		
 		Map<String, Object> params=new HashMap<String, Object>();
 		params.put("billOrgId", billOrgId);
 		params.put("billPrefix", billPrefix);
-		params.put("asLen", asLen);
 		
 		//获取指定单据类型的最新单号
 		callprocedureMapper.SP_GET_QRBILL(params);

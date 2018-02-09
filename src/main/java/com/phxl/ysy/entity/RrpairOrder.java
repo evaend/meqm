@@ -80,7 +80,7 @@ public class RrpairOrder {
 
     private String tfComment;
 
-    private String tfRemark;
+    private String tfRemarkBx;
 
     private String faultAccessory;
 
@@ -93,8 +93,6 @@ public class RrpairOrder {
     private String callDeptCode;
 
     private String outOrg;
-
-    private String failCause;
 
     private Date createDate;
     
@@ -402,15 +400,15 @@ public class RrpairOrder {
         this.tfComment = tfComment == null ? null : tfComment.trim();
     }
 
-    public String getTfRemark() {
-        return tfRemark;
-    }
+    public String getTfRemarkBx() {
+		return tfRemarkBx;
+	}
 
-    public void setTfRemark(String tfRemark) {
-        this.tfRemark = tfRemark == null ? null : tfRemark.trim();
-    }
+	public void setTfRemarkBx(String tfRemarkBx) {
+		this.tfRemarkBx = tfRemarkBx;
+	}
 
-    public String getRrpairOrderGuid() {
+	public String getRrpairOrderGuid() {
         return rrpairOrderGuid;
     }
 
@@ -456,14 +454,6 @@ public class RrpairOrder {
 
     public void setOutOrg(String outOrg) {
         this.outOrg = outOrg == null ? null : outOrg.trim();
-    }
-
-    public String getFailCause() {
-        return failCause;
-    }
-
-    public void setFailCause(String failCause) {
-        this.failCause = failCause == null ? null : failCause.trim();
     }
 
     public Date getCreateDate() {

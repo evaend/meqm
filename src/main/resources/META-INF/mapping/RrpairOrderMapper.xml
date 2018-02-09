@@ -38,14 +38,13 @@
     <result column="ACTUAL_PRICE" property="actualPrice" jdbcType="DECIMAL" />
     <result column="COST_DETAIL" property="costDetail" jdbcType="VARCHAR" />
     <result column="TF_COMMENT" property="tfComment" jdbcType="VARCHAR" />
-    <result column="TF_REMARK_BX" property="tfRemark" jdbcType="VARCHAR" />
+    <result column="TF_REMARK_BX" property="tfRemarkBx" jdbcType="VARCHAR" />
     <result column="FAULT_ACCESSORY" property="faultAccessory" jdbcType="VARCHAR" />
     <result column="TF_ACCESSORY" property="tfAccessory" jdbcType="VARCHAR" />
     <result column="RRPAIR_ORDER_NO" property="rrpairOrderNo" jdbcType="VARCHAR" />
     <result column="RRPAIR_SEND" property="rrpairSend" jdbcType="VARCHAR" />
     <result column="CALL_USERID" property="callUserid" jdbcType="VARCHAR" />
     <result column="OUT_ORG" property="outOrg" jdbcType="VARCHAR" />
-    <result column="FAIL_CAUSE" property="failCause" jdbcType="VARCHAR" />
     <result column="CREATE_DATE" property="createDate" jdbcType="DATE" />
     <result column="CALL_DEPT_NAME" property="callDeptName" jdbcType="VARCHAR" />
     <result column="CALL_TIME" property="callTime" jdbcType="DATE" />
@@ -75,11 +74,13 @@
   <select id="selectRrpairDetailIsAssets" resultType="java.util.HashMap" parameterType="com.phxl.core.base.entity.Pager">
   	 select ro.rrpair_order_guid "rrpairOrderGuid",--维修工单号guid
   	  		ro.assets_record  "assetsRecord",    -- 资产档案号-资产编号      
-			te.equipment_standard_name "equipmentStandardName",	--equipment_code资产名称 
+  	  		tar.assets_record_m "assetsRecordGuid",	--资产档案GUID
+			te.equipment_standard_name "equipmentStandardName",	--equipment_code资产名称
+			tar.use_fstate "tarUseFstate",	--资产使用状态 01正常在用（启用后或科室验收通过），02故障中（保修），03已报废，04借出，05闲置。 
 			te.spec "spec",	--规格
 			te.fmodel "fmodel",	--型号
 			tar.product_type "productType",--资产分类id(资产类别 )  
-			tdi.dept_nam "deptName",	--（使用科室）
+			tdi.dept_name "deptName",	--（使用科室）
 			tar.custodian "custodian",	--管理员，保管员
 			tar.m_dept_code "mDeptCode",	--管理科室id
 			tar.deposit "deposit",	--放地点-a区b楼c层d房间(存放地点)
@@ -88,19 +89,21 @@
         left join tb_rrpair_order_acce roa on ro.rrpair_order_no=roa.rrpair_order
         left join td_equipment te on ro.equipment_code=te.equipment_code
         left join td_assets_record tar on ro.assets_record=tar.assets_record
-        left join td_dept_info tdi on ro.use_dept_code=tdi.dept_code
+        left join td_org_dept tdi on ro.use_dept_code=tdi.dept_code
         where ro.rrpair_order_guid = #{conditiions.rrpairOrderGuid, jdbcType=VARCHAR}
   </select>
   
   <!-- 查询维修工单信息——（报修信息） -->
   <select id="selectRrpairDetailIsOrder" resultType="java.util.HashMap" parameterType="com.phxl.core.base.entity.Pager">
   	 select ro.rrpair_order_guid "rrpairOrderGuid",--维修工单号guid
+        	ro.rrpair_order_no "rrpairOrderNo" ,  -- 维修单号
         	ro.urgent_flag "urgentFlag", --紧急度：紧急，急，一般(紧急度)
 	        ro.rrpair_send "rrpairSend",  --是否送修：是，否(是否送修)
+	        ro.spare "spare",	--备用情况
 	        ro.rrpair_phone "rrpairPhone", -- 报修人电话
 	        ro.fault_describe "faultDescribe",	--故障现象
 	        tar.use_fstate "useFstate",	--是否停用
-	        ro.repair_content_typ "repairContentTyp",  --故障原因（故障描述）
+	        ro.fault_words "faultWords",  --故障描述
 	        ro.tf_remark_bx "tfRemarkBx",	--报修备注
 	        ro.fault_accessory "faultAccessory"	--报修图片附件
 	  	from td_rrpair_order ro
@@ -116,7 +119,7 @@
 	        ro.out_rrpair_username "outRrpairUsername", --外修负责人姓名
 	  		ro.in_rrpair_phone "inRrpairPhone",	--内修负责人电话
 	  		ro.out_rrpair_phone "outRrpairPhone",	--外修负责人电话
-	        (select org_name from td_org_info where org_id = ro.out_org) "outOrg",  --外修机构(维修单位)
+	        ro.out_org "outOrg",  --外修机构(维修单位)
 	        ro.call_time "callTime", --指派时间（预计开始时间）
 	        ro.complet_time "completTime",	--预计结束时间
 	        ro.call_dept_code "callDeptCode",	--维修组code 
@@ -143,7 +146,7 @@
 		        ro.off_cause "offCause",	--关闭原因
 		        ro.followup_treatment "followupTreatment",	--后续处理
 	        	ro.tf_remark_gb "tfRemarkGb",	--关闭备注
-	        	(select org_name from td_org_info where org_id = ro.out_org) "outOrg",  --外修机构(维修单位)
+	        	ro.out_org "outOrg",  --外修机构(维修单位)
 		        ro.out_rrpair_username "outRrpairUsername", --外修负责人姓名
 		  		ro.out_rrpair_phone "outRrpairPhone",	--外修负责人电话
 		        ro.call_time "callTime", --指派时间（预计开始时间）
@@ -155,7 +158,7 @@
   
   <!-- 查询维修工单信息——（验收信息） -->
   <select id="selectRrpairDetailIsAcce" resultType="java.util.HashMap" parameterType="com.phxl.core.base.entity.Pager">
-         select (select dept_nam from td_dept_info t
+         select (select dept_name from td_org_dept t
 		        where t.dept_code=roa.dept_code) "checkDeptName", --验收科室
 		        roa.rr_acce_userid "rrAcceUserid",  --报修后验收人id
 		        roa.rr_acce_username "rrAcceUsername",  --报修后验收人姓名
@@ -175,7 +178,7 @@
         ro.rrpair_order_guid "rrpairOrderGuid",--维修工单号guid
         ro.rrpair_order_no "rrpairOrderNo" ,  -- 维修单号
         ro.order_fstate "orderFstate", -- 单据状态：待接修，维修中,待验收，已关闭
-        tdi.dept_nam "deptName",--ro.use_dept_code "useDeptCode",--TD_DEPT_INFO.DEPT_NAM（使用科室）
+        tdi.dept_name "deptName",--ro.use_dept_code "useDeptCode",--TD_ORG_DEPT.DEPT_NAME（使用科室）
         ro.rrpair_userid "rrpairUserid",  --报修人id
         ro.rrpair_username "rrpairUsername", --报修人姓名
         ro.rrpair_phone "rrpairPhone", -- 报修人电话
@@ -196,7 +199,7 @@
         ro.out_org "outOrg",  --外修机构(维修单位)
         ro.actual_price "actualPrice", -- 实际费用(维修费用)
         --更换配件(占时不用)
-        (select dept_nam from td_dept_info t
+        (select dept_name from td_org_dept t
         where t.dept_code=roa.dept_code) checkDeptNam, --验收科室
         roa.rr_acce_userid "rrAcceUserid",  --报修后验收人id
         roa.rr_acce_username "rrAcceUsername",  --报修后验收人姓名
@@ -208,14 +211,14 @@
         te.fmodel "fmodel",--型号
         tar.product_type "productType",--资产分类id(资产类别 )
         tar.custodian "custodian",--保管员
-        (select dept_nam from td_dept_info t
+        (select dept_name from td_org_dept t
             where t.dept_code=tar.m_dept_code) "mDeptName", --管理科室
         tar.deposit "deposit"--放地点-a区b楼c层d房间(存放地点)
         from td_rrpair_order ro
         left join tb_rrpair_order_acce roa on ro.rrpair_order_no=roa.rrpair_order
         left join td_equipment te on ro.equipment_code=te.equipment_code
         left join td_assets_record tar on ro.assets_record=tar.assets_record
-        left join td_dept_info tdi on ro.use_dept_code=tdi.dept_code
+        left join td_org_dept tdi on ro.use_dept_code=tdi.dept_code
         --left join td_rrpair_fitting_use rfu on ro.rrpair_order_guid=rfu.rrpair_order_guid
         where 1=1
         <if test="conditiions.rrpairOrderNo != null and conditiions.rrpairOrderNo != ''">
@@ -263,7 +266,7 @@
 		(r.ASSETS_RECORD = a.ASSETS_RECORD )
 		left join td_equipment e on
 		(r.EQUIPMENT_CODE = e.EQUIPMENT_CODE )
-		left join td_dept_info d on
+		left join td_org_dept d on
 		(d.dept_code = r.use_dept_code)
 		&#45;&#45;left join td_label l on
 		&#45;&#45;(r.fault_describe = l.label_guid)
@@ -347,7 +350,7 @@
         ro.rrpair_order_no "rrpairOrderNo" ,  -- 维修单号
         ro.order_fstate "orderFstate", -- 单据状态：待接修，维修中,待验收，已关闭
         te.equipment_standard_name "equipmentStandardName"，--equipment_code资产名称
-        tdi.dept_nam "deptName",--ro.use_dept_code "useDeptCode",--TD_DEPT_INFO.DEPT_NAM（使用科室）
+        tdi.dept_name "deptName",--ro.use_dept_code "useDeptCode",--TD_ORG_DEPT.DEPT_NAME（使用科室）
         tar.custodian "custodian",--保管员
         ro.rrpair_userid "rrpairUserid",  --报修人id
         ro.rrpair_username "rrpairUsername", --报修人姓名
@@ -355,19 +358,23 @@
         ro.rrpair_type "rrpairType",  --维修方式:内修，外修
         ro.in_rrpair_userid "inRrpairUserid",  --内修负责人id
         ro.in_rrpair_username "inRrpairUsername",  --内修负责人姓名
-        ro.out_rrpair_username "outRrpairUsername" --外修负责人姓名
+        ro.out_rrpair_username "outRrpairUsername", --外修负责人姓名
+        ro.fault_describe "faultDescribe"	--故障现象
         from td_rrpair_order ro
         left join td_equipment te on ro.equipment_code=te.equipment_code
         left join td_assets_record tar on ro.assets_record=tar.assets_record
-        left join td_dept_info tdi on ro.use_dept_code=tdi.dept_code
+        left join td_org_dept tdi on ro.use_dept_code=tdi.dept_code
         where 1=1
         <if test="conditiions.params != null and conditiions.params != ''">
             and regexp_like(ro.rrpair_order_no, #{conditiions.params, jdbcType=VARCHAR}) OR
                 regexp_like(ro.assets_record, #{conditiions.params, jdbcType=VARCHAR}) OR
                 regexp_like(te.equipment_standard_name, #{conditiions.params, jdbcType=VARCHAR})
         </if>
-        <if test="conditiions != null and conditiions.orderMark != null and conditiions.orderField != null and conditiions.orderField!=''">
+        <if test="conditiions.orderMark != null and conditiions.orderMark != '' and conditiions.orderField != null and conditiions.orderField!=''">
             order by "${conditiions.orderField}" ${conditiions.orderMark}
+        </if>
+        <if test="conditiions.orderMark == null or conditiions.orderMark == '' and conditiions.orderField == null or conditiions.orderField==''">
+            order by ro.create_date desc
         </if>
     </select>
 </mapper>
