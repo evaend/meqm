@@ -20,7 +20,7 @@ public class OrgDept {
         return deptName;
     }
 
-    public void setDeptNam(String deptName) {
+    public void setDeptName(String deptName) {
         this.deptName = deptName == null ? null : deptName.trim();
     }
 }

@@ -47,6 +47,8 @@ public class UserInfo {
     private String headImgUrl;
     
     private String orgName;
+    
+    private String groupName;
 
     public String getUserId() {
         return userId;
@@ -214,6 +216,14 @@ public class UserInfo {
 
 	public void setOrgName(String orgName) {
 		this.orgName = orgName;
+	}
+
+	public String getGroupName() {
+		return groupName;
+	}
+
+	public void setGroupName(String groupName) {
+		this.groupName = groupName;
 	}
     
 }

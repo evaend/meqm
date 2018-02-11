@@ -489,6 +489,7 @@ public class RrpairOrderController {
 	 * 查询设备维修列表
 	 * @author	XiongChao
 	 * @param params
+	 * @param orderFstate
 	 * @param pagesize
 	 * @param page
 	 * @param sortField
@@ -501,6 +502,7 @@ public class RrpairOrderController {
 	@ResponseBody
 	public Pager<Map<String, Object>> selectRrpairList(
 			@RequestParam(value="params",required = false) String params,
+			@RequestParam(value="orderFstate",required = false) String orderFstate,
 			@RequestParam(value="pagesize",required = false) Integer pagesize,
 			@RequestParam(value="page",required = false) Integer page,
 			@RequestParam(value="sortField",required = false) String sortField,
@@ -515,6 +517,10 @@ public class RrpairOrderController {
 			pager.addQueryParam("orderMark", "ascend".equalsIgnoreCase(sortOrder)?"asc":"desc");
 		}
 		pager.addQueryParam("params", params);
+		pager.addQueryParam("orderFstate", orderFstate);
+		pager.addQueryParam("userId", session.getAttribute(LoginUser.SESSION_USERID));
+		pager.addQueryParam("orgId", session.getAttribute(LoginUser.SESSION_USER_ORGID));
+		pager.addQueryParam("groupName", session.getAttribute("getUserGroupName"));
 
 		List<Map<String, Object>> list = rrpairOrderService.selectRrpairList(pager);
 		for (Map<String, Object> map : list) {

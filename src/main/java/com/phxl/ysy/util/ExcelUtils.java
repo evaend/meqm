@@ -126,9 +126,13 @@ public class ExcelUtils {
 				if (value == null) continue;
 				for (String column : properties) {
 					String columnName = value.toString();
-					if (column.startsWith(columnName)) {
+					String[] colNamesStrings = column.split("\\[");
+					if(columnName.equals(colNamesStrings[0])){
 						columnNames[i] = column.substring(columnName.length() + 1, column.length() - 1);
 					}
+//					if (column.startsWith(columnName)) {
+//						columnNames[i] = column.substring(columnName.length() + 1, column.length() - 1);
+//					}
 				}
 			}
 			if (logger.isTraceEnabled()) rows.append("\n");

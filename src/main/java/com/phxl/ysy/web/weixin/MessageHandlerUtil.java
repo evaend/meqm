@@ -158,7 +158,6 @@ public class MessageHandlerUtil {
         String Event = map.get("Event");
         System.out.println(toUserName);
         System.out.println("EventKey+"+EventKey);
-        System.out.println("Event+"+Event);
         Set set= map.entrySet(); 
         Iterator it = set.iterator();
         while(it.hasNext()){
@@ -176,7 +175,7 @@ public class MessageHandlerUtil {
                                 "<Content><![CDATA[%s]]></Content>" +
                                 "</xml>",
                         fromUserName, toUserName, getMessageCreateTime(),
-                        "111111感谢您关注我的个人公众号，请点击链接绑定微信：https://open.weixin.qq.com/connect/oauth2/authorize?appid=wxe1ba6ec9765d99ac&redirect_uri=http%3A%2F%2F6bu3kf.natappfree.cc%2Fhome%2FwechatBinding&response_type=code&scope=snsapi_userinfo&state=binding#wechat_redirect");
+                        "111111感谢您关注我的个人公众号，请点击链接绑定微信：https://open.weixin.qq.com/connect/oauth2/authorize?appid=wxe1ba6ec9765d99ac&redirect_uri=http%3A%2F%2Fvupv29.natappfree.cc%2Fhome%2FwechatBinding?EventKey+"+EventKey+"&response_type=code&scope=snsapi_userinfo&state=binding#wechat_redirect");
         return responseMessageXml;
     }
 

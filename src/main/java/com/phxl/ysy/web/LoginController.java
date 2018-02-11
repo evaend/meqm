@@ -29,6 +29,8 @@ import com.phxl.core.base.util.MD5Util;
 import com.phxl.core.base.util.SHAUtil;
 import com.phxl.core.base.util.SystemConfig;
 import com.phxl.ysy.constant.CustomConst;
+import com.phxl.ysy.entity.Group;
+import com.phxl.ysy.entity.GroupUserKey;
 import com.phxl.ysy.entity.Message;
 import com.phxl.ysy.entity.WeixinOpenUser;
 import com.phxl.ysy.service.weixin.WeixinAPIInterface;
@@ -105,6 +107,16 @@ public class LoginController {
 					: userLogin.get("menuList").toString();
 			session.setAttribute(LoginUser.CUR_USER_MENULIST, userMenuList);
 			// resultMap.put("userMenuList",userMenuList);
+
+			GroupUserKey groupUserKey = new GroupUserKey();
+			groupUserKey.setUserId(userInfo.getUserId());
+			GroupUserKey group = userService.searchEntity(groupUserKey);
+			if (group!=null) {
+				Group g = userService.find(Group.class, group.getGroupId());
+				userInfo.setGroupName(g.getGroupName());
+				session.setAttribute("getUserGroupName", g.getGroupName());
+			}
+			
 			resultMap.put("userInfo", userInfo);
 		}
 		return resultMap;
@@ -144,6 +156,14 @@ public class LoginController {
 		result = (UserInfo) request.getSession().getAttribute(LoginUser.SESSION_USER_INFO);
 		if (result == null) {
 			throw new ValidationException("无用户信息");
+		}
+		
+		GroupUserKey groupUserKey = new GroupUserKey();
+		groupUserKey.setUserId(userId);
+		GroupUserKey group = userService.searchEntity(groupUserKey);
+		if (group!=null) {
+			Group g = userService.find(Group.class, group.getGroupId());
+			result.setGroupName(g.getGroupName());
 		}
 		
 		//计算登录用户的未读消息数

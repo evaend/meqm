@@ -19,6 +19,7 @@ import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.phxl.core.base.entity.Pager;
 import com.phxl.core.base.service.impl.BaseService;
+import com.phxl.core.base.util.IdentifieUtil;
 import com.phxl.core.base.util.JSONUtils;
 import com.phxl.core.base.util.LocalCollectionUtils;
 import com.phxl.core.base.util.LocalCollectionUtils.Processer;
@@ -26,6 +27,7 @@ import com.phxl.ysy.constant.CustomConst;
 import com.phxl.ysy.dao.AssetsRecordMapper;
 import com.phxl.ysy.entity.OrgDept;
 import com.phxl.ysy.entity.Equipment;
+import com.phxl.ysy.entity.OrgInfo;
 import com.phxl.ysy.entity.Register;
 import com.phxl.ysy.service.EquipmentAdditionalService;
 import com.phxl.ysy.service.ProcedureService;
@@ -67,22 +69,43 @@ public class EquipmentAdditionalServiceImpl  extends BaseService implements Equi
 //			}
 			if(equipmentDto.getUseDeptCode() != null){
 				OrgDept deptnew = new OrgDept();
-				deptnew.setDeptNam(equipmentDto.getUseDeptCode());
+				deptnew.setDeptName(equipmentDto.getUseDeptCode());
 				OrgDept deptInfo = this.searchEntity(deptnew);
-				equipmentDto.setUseDeptCode(deptInfo.getDeptCode());
+				if (deptInfo!=null) {
+					equipmentDto.setUseDeptCode(deptInfo.getDeptCode());
+				}else{
+					equipmentDto.setUseDeptCode(null);
+				}
 			}
 			if(equipmentDto.getbDeptCode() != null){
 				OrgDept deptnew = new OrgDept();
-				deptnew.setDeptNam(equipmentDto.getbDeptCode());
+				deptnew.setDeptName(equipmentDto.getbDeptCode());
 				OrgDept deptInfo = this.searchEntity(deptnew);
-				equipmentDto.setbDeptCode(deptInfo.getDeptCode());
+				if (deptInfo!=null) {
+					equipmentDto.setbDeptCode(deptInfo.getDeptCode());
+				}else{
+					equipmentDto.setbDeptCode(null);
+				}
+			}
+			if(equipmentDto.getForgName() != null){
+				OrgInfo orgInfo = new OrgInfo();
+				orgInfo.setOrgName(equipmentDto.getForgName().toString());
+				OrgInfo org = this.searchEntity(orgInfo);
+				if (org!=null) {
+					equipmentDto.setfOrgId(org.getOrgId());
+				}else{
+					equipmentDto.setfOrgId(null);
+				}
 			}
 			//生成资产编号
-			String zcCode = procedureService.callSpGetBill(Long.valueOf(orgId),"资产编码", "AS", 5);// 调用生成资产编码的存储过程
+			String zcCode = procedureService.callSpGetBill(Long.valueOf(orgId),"资产编码", "AS", 6);// 调用生成资产编码的存储过程
 			//生成二维码
 			String qrCode = procedureService.callSpGetQrBill(Long.valueOf(orgId), "AS");// 调用生成二维码的存储过程
-			equipmentDto.setAssetsRecord(qrCode);
+			equipmentDto.setAssetsRecord(zcCode);
 			equipmentDto.setQrCode(qrCode);
+			String equipmentCode = IdentifieUtil.getGuId();
+			equipmentDto.setEquipmentCode(equipmentCode);
+			equipmentDto.setUseFstate("01");
 			eList.add(equipmentDto);
 		}
 		//分页进行操作，资产表
@@ -104,13 +127,11 @@ public class EquipmentAdditionalServiceImpl  extends BaseService implements Equi
 
 	@Override
 	public List<Map<String, Object>> searchQrCodesByEquipmentId(Pager<Map<String, Object>> pager) {
-		// TODO Auto-generated method stub
 		return null;
 	}
 
 	@Override
 	public void bindingCertByEGuid(String assetsRecord, String newCertGuid, String userId) {
-		// TODO Auto-generated method stub
 		Equipment equipment = new Equipment();
 		equipment.setEquipmentCode(assetsRecord);
 		Equipment sEquipment = this.searchEntity(equipment);
@@ -120,7 +141,6 @@ public class EquipmentAdditionalServiceImpl  extends BaseService implements Equi
 
 	@Override
 	public List<Map<String, Object>> searchCertList(Pager<Register> pager) throws JsonParseException, JsonMappingException, JsonProcessingException, IOException {
-		// TODO Auto-generated method stub
 	    StringBuffer hql = new StringBuffer("SELECT r.CERT_GUID \"certGuid\", r.REGISTER_NO \"registerNo\", r.MATERIAL_NAME \"materialName\", r.FLAG \"flag\", r.FQUN \"fqun\", r.TYPE \"type\", r.INSTRUMENT_CODE \"instrucmentCode\", r.FIRST_TIME \"firstTime\", r.LAST_TIME \"lastTime\","
 	    		+ " r.PRODUCE_NAME \"produceName\", r.ENTERPRISE_REG_ADDR \"enterpriseRegAddr\", r.PRODUCE_ADDR \"produceAddr\", r.AGENT_NAME \"agentName\", r.AGENT_ADDR \"agentAddr\", r.PRODUCT_STRUCTURE \"productStructure\","
 	    		+ " r.PRODUCT_SCOPE \"productScope\", r.PRODUCT_STANDARD \"productStandard\", r.TF_BRAND \"tfBrand\", r.R_CERT_GUID \"rCertGuid\", r.TF_ACCESSORY_FILE \"tfAccessoryFile\", r.TF_ACCESSORY \"tfAccessory\","

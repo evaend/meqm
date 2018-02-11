@@ -13,6 +13,7 @@ import javax.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.view.RedirectView;
 
@@ -50,10 +51,14 @@ public class HomeController {
 	 * 微信跳转
 	 * */
 	@RequestMapping("/wechatBinding")
-	public ModelAndView forwardBinging(HttpServletRequest request, HttpServletResponse response) 
+	@ResponseBody
+	public ModelAndView forwardBinging(String EventKey, HttpServletRequest request, HttpServletResponse response) 
 			throws Exception{
 	
 		String code = request.getParameter("code");
+		System.out.println("aaaaaaaaaaaaaaaaaaaaaaa"+request.getParameter("EventKey"));
+		System.out.println("bbbbbbbbbbbbbbbbbb"+EventKey);
+		System.out.println("bbbbbbbbbbbbbbbbbb"+request.getAttribute("EventKey"));
 		UserInfo u = new UserInfo();
 		String appid = SystemConfig.getProperty("wechat.config.appid");// appid
 		String secret = SystemConfig.getProperty("wechat.config.secret");// secret

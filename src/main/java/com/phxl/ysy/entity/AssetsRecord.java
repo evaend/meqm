@@ -7,7 +7,7 @@ import com.phxl.core.base.annotation.BaseSql;
 
 @BaseSql(tableName="TD_ASSETS_RECORD", resultName="com.phxl.ysy.dao.AssetsRecordMapper.BaseResultMap")
 public class AssetsRecord {
-    private String assetsRecordM;
+    private String assetsRecordGuid;
 
     private String assetsRecord;
 
@@ -115,7 +115,7 @@ public class AssetsRecord {
     
     private String certGuid;
     
-    private String fOrgId;
+    private Long fOrgId;
     
     private String tfBrand;
     
@@ -123,12 +123,12 @@ public class AssetsRecord {
     
     private Date nextMaintainDate;
 
-    public String getAssetsRecordM() {
-        return assetsRecordM;
+    public String getAssetsRecordGuid() {
+        return assetsRecordGuid;
     }
 
-    public void setAssetsRecordM(String assetsRecordM) {
-        this.assetsRecordM = assetsRecordM == null ? null : assetsRecordM.trim();
+    public void setAssetsRecordGuid(String assetsRecordGuid) {
+        this.assetsRecordGuid = assetsRecordGuid == null ? null : assetsRecordGuid.trim();
     }
 
     public String getAssetsRecord() {
@@ -546,12 +546,12 @@ public class AssetsRecord {
 	public void setCertGuid(String certGuid) {
 		this.certGuid = certGuid;
 	}
-
-	public String getfOrgId() {
+	
+	public Long getfOrgId() {
 		return fOrgId;
 	}
 
-	public void setfOrgId(String fOrgId) {
+	public void setfOrgId(Long fOrgId) {
 		this.fOrgId = fOrgId;
 	}
 

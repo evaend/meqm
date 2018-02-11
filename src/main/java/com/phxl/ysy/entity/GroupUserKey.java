@@ -1,5 +1,8 @@
 package com.phxl.ysy.entity;
 
+import com.phxl.core.base.annotation.BaseSql;
+
+@BaseSql(tableName="TS_GROUP_USER", resultName="com.phxl.ysy.dao.GroupUserMapper.BaseResultMap")
 public class GroupUserKey {
     private String groupId;
 

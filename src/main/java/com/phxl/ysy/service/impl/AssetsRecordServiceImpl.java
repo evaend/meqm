@@ -84,10 +84,10 @@ public class AssetsRecordServiceImpl extends BaseService implements AssetsRecord
 		if (assetsRecord==null) {
 			throw new ValidationException("当前资产档案信息不存在");
 		}
-		eqOperationInfo.setOpId(assetsRecord.getAssetsRecordM());
+		eqOperationInfo.setOpId(assetsRecord.getAssetsRecordGuid());
 		eqOperationInfo.setAssetsRecord(assetsRecord.getAssetsRecord());
 		eqOperationInfo.setEquipmentCode(assetsRecord.getEquipmentCode());
-		if (value.equals(AssetsRecordInfoUpdate.equipmentStandardName)) {
+		if (value.equals(AssetsRecordInfoUpdate.equipmentName)) {
 			if (StringUtils.isBlank(assetsRecord.getEquipmentCode())) {
 				throw new ValidationException("当前资产档案未关联设备，无法修改通用名称");
 			}else{
@@ -95,10 +95,10 @@ public class AssetsRecordServiceImpl extends BaseService implements AssetsRecord
 				if (equipment == null) {
 					throw new ValidationException("当前设备信息不存在，无法修改设备名称");
 				}else{
-					eqOperationInfo.setOpA(equipment.getEquipmentStandardName());
-					eqOperationInfo.setOpText(AssetsRecordInfoUpdate.equipmentStandardName);
+					eqOperationInfo.setOpA(equipment.getEquipmentName());
+					eqOperationInfo.setOpText(AssetsRecordInfoUpdate.equipmentName);
 					eqOperationInfo.setOpB(text);
-					equipment.setEquipmentStandardName(text);
+					equipment.setEquipmentName(text);
 					updateInfo(equipment);
 				}
 				

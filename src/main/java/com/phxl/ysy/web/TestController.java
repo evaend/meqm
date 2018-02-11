@@ -71,7 +71,7 @@ public class TestController {
 	@RequestMapping(value = "/test.html", method = RequestMethod.GET)
     public void testPage(Model model,HttpServletRequest request,HttpServletResponse response) throws Exception {
 
-        String url = "http://6bu3kf.natappfree.cc/test/test.html";
+        String url = "http://vupv29.natappfree.cc/test/test.html";
         WxJsUtils jsUtils = new WxJsUtils();
 		final String appId = SystemConfig.getProperty("wechat.config.appid");
         Map<String, String> ret = jsUtils.sign(url);
@@ -229,9 +229,16 @@ public class TestController {
 	@RequestMapping("/permission")
 	@ResponseBody
 	public String permission(HttpServletRequest request ,HttpServletResponse response) throws Exception{
-		return "https://open.weixin.qq.com/connect/oauth2/authorize?appid=wxe1ba6ec9765d99ac&redirect_uri=http%3A%2F%2F4bt9s8.natappfree.cc%2Ftest%2FgetPermission&response_type=code&scope=snsapi_base&state=binding#wechat_redirect";
+		return "https://open.weixin.qq.com/connect/oauth2/authorize?appid=wxe1ba6ec9765d99ac&redirect_uri=http%3A%2F%2Fvupv29.natappfree.cc%2Ftest%2FgetPermission&response_type=code&scope=snsapi_base&state=binding#wechat_redirect";
 	}
 
+	/**
+	 * 如果用户存在，获取用户信息，如果用户不存在，创建用户
+	 * @param request
+	 * @param response
+	 * @return
+	 * @throws Exception
+	 */
 	@RequestMapping("/getPermission")
 	@ResponseBody
 	public ModelAndView getPermission(HttpServletRequest request ,HttpServletResponse response) throws Exception{
@@ -335,6 +342,14 @@ public class TestController {
         imessageService.pushMessages(message);
 	}
 	
+	/**
+	 * 生成用户二维码
+	 * @param orgId
+	 * @param request
+	 * @param response
+	 * @return
+	 * @throws Exception
+	 */
 	@RequestMapping("/getWeixinTicket")
 	@ResponseBody
 	public ModelAndView getWeixinTicket(
@@ -344,8 +359,6 @@ public class TestController {
 	    Map<String, Object> m = new HashMap<String, Object>();
 	    Map<String, Object> map = new HashMap<String, Object>();
 	    map.put("scene_id", "123");
-//	    map.put("scene_id", "orgId=197;groupId=3BB4F32DBA2F47AB952386414CEFAC7D");
-//	    map.put("scene_str", "108");
 	    m.put("scene", map);
 	    String ticket = weixinAPIInterface.getWeixinTicket(access_token, m);
 	    return new ModelAndView(new RedirectView("https://mp.weixin.qq.com/cgi-bin/showqrcode?ticket="+ticket));

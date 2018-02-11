@@ -2,6 +2,9 @@ package com.phxl.ysy.entity;
 
 import java.util.Date;
 
+import com.phxl.core.base.annotation.BaseSql;
+
+@BaseSql(tableName="TS_GROUP", resultName="com.phxl.ysy.dao.GroupMapper.BaseResultMap")
 public class Group {
     private String groupId;
 

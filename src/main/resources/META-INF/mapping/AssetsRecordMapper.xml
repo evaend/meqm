@@ -2,7 +2,7 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
 <mapper namespace="com.phxl.ysy.dao.AssetsRecordMapper" >
   <resultMap id="BaseResultMap" type="com.phxl.ysy.entity.AssetsRecord" >
-    <id column="ASSETS_RECORD_M" property="assetsRecordM" jdbcType="VARCHAR" />
+    <id column="ASSETS_RECORD_M" property="assetsRecordGuid" jdbcType="VARCHAR" />
     <result column="ASSETS_RECORD" property="assetsRecord" jdbcType="VARCHAR" />
     <result column="CONTRACT_NO" property="contractNo" jdbcType="VARCHAR" />
     <result column="EQUIPMENT_CODE" property="equipmentCode" jdbcType="VARCHAR" />
@@ -233,11 +233,12 @@
        USE_FSTATE, PRODUCT_TYPE, USE_DEPT_CODE, CUSTODIAN, 
        DEPOSIT, B_DEPT_CODE, CERT_GUID, TF_BRAND, 
        PRODUCT, PRODUCT_COUNTRY, PRODUCTION_DATE, F_ORG_ID, 
-       BUY_DATE, CONTRACT_NO, METERING_UNIT, BUY_PRICE, 
+       BUY_DATE, CONTRACT_NO, BUY_PRICE, QRCODE,
        INSTALL_PRICE, SOURCE_FUNDS, RRPAIR_TYPE, MAINTAIN_TYPE, 
        METERING_TYPE, MAINTAIN_DAY, NEXT_MAINTAIN_DATE, IN_DATE, 
        DEPRECIATION_TYPE, ORIGINAL_VALUE, CARRYING_AMOUNT, RESIDUAL_VALUE, 
-       RESIDUAL_VALUE_V, USE_LIMIT, CREATE_USERID, ORG_ID
+       RESIDUAL_VALUE_V, USE_LIMIT, CREATE_USERID, ORG_ID ,
+       EQUIPMENT_CODE
 <!--         FMODEL, SPEC, -->
 <!--      MAINTAIN_DAY, QA_LEVEL,  -->
 <!--     DEPRECIATION_LIMIT, REPAIR_FLAG,  -->
@@ -245,16 +246,16 @@
 <!--     OUT_AA_ORG, -->
       )  select * from 
     <foreach collection="list" index="index" open="(" close=")" separator="union all"> 
-    select guid(), 
-      #{list[${index}].assetsRecord,jdbcType=VARCHAR}, #{list[${index}].assetsRecord,jdbcType=VARCHAR}, 
-      #{list[${index}].useFstate,jdbcType=VARCHAR},  #{list[${index}].productType,jdbcType=VARCHAR}, 
+    select sys_guid(), 
+      #{list[${index}].assetsRecord,jdbcType=VARCHAR}, #{list[${index}].useFstate,jdbcType=VARCHAR},  
+      #{list[${index}].productType,jdbcType=VARCHAR}, 
       #{list[${index}].useDeptCode,jdbcType=VARCHAR}, #{list[${index}].custodian,jdbcType=VARCHAR}, 
       #{list[${index}].deposit,jdbcType=VARCHAR}, #{list[${index}].bDeptCode,jdbcType=VARCHAR}, 
       #{list[${index}].certGuid,jdbcType=VARCHAR}, #{list[${index}].tfBrand,jdbcType=VARCHAR}, 
       #{list[${index}].product,jdbcType=VARCHAR}, #{list[${index}].productCountry,jdbcType=VARCHAR}, 
       #{list[${index}].productionDate,jdbcType=TIMESTAMP}, #{list[${index}].fOrgId,jdbcType=TIMESTAMP}, 
       #{list[${index}].buyDate,jdbcType=TIMESTAMP}, #{list[${index}].contractNo,jdbcType=TIMESTAMP}, 
-      #{list[${index}].meteringUnit,jdbcType=TIMESTAMP}, #{list[${index}].buyPrice,jdbcType=VARCHAR}, 
+      #{list[${index}].buyPrice,jdbcType=VARCHAR}, #{list[${index}].qrCode,jdbcType=VARCHAR} , 
       #{list[${index}].installPrice,jdbcType=VARCHAR}, #{list[${index}].sourceFunds,jdbcType=VARCHAR}, 
       #{list[${index}].rrpairType,jdbcType=VARCHAR}, #{list[${index}].maintainType,jdbcType=VARCHAR}, 
       #{list[${index}].meteringType,jdbcType=VARCHAR}, #{list[${index}].maintainDay,jdbcType=VARCHAR}, 
@@ -262,7 +263,9 @@
       #{list[${index}].depreciationType,jdbcType=VARCHAR}, #{list[${index}].originalValue,jdbcType=VARCHAR}, 
       #{list[${index}].carryingAmount,jdbcType=VARCHAR}, #{list[${index}].residualValue,jdbcType=VARCHAR}, 
       #{list[${index}].residualValueV,jdbcType=VARCHAR}, #{list[${index}].useLimit,jdbcType=DECIMAL}, 
-      #{list[${index}].createUserid,jdbcType=VARCHAR}, #{list[${index}].orgId,jdbcType=DECIMAL} from dual
+      #{list[${index}].createUserid,jdbcType=VARCHAR}, #{list[${index}].orgId,jdbcType=DECIMAL},
+      #{list[${index}].equipmentCode,jdbcType=VARCHAR} 
+      from dual
       
 <!--       #{list[${index}].fmodel,jdbcType=VARCHAR}, #{list[${index}].spec,jdbcType=VARCHAR},  -->
 <!--       #{list[${index}].maintainDay,jdbcType=VARCHAR}, -->
@@ -277,13 +280,13 @@
   </insert>
   
   <insert id="importEquipments">
-  insert into td_equipment (EQUIPMENT_CODE,EQUIPMENT_NAME,
-  	 EQUIPMENT_STANDARD_NAME,QRCODE,FMODEL,SPEC)
+  insert into td_equipment (EQUIPMENT_CODE,EQUIPMENT_NAME,METERING_UNIT, 
+  	 EQUIPMENT_STANDARD_NAME,FMODEL,SPEC)
   select * from 
     <foreach collection="list" index="index" open="(" close=")" separator="union all"> 
-    select 
-      guid(), #{list[${index}].equipmentName,jdbcType=VARCHAR} , 
-       #{list[${index}].equipmetStandardName,jdbcType=VARCHAR}, #{list[${index}].qrCode,jdbcType=VARCHAR} , 
+    select #{list[${index}].equipmentCode,jdbcType=VARCHAR} , 
+    	#{list[${index}].equipmentName,jdbcType=VARCHAR} , #{list[${index}].meteringUnit,jdbcType=TIMESTAMP}, 
+        #{list[${index}].equipmentStandardName,jdbcType=VARCHAR}, 
         #{list[${index}].fmodel,jdbcType=VARCHAR}, #{list[${index}].spec,jdbcType=VARCHAR}
      from dual
      </foreach> 

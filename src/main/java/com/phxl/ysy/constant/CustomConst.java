@@ -1200,8 +1200,8 @@ public class CustomConst {
      *
      */
     public static final class AssetsRecordInfoUpdate {
-    	/**EQUIPMENT_STANDARD_NAME、 资产名称*/
-        public static final String equipmentStandardName = "EQUIPMENT_STANDARD_NAME";
+    	/**EQUIPMENT_STANDARD_NAME、 通用名称*/
+        public static final String equipmentName = "EQUIPMENT_NAME";
         /**DEPOSIT、 存放地址*/
         public static final String deposit = "DEPOSIT";
         /**RRPAIR_TYPE、维修分类 */
