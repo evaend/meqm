@@ -89,7 +89,7 @@
         left join tb_rrpair_order_acce roa on ro.rrpair_order_no=roa.rrpair_order
         left join td_equipment te on ro.equipment_code=te.equipment_code
         left join td_assets_record tar on ro.assets_record=tar.assets_record
-        left join td_org_dept tdi on tar.b_dept_code=tdi.dept_code
+        left join td_org_dept tdi on tar.b_dept_guid=tdi.dept_guid
         where ro.rrpair_order_guid = #{conditiions.rrpairOrderGuid, jdbcType=VARCHAR}
   </select>
   
@@ -218,7 +218,7 @@
         left join tb_rrpair_order_acce roa on ro.rrpair_order_no=roa.rrpair_order
         left join td_equipment te on ro.equipment_code=te.equipment_code
         left join td_assets_record tar on ro.assets_record=tar.assets_record
-        left join td_org_dept tdi on tar.b_dept_code=tdi.dept_code
+        left join td_org_dept tdi on tar.b_dept_guid=tdi.dept_guid
         --left join td_rrpair_fitting_use rfu on ro.rrpair_order_guid=rfu.rrpair_order_guid
         where 1=1
         <if test="conditiions.rrpairOrderNo != null and conditiions.rrpairOrderNo != ''">
