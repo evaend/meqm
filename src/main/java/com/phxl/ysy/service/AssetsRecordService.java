@@ -1,13 +1,9 @@
 package com.phxl.ysy.service;
 
-import java.io.InputStream;
 import java.util.List;
 import java.util.Map;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
-import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.multipart.MultipartFile;
 
 import com.phxl.core.base.entity.Pager;
 import com.phxl.core.base.exception.ValidationException;
@@ -66,7 +62,7 @@ public interface AssetsRecordService extends IBaseService {
 	/**
 	 * 添加资产附件文件
 	 */
-	void insertAssetsFile(String directory,String fileName,InputStream in,String assetsRecordGuid,String certCode)throws Exception ;
+	void insertAssetsFile(String assetsRecordGuid,String certCode,MultipartFile file)throws Exception ;
 	
 	/**
 	 * 删除资产附件

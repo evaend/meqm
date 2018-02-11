@@ -1,24 +1,25 @@
 package com.phxl.ysy.service.impl;
 
-import java.io.File;
-import java.io.InputStream;
+import java.text.MessageFormat;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
 import javax.servlet.http.HttpSession;
 
-import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
 import com.phxl.core.base.entity.Pager;
 import com.phxl.core.base.exception.ValidationException;
 import com.phxl.core.base.service.impl.BaseService;
 import com.phxl.core.base.util.FTPUtils;
 import com.phxl.core.base.util.IdentifieUtil;
-import com.phxl.ysy.constant.CustomConst;
+import com.phxl.core.base.util.LocalAssert;
+import com.phxl.core.base.util.SystemConfig;
 import com.phxl.ysy.constant.CustomConst.AssetsRecordInfoUpdate;
 import com.phxl.ysy.constant.CustomConst.LoginUser;
 import com.phxl.ysy.dao.AssetsExtendMapper;
@@ -156,19 +157,32 @@ public class AssetsRecordServiceImpl extends BaseService implements AssetsRecord
 
 	//添加资产档案附件
 	@Override
-	public void insertAssetsFile(String directory, String fileName,
-			InputStream in, String assetsRecordGuid, String certCode) throws Exception {
+	public void insertAssetsFile(String assetsRecordGuid, String certCode,MultipartFile file) throws Exception {
 		AssetsRecord assetsRecord = find(AssetsRecord.class, assetsRecordGuid);
 		if (assetsRecord==null) {
 			throw new ValidationException("当前资产档案不存在");
 		}
-		FTPUtils.upload(directory, fileName, in);
 		CertInfoZc certInfo = new CertInfoZc();
+		StringBuffer filePath = new StringBuffer();//定位存储路径
+		String directory = SystemConfig.getProperty("resource.ftp.ysyFile.organization.cert.product");//目录位置
+		LocalAssert.notEmpty(directory, "配置参数：资产附件存储路径，不能为空");
+		directory = MessageFormat.format(directory, assetsRecordGuid);
+		filePath.append(directory).append(System.nanoTime());
+		String fileName=file.getName();
+        int index = fileName.lastIndexOf(".");
+        if(index<0){
+            throw new ValidationException("未知的上传文件类型!");
+        }
+		String fileType=fileName.substring(fileName.lastIndexOf(".")+1);
+		//新附件，上传ftp存储
+		FTPUtils.upload(directory, FilenameUtils.getName(filePath.toString()+fileType), file.getInputStream());
+		//确定文件保存位置
+		certInfo.setTfAccessory(filePath.toString());
+		certInfo.setTfAccessoryFile(filePath.toString());
+		logger.info("产品证件文档存储路径: tfAccessory = " + certInfo.getTfAccessoryFile());
 		certInfo.setCertId(IdentifieUtil.getGuId());
-		certInfo.setTfAccessory(directory+fileName);
 		certInfo.setCertCode(certCode);
-		certInfo.setTfAccessoryFile(directory+fileName);
-//		certInfo.setCreateUserid(session.getAttribute(LoginUser.SESSION_USERID).toString());
+		certInfo.setCreateUserid(session.getAttribute(LoginUser.SESSION_USERID).toString());
 		certInfo.setCreateTime(new Date());
 		certInfo.setAssetsRecord(assetsRecord.getAssetsRecord());
 		certInfo.setEquipmentCode(assetsRecord.getEquipmentCode());
@@ -181,8 +195,7 @@ public class AssetsRecordServiceImpl extends BaseService implements AssetsRecord
 		if (certInfo==null) {
 			throw new ValidationException("当前资产附件不存在");
 		}
-		File file = new File(certInfo.getTfAccessory());
-		file.delete();
+		FTPUtils.deleteFile(certInfo.getTfAccessory());
 		deleteInfo(certInfo);
 	}
 

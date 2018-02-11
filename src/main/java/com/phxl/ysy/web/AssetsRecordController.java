@@ -34,6 +34,7 @@ import com.phxl.core.base.exception.ValidationException;
 import com.phxl.core.base.util.DateUtils;
 import com.phxl.core.base.util.FTPUtils;
 import com.phxl.core.base.util.JSONUtils;
+import com.phxl.core.base.util.LocalAssert;
 import com.phxl.core.base.util.SystemConfig;
 import com.phxl.ysy.entity.CertInfoZc;
 import com.phxl.ysy.entity.OrgDept;
@@ -340,45 +341,14 @@ public class AssetsRecordController {
 	public void assetsFileUpLoad(
 			@RequestParam(value="assetsRecordGuid",required = false) String assetsRecordGuid,
 			@RequestParam(value="certCode",required = false) String certCode,
-			@RequestParam(value="file",required = false) FileItem file,
+			@RequestParam(value="file",required = false) MultipartFile file,
 			HttpServletRequest request,HttpServletResponse response) throws Exception{
-//		//使用Apache文件上传组件处理文件上传步骤：
-//        //1、创建一个DiskFileItemFactory工厂
-//        DiskFileItemFactory diskFileItemFactory = new DiskFileItemFactory();
-//        //2、创建一个文件上传解析器
-//        ServletFileUpload fileUpload = new ServletFileUpload(diskFileItemFactory);
-//        //解决上传文件名的中文乱码
-//        fileUpload.setHeaderEncoding("UTF-8");
-//		List<FileItem> list = fileUpload.parseRequest(request);
-//		if (list==null || list.size()==0) {
-//			throw new ValidationException("当前没有上传文件");
-//		}
-//		FileItem file = list.get(0);
-		long startTime = System.currentTimeMillis();
-		if (file == null) {
-			throw new ValidationException("请上传文件");
-		}
-		//获取文件名称
-		String filename = file.getName();
-		
-		filename = filename.substring(filename.lastIndexOf(File.separator)+1);
-        //获取item中的上传文件的输入流
-        InputStream in = file.getInputStream();
-        
-        String configKey="resource.ftp.ysyFile.organization.cert.product";
-        String[] args=new String[]{assetsRecordGuid};//资产档案GUID
 
-        String directory = MessageFormat.format(SystemConfig.getProperty(configKey), args);//目录位置
-        //确定存储文件名
-        int index = filename.lastIndexOf(".");
-        if(index<0){
-            throw new ValidationException("未知的上传文件类型!");
-        }
-        String fileName=assetsRecordGuid+filename.substring(index);
-        System.out.println("filename = "+filename);
-        String filePath=directory+fileName;
-        System.out.println("filePath="+filePath);
-        assetsRecordService.insertAssetsFile(directory, fileName, in, assetsRecordGuid, certCode);
+		LocalAssert.notBlank(assetsRecordGuid, "请传入id");
+		if(file == null){
+			throw new ValidationException("请上传附件");
+		}
+        assetsRecordService.insertAssetsFile(assetsRecordGuid, certCode,file);
 	}
 
 	/**
