@@ -2,9 +2,12 @@ package com.phxl.ysy.service.impl;
 
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import javax.servlet.http.HttpSession;
 
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
@@ -21,16 +24,21 @@ import com.phxl.core.base.entity.Pager;
 import com.phxl.core.base.exception.ValidationException;
 import com.phxl.core.base.service.impl.BaseService;
 import com.phxl.core.base.util.BaseUtils;
+import com.phxl.core.base.util.IdentifieUtil;
 import com.phxl.core.base.util.JSONUtils;
 import com.phxl.core.base.util.MD5Util;
 import com.phxl.core.base.util.SHAUtil;
 import com.phxl.ysy.constant.CustomConst;
 import com.phxl.ysy.constant.CustomConst.GroupType;
+import com.phxl.ysy.constant.CustomConst.LoginUser;
 import com.phxl.ysy.constant.CustomConst.UserLevel;
 import com.phxl.ysy.dao.UserInfoMapper;
 import com.phxl.ysy.entity.Group;
 import com.phxl.ysy.entity.GroupUserKey;
+import com.phxl.ysy.entity.OrgInfo;
 import com.phxl.ysy.entity.UserInfo;
+import com.phxl.ysy.entity.WecatRegister;
+import com.phxl.ysy.entity.WeixinOpenUser;
 import com.phxl.ysy.service.MenuService;
 import com.phxl.ysy.service.UserService;
 
@@ -49,6 +57,8 @@ public class UserServiceImpl extends BaseService implements UserService {
 	private UserInfoMapper userInfoMapper;
 	@Autowired
 	private MenuService menuService;
+	@Autowired
+	HttpSession session;
 
 	public int findUserNoExist(String userNo) {
 	    return userInfoMapper.findUserNoExist(userNo);
@@ -126,7 +136,7 @@ public class UserServiceImpl extends BaseService implements UserService {
 		Map<String,Object> map = new HashMap<String,Object>();
 		String result = "success";
 		UserInfo userInfo = new UserInfo();
-		userInfo.setUserNo(userNo);
+		userInfo.setWechatOpenid(openId);
 		//由于用户账号是唯一的，所以使用账号验证用户是否存在
 		UserInfo newUserInfo = this.searchEntity(userInfo);
 		boolean loginSuccess = true;
@@ -157,10 +167,13 @@ public class UserServiceImpl extends BaseService implements UserService {
 		if(loginSuccess == true){
 			map.put("userInfo", this.findUserInfoById(newUserInfo.getUserId()));
 			//如果是默认密码，提示修改密码
-			if((MD5Util.MD5Encrypt(CustomConst.DEFAULT_PASSWORD).toUpperCase()
-					).equals(newUserInfo.getPwd().toUpperCase())){
-				result = "您的密码是默认密码，请及时修改！";
+			if (StringUtils.isNotBlank(newUserInfo.getPwd())) {
+				if((MD5Util.MD5Encrypt(CustomConst.DEFAULT_PASSWORD).toUpperCase()
+						).equals(newUserInfo.getPwd().toUpperCase())){
+					result = "您的密码是默认密码，请及时修改！";
+				}
 			}
+			
 			//查询当前用户的菜单权限
 			JSONUtils json = new JSONUtils();
 			map.put("menuList", json.toPrettyJson(this.selectUserMenu(newUserInfo.getUserId())));            
@@ -359,6 +372,44 @@ public class UserServiceImpl extends BaseService implements UserService {
 				}
 			}
 		}
+	}
+
+	/**
+	 * 扫码自动注册--添加用户信息
+	 */
+	@Override
+	public void insertWxUser(WecatRegister wecatRegister,
+			WeixinOpenUser wxUser) throws Exception {
+		String userId = IdentifieUtil.getGuId();
+		UserInfo newU = new UserInfo();
+		GroupUserKey groupUserKey = new GroupUserKey();
+		newU.setUserId(userId);
+		newU.setWechatOpenid(wxUser.getOpenUserId());
+		newU.setUserName(wxUser.getUserName());
+		newU.setHeadImgUrl(wxUser.getHeadimgurl());
+		newU.setFstate(CustomConst.Fstate.USABLE);
+		newU.setCreateTime(new Date());
+		newU.setModifyTime(new Date());
+		newU.setUserLevel(CustomConst.UserLevel.ORG_USER);
+		if (wecatRegister!=null) {
+			newU.setOrgId(wecatRegister.getOrgId());
+			OrgInfo orgInfo = find(OrgInfo.class, wecatRegister.getOrgId());
+			newU.setOrgType(orgInfo.getOrgType());
+			groupUserKey.setGroupId(wecatRegister.getGroupId());
+			groupUserKey.setUserId(userId);
+			insertInfo(groupUserKey);
+		}
+		insertInfo(newU);
+		//查询当前用户的菜单权限
+		JSONUtils json = new JSONUtils();
+		session.setAttribute(LoginUser.SESSION_USERNAME, newU.getUserName());
+		session.setAttribute(LoginUser.SESSION_USER_ORGID, newU.getOrgId());
+		session.setAttribute(LoginUser.SESSISON_USER_LEVEL, json.toPrettyJson(this.selectUserMenu(newU.getUserId())));
+		session.setAttribute(LoginUser.SESSION_USER_ORG_TYPE, newU.getOrgType());
+		session.setAttribute(LoginUser.SESSION_USER_INFO, newU);
+		session.setAttribute(LoginUser.SESSION_USERID, newU.getUserId());
+		session.setAttribute(LoginUser.SESSION_USERNO, newU.getUserNo());
+		session.setAttribute(LoginUser.SESSION_USER_ORGNAME, newU.getOrgName());
 	}
 	
 }

@@ -37,9 +37,13 @@ import org.springframework.web.servlet.view.RedirectView;
 import com.phxl.core.base.exception.ValidationException;
 import com.phxl.core.base.util.IdentifieUtil;
 import com.phxl.core.base.util.SystemConfig;
+import com.phxl.ysy.constant.CustomConst.LoginUser;
+import com.phxl.ysy.entity.Group;
 import com.phxl.ysy.entity.UserInfo;
+import com.phxl.ysy.entity.WecatRegister;
 import com.phxl.ysy.entity.WeixinOpenUser;
 import com.phxl.ysy.service.IMessageService;
+import com.phxl.ysy.service.UserService;
 import com.phxl.ysy.service.weixin.WeixinAPIInterface;
 import com.phxl.ysy.util.WebConnect;
 import com.phxl.ysy.util.WxJsUtils;
@@ -60,6 +64,9 @@ public class TestController {
 	
 	@Autowired
 	HttpSession session;
+	
+	@Autowired
+	UserService userService;
 	
 	/**
 	 * 维修扫一扫
@@ -229,7 +236,8 @@ public class TestController {
 	@RequestMapping("/permission")
 	@ResponseBody
 	public String permission(HttpServletRequest request ,HttpServletResponse response) throws Exception{
-		return "https://open.weixin.qq.com/connect/oauth2/authorize?appid=wxe1ba6ec9765d99ac&redirect_uri=http%3A%2F%2Fvupv29.natappfree.cc%2Ftest%2FgetPermission&response_type=code&scope=snsapi_base&state=binding#wechat_redirect";
+		Long EventKey = 1L;
+		return "https://open.weixin.qq.com/connect/oauth2/authorize?appid=wxe1ba6ec9765d99ac&redirect_uri=http%3A%2F%2Fvupv29.natappfree.cc%2Ftest%2FgetPermission&response_type=code&scope=snsapi_base&state="+EventKey+"#wechat_redirect";
 	}
 
 	/**
@@ -243,6 +251,8 @@ public class TestController {
 	@ResponseBody
 	public ModelAndView getPermission(HttpServletRequest request ,HttpServletResponse response) throws Exception{
 		String code = request.getParameter("code");
+		System.out.println("code"+code);
+		String EventKey = request.getParameter("state");
 		String appid = SystemConfig.getProperty("wechat.config.appid");// appid
 		String secret = SystemConfig.getProperty("wechat.config.secret");// secret
 		String openid = weixinAPIInterface.getOpenid(appid, secret, code);
@@ -253,7 +263,7 @@ public class TestController {
 		if (request.getSession().getAttribute("wxUser")==null) {
 			WeixinOpenUser wxUser = weixinAPIInterface.getUserInfo(openid);
 			
-			System.out.println(wxUser.getOpenUserId());
+			System.out.println("getOpenUserId"+wxUser.getOpenUserId());
 			System.out.println(wxUser.getUserName());
 			System.out.println(wxUser.getHeadimgurl());
 			UserInfo u = new UserInfo();
@@ -265,13 +275,11 @@ public class TestController {
 				userInfo.setHeadImgUrl(wxUser.getHeadimgurl());
 				imessageService.updateInfo(userInfo);
 			}else{
-				UserInfo newU = new UserInfo();
-				newU.setUserId(IdentifieUtil.getGuId());
-				newU.setWechatOpenid(wxUser.getOpenUserId());
-				newU.setUserName(wxUser.getUserName());
-				newU.setWechatNo(wxUser.getUserName());
-				newU.setHeadImgUrl(wxUser.getHeadimgurl());
-				imessageService.insertInfo(newU);
+				WecatRegister wecatRegister = imessageService.find(WecatRegister.class, EventKey);
+				if (wecatRegister==null) {
+					throw new ValidationException("当前机构或者组信息有误");
+				}
+				userService.insertWxUser(wecatRegister, wxUser);
 			}
 //			request.getSession().setAttribute("wxUser", wxUser);
 			ModelAndView m = new ModelAndView(new RedirectView("http://mobile.medqcc.com/#/equipment?openid="+wxUser.getOpenUserId()
@@ -353,12 +361,20 @@ public class TestController {
 	@RequestMapping("/getWeixinTicket")
 	@ResponseBody
 	public ModelAndView getWeixinTicket(
-			@RequestParam(value="orgId",required = false) String orgId,
+			@RequestParam(value="orgId",required = false) Long orgId,
+			@RequestParam(value="groupId",required = false) String groupId,
+			@RequestParam(value="deptId",required = false) String deptId,
 			HttpServletRequest request,HttpServletResponse response) throws Exception {
 	    String access_token = AccessTokenInfo.accessToken.getAccessToken();
 	    Map<String, Object> m = new HashMap<String, Object>();
 	    Map<String, Object> map = new HashMap<String, Object>();
-	    map.put("scene_id", "123");
+		WecatRegister wecatRegister = new WecatRegister();
+		wecatRegister.setGroupId(groupId);
+		wecatRegister.setOrgId(orgId);
+		wecatRegister.setDeptGuid(deptId);
+		WecatRegister we = imessageService.searchEntity(wecatRegister);
+		Long scene_id = we.getWecatRegisterId();
+	    map.put("scene_id", scene_id);
 	    m.put("scene", map);
 	    String ticket = weixinAPIInterface.getWeixinTicket(access_token, m);
 	    return new ModelAndView(new RedirectView("https://mp.weixin.qq.com/cgi-bin/showqrcode?ticket="+ticket));

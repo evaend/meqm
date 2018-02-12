@@ -12,13 +12,13 @@
     <result column="PRODUCT_TYPE" property="productType" jdbcType="VARCHAR" />
     <result column="ORIGINAL_VALUE" property="originalValue" jdbcType="DECIMAL" />
     <result column="SOURCE_FUNDS" property="sourceFunds" jdbcType="VARCHAR" />
-    <result column="B_DEPT_CODE" property="bDeptCode" jdbcType="VARCHAR" />
+    <result column="B_DEPT_GUID" property="bDeptCode" jdbcType="VARCHAR" />
     <result column="DEPOSIT" property="deposit" jdbcType="VARCHAR" />
     <result column="DEPOSIT_A" property="depositA" jdbcType="VARCHAR" />
     <result column="DEPOSIT_B" property="depositB" jdbcType="VARCHAR" />
     <result column="DEPOSIT_C" property="depositC" jdbcType="VARCHAR" />
     <result column="DEPOSIT_D" property="depositD" jdbcType="VARCHAR" />
-    <result column="A_DEPT_CODE" property="aDeptCode" jdbcType="VARCHAR" />
+    <result column="A_DEPT_GUID" property="aDeptCode" jdbcType="VARCHAR" />
     <result column="PRODUCTION_DATE" property="productionDate" jdbcType="DATE" />
     <result column="USE_LIMIT" property="useLimit" jdbcType="DECIMAL" />
     <result column="MAINTAIN_DAY" property="maintainDay" jdbcType="VARCHAR" />
@@ -40,11 +40,11 @@
     <result column="OUT_RRPAIR_ORG" property="outRrpairOrg" jdbcType="VARCHAR" />
     <result column="OUT_RRPAIR_USERNAME" property="outRrpairUsername" jdbcType="VARCHAR" />
     <result column="OUT_RRPAIR_PHONE" property="outRrpairPhone" jdbcType="VARCHAR" />
-    <result column="USE_DEPT_CODE" property="useDeptCode" jdbcType="VARCHAR" />
+    <result column="USE_DEPT_GUID" property="useDeptCode" jdbcType="VARCHAR" />
     <result column="BUY_PRICE" property="buyPrice" jdbcType="DECIMAL" />
     <result column="TF_ACCESSORY" property="tfAccessory" jdbcType="VARCHAR" />
     <result column="QRCODE" property="qrcode" jdbcType="VARCHAR" />
-    <result column="M_DEPT_CODE" property="mDeptCode" jdbcType="VARCHAR" />
+    <result column="M_DEPT_GUID" property="mDeptCode" jdbcType="VARCHAR" />
     <result column="CARRYING_AMOUNT" property="carryingAmount" jdbcType="DECIMAL" />
     <result column="RESIDUAL_VALUE_V" property="residualValueV" jdbcType="DECIMAL" />
     <result column="IN_DATE" property="inDate" jdbcType="DATE" />
@@ -83,10 +83,10 @@
 		e.spec "spec" ,
 		a.product_type "productType" ,
 		a.custodian "custodian" ,
-		a.use_dept_code "useDeptCode" , 
-		(select dept_name from td_org_dept where dept_code = a.use_dept_code) "useDept" , 
-		a.b_dept_code "bDeptCode" , 
-		(select dept_name from td_org_dept where dept_code = a.b_dept_code) "bDept" 
+		a.use_dept_GUID "useDeptCode" , 
+		(select dept_name from td_org_dept where dept_guid = a.use_dept_guid) "useDept" , 
+		a.b_dept_GUID "bDeptCode" , 
+		(select dept_name from td_org_dept where dept_guid = a.b_dept_guid) "bDept" 
 		from td_assets_record a left join td_equipment e
 		on (a.equipment_code = e.equipment_code)
   		where 1 = 1 
@@ -124,11 +124,11 @@
 		a.product_type "productType" ,
 		e.register_no "certGuid" ,
 		a.product "product" ,
-		a.use_dept_code "useDeptCode" , 
-		(select dept_name from td_org_dept where dept_code = a.use_dept_code) "useDept" , 
+		a.use_dept_guid "useDeptCode" , 
+		(select dept_name from td_org_dept where dept_guid = a.use_dept_guid) "useDept" , 
 		a.deposit "deposit" ,
-		a.b_dept_code "bDeptCode" , 
-		(select dept_name from td_org_dept where dept_code = a.b_dept_code) "bDept" , 
+		a.b_dept_guid "bDeptCode" , 
+		(select dept_name from td_org_dept where dept_guid = a.b_dept_guid) "bDept" , 
 		a.custodian "custodian" ,
 		a.buy_price "buyPrice" ,
 		a.install_price "installPrice" ,
@@ -230,8 +230,8 @@
   
   <insert id="importAssets">
        insert into td_assets_record (ASSETS_RECORD_M, ASSETS_RECORD, 
-       USE_FSTATE, PRODUCT_TYPE, USE_DEPT_CODE, CUSTODIAN, 
-       DEPOSIT, B_DEPT_CODE, CERT_GUID, TF_BRAND, 
+       USE_FSTATE, PRODUCT_TYPE, USE_DEPT_GUID, CUSTODIAN, 
+       DEPOSIT, B_DEPT_GUID, CERT_GUID, TF_BRAND, 
        PRODUCT, PRODUCT_COUNTRY, PRODUCTION_DATE, F_ORG_ID, 
        BUY_DATE, CONTRACT_NO, BUY_PRICE, QRCODE,
        INSTALL_PRICE, SOURCE_FUNDS, RRPAIR_TYPE, MAINTAIN_TYPE, 

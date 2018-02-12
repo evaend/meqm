@@ -132,7 +132,7 @@ public class WeixinAPIImpl implements WeixinAPIInterface
                     user.setSex(json.get("sex").asText());
                     user.setCity(json.get("city").asText());
                     user.setLanguage(json.get("language").asText());
-//                    user.setHeadimgurl(json.get("headimgurl").asText());
+                    user.setHeadimgurl(json.get("headimgurl").asText());
                 }
                 return user;
             }
@@ -156,6 +156,7 @@ public class WeixinAPIImpl implements WeixinAPIInterface
             String url = MessageFormat.format(this.getUserOpenIdUrl, appid, secret,code);
             String response = webConnect.executeHttpGet(url);
             JSONObject obj = JSONObject.fromObject(response); 
+            System.out.println("obj+++++++++++++++"+obj);
             if (obj == null) {
 				throw new ValidationException("当前网络较弱，请退出重新进入");
 			}

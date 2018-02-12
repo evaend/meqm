@@ -13,18 +13,24 @@ import javax.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.view.RedirectView;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.phxl.core.base.exception.ValidationException;
 import com.phxl.core.base.util.BaseUtils;
+import com.phxl.core.base.util.IdentifieUtil;
 import com.phxl.core.base.util.LocalAssert;
 import com.phxl.core.base.util.SHAUtil;
 import com.phxl.core.base.util.SystemConfig;
 import com.phxl.ysy.constant.CustomConst.LoginUser;
 import com.phxl.ysy.service.weixin.WeixinAPIInterface;
 import com.phxl.ysy.entity.UserInfo;
+import com.phxl.ysy.entity.WecatRegister;
+import com.phxl.ysy.entity.WeixinOpenUser;
+import com.phxl.ysy.service.IMessageService;
 import com.phxl.ysy.service.UserService;
 
 
@@ -46,19 +52,22 @@ public class HomeController {
 	WeixinAPIInterface weixinAPIInterface;
 	@Autowired
 	HttpSession session;
+	@Autowired
+	TestController testController;
+	@Autowired
+	IMessageService imessageService;
 	
 	/**
 	 * 微信跳转
 	 * */
 	@RequestMapping("/wechatBinding")
 	@ResponseBody
-	public ModelAndView forwardBinging(String EventKey, HttpServletRequest request, HttpServletResponse response) 
+	public ModelAndView forwardBinging(HttpServletRequest request, HttpServletResponse response) 
 			throws Exception{
 	
 		String code = request.getParameter("code");
-		System.out.println("aaaaaaaaaaaaaaaaaaaaaaa"+request.getParameter("EventKey"));
-		System.out.println("bbbbbbbbbbbbbbbbbb"+EventKey);
-		System.out.println("bbbbbbbbbbbbbbbbbb"+request.getAttribute("EventKey"));
+		String EventKey = request.getParameter("state");
+		
 		UserInfo u = new UserInfo();
 		String appid = SystemConfig.getProperty("wechat.config.appid");// appid
 		String secret = SystemConfig.getProperty("wechat.config.secret");// secret
@@ -68,6 +77,7 @@ public class HomeController {
 		u.setWechatOpenid(openid);
 		UserInfo user = userService.searchEntity(u);
 		session.setAttribute("openid", openid);
+		System.out.println("openid++++++++++++++++++++"+openid);
 		if (user != null) {
 			// 在这时重新登录之前的session可能还存在
 			HttpSession previousSession = request.getSession();
@@ -99,7 +109,6 @@ public class HomeController {
 			resultMap.put("loginResult", result);
 			if (!userLogin.get("loginStatus").equals(false)) {
 				UserInfo userInfo = (UserInfo) userLogin.get("userInfo");
-				LocalAssert.notEmpty(userInfo.getUserNo(), "登录: 用户登录名，未知!");
 				LocalAssert.notEmpty(userInfo.getOrgType(), "登录: 用户的机构类型未知!");
 				LocalAssert.notEmpty(userInfo.getUserLevel(), "登录: 用户类型（级别），未知!");
 				session.setAttribute(LoginUser.SESSION_USERNAME, userInfo.getUserName());
@@ -120,8 +129,16 @@ public class HomeController {
 			mav.addObject("resultMap", resultMap);
 			return mav;
 		} else {
-			System.out.println("跳转到绑定微信用户的页面");
-			//如果用户session没有过期，则直接进入
+			WeixinOpenUser wxUser = weixinAPIInterface.getUserInfo(openid);
+			
+			System.out.println("getOpenUserId"+wxUser.getOpenUserId());
+			System.out.println(wxUser.getUserName());
+			System.out.println(wxUser.getHeadimgurl());
+			WecatRegister wecatRegister = imessageService.find(WecatRegister.class, EventKey);
+			if (wecatRegister==null) {
+				throw new ValidationException("当前机构或者组信息有误");
+			}
+			userService.insertWxUser(wecatRegister, wxUser);
 			if (request.getSession(false)!=null) {
 				ModelAndView mav = new ModelAndView(new RedirectView("http://182.254.152.181:8080/ysynet/#/"));
 				return mav;
@@ -129,9 +146,7 @@ public class HomeController {
 				//如果用户登录的session失效，则跳转到登录页面，重新登录
 				return new ModelAndView(new RedirectView("http://182.254.152.181:8080/ysynet/#/proName/#/login"));
 			}
-			
-		}
+
+		}	
 	}
-	
-	
 }

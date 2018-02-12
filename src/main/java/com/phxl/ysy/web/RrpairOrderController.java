@@ -690,11 +690,8 @@ public class RrpairOrderController {
 			rrpair.setTfRemarkBx(dto.getTfRemarkBx());
 			rrpair.setFaultWords(dto.getFaultWords());
 			rrpair.setCreateDate(new Date());
-//			rrpair.setRrpairUserid(session.getAttribute("openid").toString());
-//			WeixinOpenUser wxUser = (WeixinOpenUser)session.getAttribute("wxUser");
-//			rrpair.setRrpairUsername(wxUser.getUserName());
-			rrpair.setRrpairUserid("11");
-			rrpair.setRrpairUsername("11");
+			rrpair.setRrpairUserid(session.getAttribute(LoginUser.SESSION_USERID).toString());
+			rrpair.setRrpairUsername(session.getAttribute(LoginUser.SESSION_USERNAME).toString());
 			String fault = "";
 			if (dto.getTfAccessory()!=null && dto.getTfAccessory().size()!=0) {
 				int i = 0;
@@ -791,8 +788,6 @@ public class RrpairOrderController {
 				}
 			}
 		}
-		
-		
 		rrpairOrderService.insertRrpairOrder(rrpair,assetsRecord,assetsExtendGuid,acceNum);
 	}
 	
@@ -1015,8 +1010,8 @@ public class RrpairOrderController {
 		RrpairOrderAcce rrpairOrderAcce = new RrpairOrderAcce();
 		rrpairOrderAcce.setRrpairOrderAcce(IdentifieUtil.getGuId());
 		rrpairOrderAcce.setRrpairOrder(rrpairOrderGuid);
-//		rrpairOrderAcce.setRrAcceUserid(session.getAttribute(LoginUser.SESSION_USERID).toString());
-//		rrpairOrderAcce.setRrAcceUsername(session.getAttribute(LoginUser.SESSION_USERNAME).toString());
+		rrpairOrderAcce.setRrAcceUserid(session.getAttribute(LoginUser.SESSION_USERID).toString());
+		rrpairOrderAcce.setRrAcceUsername(session.getAttribute(LoginUser.SESSION_USERNAME).toString());
 		rrpairOrderAcce.setRrAcceFstate(rrAcceFstate);
 		rrpairOrderAcce.setEvaluate(evaluate);
 		rrpairOrderAcce.setTfRemark(tfRemark);
@@ -1143,8 +1138,8 @@ public class RrpairOrderController {
 		//如果是内修人主动接修，则自动填写内修人信息
 		if (orderFstate.equals(CustomConst.RrpairOrderFstate.MAINTENANCE)) {
 			if ((CustomConst.RrpairOrderFstate.AWAITING_REPAIR).equals(rrpair.getOrderFstate())) {
-//				rrpairOrder.setInRrpairUserid(session.getAttribute(LoginUser.SESSION_USERID).toString());
-//				rrpairOrder.setInRrpairUsername(session.getAttribute(LoginUser.SESSION_USERNAME).toString());
+				rrpair.setInRrpairUserid(session.getAttribute(LoginUser.SESSION_USERID).toString());
+				rrpair.setInRrpairUsername(session.getAttribute(LoginUser.SESSION_USERNAME).toString());
 			}
 		}
 		

@@ -2,6 +2,9 @@ package com.phxl.ysy.entity;
 
 import java.util.Date;
 
+import com.phxl.core.base.annotation.BaseSql;
+
+@BaseSql(tableName="TD_ORG_INFO", resultName="com.phxl.ysy.dao.OrgInfoMapper.BaseResultMap")
 public class OrgInfo {
     private Long orgId;
 

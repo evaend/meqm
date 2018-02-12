@@ -9,6 +9,8 @@ import com.phxl.core.base.entity.Pager;
 import com.phxl.core.base.exception.ValidationException;
 import com.phxl.core.base.service.IBaseService;
 import com.phxl.ysy.entity.UserInfo;
+import com.phxl.ysy.entity.WecatRegister;
+import com.phxl.ysy.entity.WeixinOpenUser;
 
 public interface UserService extends IBaseService {
 	
@@ -119,4 +121,10 @@ public interface UserService extends IBaseService {
 	 */
 	public abstract void addUser(UserInfo user) throws ValidationException;
    
+	/**
+	 * 微信扫码自动注册
+	 * @param wecatRegister
+	 * @param weixinOpenUser
+	 */
+	public void insertWxUser(WecatRegister wecatRegister, WeixinOpenUser wxUser)throws Exception ;
 }
