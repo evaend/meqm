@@ -82,7 +82,7 @@
 			tar.product_type "productType",--资产分类id(资产类别 )  
 			tdi.dept_name "deptName",	--（使用科室）
 			tar.custodian "custodian",	--管理员，保管员
-			tar.m_dept_code "mDeptCode",	--管理科室id
+			tar.m_dept_guid "mDeptCode",	--管理科室id
 			tar.deposit "deposit",	--放地点-a区b楼c层d房间(存放地点)
 			ro.guarantee_flag "guaranteeFlag"  --保修：在保，出保(在保)
 		from td_rrpair_order ro
@@ -122,7 +122,7 @@
 	        ro.out_org "outOrg",  --外修机构(维修单位)
 	        ro.call_time "callTime", --指派时间（预计开始时间）
 	        ro.complet_time "completTime",	--预计结束时间
-	        ro.call_dept_code "callDeptCode",	--维修组code 
+	        ro.call_dept_guid "callDeptCode",	--维修组code
 			ro.call_dept_name "callDeptName",	--维修组名称
 	        ro.tf_remark_zp "tfRemarkZp",	--指派备注
 	        ro.off_cause "offCause",	--关闭原因
@@ -159,7 +159,7 @@
   <!-- 查询维修工单信息——（验收信息） -->
   <select id="selectRrpairDetailIsAcce" resultType="java.util.HashMap" parameterType="com.phxl.core.base.entity.Pager">
          select (select dept_name from td_org_dept t
-		        where t.dept_code=roa.dept_code) "checkDeptName", --验收科室
+		        where t.dept_guid=roa.dept_guid) "checkDeptName", --验收科室
 		        roa.rr_acce_userid "rrAcceUserid",  --报修后验收人id
 		        roa.rr_acce_username "rrAcceUsername",  --报修后验收人姓名
 		        roa.rr_acce_fstate "rrAcceFstate",  --报修后验收人验收 60已验收 90验收不通过（验收结果）
@@ -378,8 +378,11 @@
                 regexp_like(ro.assets_record, #{conditiions.params, jdbcType=VARCHAR}) OR
                 regexp_like(te.equipment_standard_name, #{conditiions.params, jdbcType=VARCHAR})
         </if>
-        <if test="conditiions.orderFstate != null and conditiions.orderFstate != ''">
-        	and ro.order_fstate = #{conditiions.orderFstate, jdbcType=VARCHAR}
+        <if test="conditiions.orderFstates != null and conditiions.orderFstates != ''">
+        	and ro.order_fstate  in
+            <foreach collection="conditiions.orderFstates" index="index" open="(" close=")" separator=",">
+                #{conditiions.orderFstates[${index}], jdbcType=VARCHAR}
+            </foreach>
         </if>
         <if test="conditiions.orderMark != null and conditiions.orderMark != '' and conditiions.orderField != null and conditiions.orderField!=''">
             order by "${conditiions.orderField}" ${conditiions.orderMark}
