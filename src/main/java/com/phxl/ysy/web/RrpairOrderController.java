@@ -6,12 +6,9 @@ import java.math.BigDecimal;
 import java.text.MessageFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
+import javax.servlet.AsyncListener;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
@@ -502,7 +499,7 @@ public class RrpairOrderController {
 	@ResponseBody
 	public Pager<Map<String, Object>> selectRrpairList(
 			@RequestParam(value="params",required = false) String params,
-			@RequestParam(value="orderFstate",required = false) String orderFstate,
+			@RequestParam(value="orderFstate",required = false) String[] orderFstates,
 			@RequestParam(value="pagesize",required = false) Integer pagesize,
 			@RequestParam(value="page",required = false) Integer page,
 			@RequestParam(value="sortField",required = false) String sortField,
@@ -517,7 +514,9 @@ public class RrpairOrderController {
 			pager.addQueryParam("orderMark", "ascend".equalsIgnoreCase(sortOrder)?"asc":"desc");
 		}
 		pager.addQueryParam("params", params);
-		pager.addQueryParam("orderFstate", orderFstate);
+
+//		orderFstates = new String[]{"20","50"};
+		pager.addQueryParam("orderFstates", orderFstates);
 		pager.addQueryParam("userId", session.getAttribute(LoginUser.SESSION_USERID));
 		pager.addQueryParam("orgId", session.getAttribute(LoginUser.SESSION_USER_ORGID));
 		pager.addQueryParam("groupName", session.getAttribute("getUserGroupName"));
