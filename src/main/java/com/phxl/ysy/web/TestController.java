@@ -69,7 +69,7 @@ public class TestController {
 	UserService userService;
 	
 	/**
-	 * 维修扫一扫
+	 * 维修扫一扫 Test
 	 * @param model
 	 * @param request
 	 * @param response
