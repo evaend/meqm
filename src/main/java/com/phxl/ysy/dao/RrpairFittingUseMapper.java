@@ -12,4 +12,5 @@ public interface RrpairFittingUseMapper {
 	 * @return
 	 */
     List<Map<String, Object>> selectRrpairFittingList(Pager pager);
+    
 }

@@ -40,5 +40,5 @@
   		and TD_RRPAIR_FITTING_USE.RRPAIR_ORDER_GUID = #{conditiions.rrpairOrderGuid}
   	</if>
   </select>
- 
+  
 </mapper>

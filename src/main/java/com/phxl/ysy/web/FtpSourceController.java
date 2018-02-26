@@ -43,7 +43,8 @@ public class FtpSourceController {
 	 */
 	@RequestMapping("/**/*.*")
 	@ResponseBody
-	public void download(@RequestParam(defaultValue = "true") final Boolean isPreview, HttpServletRequest request, final HttpServletResponse response) throws Exception {
+	public void download(@RequestParam(defaultValue = "true") final Boolean isPreview, HttpServletRequest request, 
+			final HttpServletResponse response) throws Exception {
 		String uri = URLDecoder.decode(request.getRequestURI(), "UTF-8");
 		String ftpBaseUri = request.getContextPath() + "/ftp";
 		String filePath = uri.substring(uri.indexOf(ftpBaseUri) + ftpBaseUri.length());

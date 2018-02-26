@@ -37,8 +37,8 @@ public class WxJsUtils {
 			ser.init();
 		}
         String jsapi_ticket = JsapiTicketInfo.jsapiTicket.getTicket();
-        String nonce_str = create_nonce_str();
-        String timestamp = create_timestamp();
+        String nonce_str = create_nonce_str();	//随机数
+        String timestamp = create_timestamp();	//时间戳
         String string1;
         String signature = "";
 
@@ -66,14 +66,19 @@ public class WxJsUtils {
         }
 
         ret.put("url", url);
-        ret.put("jsapi_ticket", jsapi_ticket);
-        ret.put("nonceStr", nonce_str);
-        ret.put("timestamp", timestamp);
-        ret.put("signature", signature);
+        ret.put("jsapi_ticket", jsapi_ticket);	//微信jsapi通行证
+        ret.put("nonceStr", nonce_str);		//随机数
+        ret.put("timestamp", timestamp);	//时间戳
+        ret.put("signature", signature);	//微信加密签名signature结合了开发者填写的token参数和请求中的timestamp参数、nonce参数。
 
         return ret;
     }
 
+    /**
+     * 获取微信加密签名signature
+     * @param hash
+     * @return
+     */
     private static String byteToHex(final byte[] hash) {
         Formatter formatter = new Formatter();
         for (byte b : hash)
@@ -85,10 +90,18 @@ public class WxJsUtils {
         return result;
     }
 
+    /**
+     * 获取随机数
+     * @return
+     */
     private static String create_nonce_str() {
         return UUID.randomUUID().toString();
     }
 
+    /**
+     * 获取时间戳
+     * @return
+     */
     private static String create_timestamp() {
         return Long.toString(System.currentTimeMillis() / 1000);
     }

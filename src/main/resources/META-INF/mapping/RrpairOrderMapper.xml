@@ -6,7 +6,7 @@
     <result column="ASSETS_RECORD" property="assetsRecord" jdbcType="VARCHAR" />
     <result column="EQUIPMENT_CODE" property="equipmentCode" jdbcType="VARCHAR" />
     <result column="U_ORG" property="uOrg" jdbcType="VARCHAR" />
-    <result column="USE_DEPT_CODE" property="useDeptCode" jdbcType="VARCHAR" />
+    <result column="USE_DEPT_GUID" property="useDeptCode" jdbcType="VARCHAR" />
     <result column="ACCT_DATE" property="acctDate" jdbcType="DATE" />
     <result column="GUARANTEE_DATE" property="guaranteeDate" jdbcType="DATE" />
     <result column="ORDER_TYPE" property="orderType" jdbcType="VARCHAR" />
@@ -60,7 +60,7 @@
     <result column="IN_RRPAIR_PHONE" property="inRrpairPhone" jdbcType="VARCHAR" />
   </resultMap>
   <sql id="Base_Column_List" >
-    RRPAIR_ORDER, ASSETS_RECORD, EQUIPMENT_CODE, U_ORG, USE_DEPT_CODE, ACCT_DATE, GUARANTEE_DATE, 
+    RRPAIR_ORDER, ASSETS_RECORD, EQUIPMENT_CODE, U_ORG, USE_DEPT_GUID, ACCT_DATE, GUARANTEE_DATE, 
     ORDER_TYPE, MODIFY_TIME, ADDRESS, ORDER_FSTATE, EQUIPMENT_RRPAIR_RECORD_GUID, URGENT_FLAG, 
     GUARANTEE_FLAG, RRPAIR_TYPE, LABEL_GUID, SPARE, RRPAIR_FLAG, RRPAIR_USERID, RRPAIR_USERNAME, 
     RRPAIR_PHONE, COMPLET_TIME, RRPAIR_DATE, IN_RRPAIR_USERID, IN_RRPAIR_USERNAME, OUT_RRPAIR_USERNAME, 
@@ -69,6 +69,20 @@
     RRPAIR_ORDER_GUID, FAULT_ACCESSORY, TF_ACCESSORY, RRPAIR_ORDER_NO, RRPAIR_SEND, CALL_USERID, 
     OUT_ORG, FAIL_CAUSE, CREATE_DATE
   </sql>
+  
+  <!-- 查询维修工单信息——（维修单） -->
+  <select id="selectRrpairDetail" resultType="java.util.HashMap" parameterType="com.phxl.core.base.entity.Pager">
+  	 select ro.assets_record  "assetsRecord",    -- 资产档案号-资产编号      
+        	ro.create_date "createDate",  --创建时间-报修时间（报修时间）
+        	ro.order_fstate "orderFstate", -- 单据状态：待接修，维修中,待验收，已关闭
+        	ro.rrpair_date "rrpairDate"	--修复日期(完成时间)
+		from td_rrpair_order ro
+        left join tb_rrpair_order_acce roa on ro.rrpair_order_no=roa.rrpair_order
+        left join td_equipment te on ro.equipment_code=te.equipment_code
+        left join td_assets_record tar on ro.assets_record=tar.assets_record
+        left join td_org_dept tdi on tar.b_dept_guid=tdi.dept_guid
+        where ro.rrpair_order_guid = #{conditiions.rrpairOrderGuid, jdbcType=VARCHAR}
+  </select>
   
   <!-- 查询维修工单信息——（资产信息） -->
   <select id="selectRrpairDetailIsAssets" resultType="java.util.HashMap" parameterType="com.phxl.core.base.entity.Pager">
@@ -101,6 +115,8 @@
 	        ro.rrpair_send "rrpairSend",  --是否送修：是，否(是否送修)
 	        ro.spare "spare",	--备用情况
 	        ro.rrpair_phone "rrpairPhone", -- 报修人电话
+	        ro.rrpair_userid "rrpairUserid",  --报修人id
+	        ro.rrpair_username "rrpairUsername", --报修人姓名
 	        ro.fault_describe "faultDescribe",	--故障现象
 	        tar.use_fstate "useFstate",	--是否停用
 	        ro.fault_words "faultWords",  --故障描述
@@ -168,7 +184,7 @@
 		        roa.evaluate "evaluate",	--评价
 		        roa.tf_remark "tfRemark"	--备注
 		    from td_rrpair_order ro 
-        	left join tb_rrpair_order_acce roa on ro.rrpair_order_no=roa.rrpair_order 
+        	left join tb_rrpair_order_acce roa on ro.rrpair_order_guid=roa.rrpair_order 
         	where ro.rrpair_order_guid = #{conditiions.rrpairOrderGuid, jdbcType=VARCHAR}
   </select>
   
@@ -178,7 +194,7 @@
         ro.rrpair_order_guid "rrpairOrderGuid",--维修工单号guid
         ro.rrpair_order_no "rrpairOrderNo" ,  -- 维修单号
         ro.order_fstate "orderFstate", -- 单据状态：待接修，维修中,待验收，已关闭
-        tdi.dept_name "deptName",--ro.use_dept_code "useDeptCode",--TD_ORG_DEPT.DEPT_NAME（使用科室）
+        tdi.dept_name "deptName",--（使用科室）
         ro.rrpair_userid "rrpairUserid",  --报修人id
         ro.rrpair_username "rrpairUsername", --报修人姓名
         ro.rrpair_phone "rrpairPhone", -- 报修人电话
@@ -200,7 +216,7 @@
         ro.actual_price "actualPrice", -- 实际费用(维修费用)
         --更换配件(占时不用)
         (select dept_name from td_org_dept t
-        where t.dept_code=roa.dept_code) checkDeptNam, --验收科室
+        where t.dept_guid=roa.dept_guid) checkDeptNam, --验收科室
         roa.rr_acce_userid "rrAcceUserid",  --报修后验收人id
         roa.rr_acce_username "rrAcceUsername",  --报修后验收人姓名
         roa.rr_acce_fstate "rrAcceFstate",  --报修后验收人验收 60已验收 90验收不通过（验收结果）
@@ -212,7 +228,7 @@
         tar.product_type "productType",--资产分类id(资产类别 )
         tar.custodian "custodian",--保管员
         (select dept_name from td_org_dept t
-            where t.dept_code=tar.m_dept_code) "mDeptName", --管理科室
+            where t.dept_guid=tar.m_dept_guid) "mDeptName", --管理科室
         tar.deposit "deposit"--放地点-a区b楼c层d房间(存放地点)
         from td_rrpair_order ro
         left join tb_rrpair_order_acce roa on ro.rrpair_order_no=roa.rrpair_order
@@ -350,7 +366,7 @@
         ro.rrpair_order_no "rrpairOrderNo" ,  -- 维修单号
         ro.order_fstate "orderFstate", -- 单据状态：待接修，维修中,待验收，已关闭
         te.equipment_standard_name "equipmentStandardName"，--equipment_code资产名称
-        tdi.dept_name "deptName",--ro.use_dept_code "useDeptCode",--TD_ORG_DEPT.DEPT_NAME（使用科室）
+        tdi.dept_name "deptName",--（使用科室）
         tar.custodian "custodian",--保管员
         ro.rrpair_userid "rrpairUserid",  --报修人id
         ro.rrpair_username "rrpairUsername", --报修人姓名
@@ -391,4 +407,11 @@
             order by ro.create_date desc
         </if>
     </select>
+    
+   <!-- 查询当前资产是否正在维修 -->
+  <select id="selectAssetsIsUsable" parameterType="java.util.HashMap" resultType="java.util.HashMap">
+  	select * from td_rrpair_order
+		where assets_record = #{assetsRecord} 
+		and order_fstate != '90'
+  </select>
 </mapper>

@@ -291,6 +291,16 @@ public class RrpairOrderServiceImpl extends BaseService implements RrpairOrderSe
 			List<String> assetsExtendGuid,List<Integer> acceNum) throws Exception {
 		RrpairOrder rrpair = find(RrpairOrder.class, rrpairOrder.getRrpairOrderGuid());
 		if (rrpair==null) {
+			//如果当前维修工单的资产存在，则判断该资产是否是在维修的状态，如果是，不允许重复报修
+			if (assetsRecord!=null) {
+				Map<String, Object> map = new HashMap<String, Object>();
+				map.put("assetsRecord", assetsRecord.getAssetsRecord());
+				List<Map<String, Object>> list = rrpairOrderMapper.selectAssetsIsUsable(map);
+				if (list!=null && list.size()!=0) {
+					throw new ValidationException("当前资产正在维修，不允许重复报修");
+				}
+			}
+			
 			insertInfo(rrpairOrder);
 			EqOperation eqOperation = new EqOperation();
 			eqOperation.setTsEqOperationGuId(IdentifieUtil.getGuId());
@@ -387,5 +397,10 @@ public class RrpairOrderServiceImpl extends BaseService implements RrpairOrderSe
 	@Override
 	public Map<String, Object> selectRrpairDetailIsAssets(Pager pager) {
 		return rrpairOrderMapper.selectRrpairDetailIsAssets(pager);
+	}
+
+	@Override
+	public Map<String, Object> selectRrpairDetail(Pager pager) {
+		return rrpairOrderMapper.selectRrpairDetail(pager);
 	}
 }

@@ -13,15 +13,12 @@ import javax.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.view.RedirectView;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.phxl.core.base.exception.ValidationException;
 import com.phxl.core.base.util.BaseUtils;
-import com.phxl.core.base.util.IdentifieUtil;
 import com.phxl.core.base.util.LocalAssert;
 import com.phxl.core.base.util.SHAUtil;
 import com.phxl.core.base.util.SystemConfig;
@@ -64,20 +61,23 @@ public class HomeController {
 	@ResponseBody
 	public ModelAndView forwardBinging(HttpServletRequest request, HttpServletResponse response) 
 			throws Exception{
-	
 		String code = request.getParameter("code");
 		String EventKey = request.getParameter("state");
 		
-		UserInfo u = new UserInfo();
 		String appid = SystemConfig.getProperty("wechat.config.appid");// appid
 		String secret = SystemConfig.getProperty("wechat.config.secret");// secret
+		//获取用户的openid
 		String openid = weixinAPIInterface.getOpenid(appid, secret, code);
+		//将openid存在session中
+		session.setAttribute("openid", openid);
 		Map<String, Object> map = new HashMap<String, Object>();
 		map.put("openid", openid);
+		
+		UserInfo u = new UserInfo();
 		u.setWechatOpenid(openid);
+		//当前微信用户，是否已经是系统中的用户
 		UserInfo user = userService.searchEntity(u);
-		session.setAttribute("openid", openid);
-		System.out.println("openid++++++++++++++++++++"+openid);
+		//如果当前登录用户系统中已存在，则登录
 		if (user != null) {
 			// 在这时重新登录之前的session可能还存在
 			HttpSession previousSession = request.getSession();
@@ -86,7 +86,7 @@ public class HomeController {
 			}
 			session = request.getSession(true);
 
-			// 跨域session同步 begin
+			//跨域session同步 begin
 			String JSESSIONID = request.getSession().getId();	
 			Cookie cookie = new Cookie("JSESSIONID", JSESSIONID);
 			cookie.setPath("/");
@@ -107,6 +107,7 @@ public class HomeController {
 
 			Map<String, Object> resultMap = new HashMap<String, Object>();
 			resultMap.put("loginResult", result);
+			//如果用户正常登录，则将用户信息存在session中
 			if (!userLogin.get("loginStatus").equals(false)) {
 				UserInfo userInfo = (UserInfo) userLogin.get("userInfo");
 				LocalAssert.notEmpty(userInfo.getOrgType(), "登录: 用户的机构类型未知!");
@@ -128,16 +129,20 @@ public class HomeController {
 			ModelAndView mav = new ModelAndView(new RedirectView("http://182.254.152.181:8080/ysynet/#/"));
 			mav.addObject("resultMap", resultMap);
 			return mav;
-		} else {
+		}
+		//如果当前微信用户不是项目中的用户，则自动注册
+		else {
+			if (EventKey==null) {
+				throw new ValidationException("你当前没有权限，不能成为我们的用户");
+			}
+			//根据用户的openid获取用户的基本信息
 			WeixinOpenUser wxUser = weixinAPIInterface.getUserInfo(openid);
-			
-			System.out.println("getOpenUserId"+wxUser.getOpenUserId());
-			System.out.println(wxUser.getUserName());
-			System.out.println(wxUser.getHeadimgurl());
+			//根据扫码传过来的用户角色的key值，查询对应的角色权限
 			WecatRegister wecatRegister = imessageService.find(WecatRegister.class, EventKey);
 			if (wecatRegister==null) {
 				throw new ValidationException("当前机构或者组信息有误");
 			}
+			//微信自动注册用户，并将用户信息存在session中
 			userService.insertWxUser(wecatRegister, wxUser);
 			if (request.getSession(false)!=null) {
 				ModelAndView mav = new ModelAndView(new RedirectView("http://182.254.152.181:8080/ysynet/#/"));

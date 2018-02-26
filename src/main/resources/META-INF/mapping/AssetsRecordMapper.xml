@@ -78,7 +78,7 @@
   	select 
 	    a.assets_record_m "assetsRecordGuid" , 
 		a.assets_record "assetsRecord" ,
-		e.equipment_standard_name "equipmetStandardName" ,
+		e.equipment_standard_name "equipmentStandardName" ,
 		a.use_fstate "useFstate" , 
 		e.spec "spec" ,
 		a.product_type "productType" ,
@@ -102,10 +102,10 @@
 <!--   			<if test="conditiions.orderField == 'bDept'"> -->
 <!-- 	  			order by (select dept_name from td_org_dept where dept_code = a.b_dept_code) ${conditiions.orderMark} -->
 <!--   			</if> -->
-<!--   			<if test="conditiions.orderField == 'equipmetStandardName or conditiions.orderField == 'spec''"> -->
+<!--   			<if test="conditiions.orderField == 'equipmentStandardName or conditiions.orderField == 'spec''"> -->
 <!-- 	  			order by e.[orderField] ${conditiions.orderMark} -->
 <!--   			</if> -->
-<!--   			<if test="conditiions.orderField != 'useDept' and conditiions.orderField != 'bDept' and conditiions.orderField != 'equipmetStandardName' and conditiions.orderField != 'spec'">  -->
+<!--   			<if test="conditiions.orderField != 'useDept' and conditiions.orderField != 'bDept' and conditiions.orderField != 'equipmentStandardName' and conditiions.orderField != 'spec'">  -->
 <!--   				order by a.[orderField] ${conditiions.orderMark} -->
 <!--   			</if> -->
   			order by "${conditiions.orderField}" ${conditiions.orderMark}
@@ -116,7 +116,7 @@
   <select id="selectAssetsRecordDetail" parameterType="com.phxl.core.base.entity.Pager" resultType="java.util.Map">
   	select 
 		a.assets_record "assetsRecord" ,
-		e.equipment_standard_name "equipmetStandardName" ,
+		e.equipment_standard_name "equipmentStandardName" ,
 		a.product_country "productCountry" , 
 		e.spec "spec" ,
 		e.fmodel "fmodel" , 
@@ -238,7 +238,7 @@
        METERING_TYPE, MAINTAIN_DAY, NEXT_MAINTAIN_DATE, IN_DATE, 
        DEPRECIATION_TYPE, ORIGINAL_VALUE, CARRYING_AMOUNT, RESIDUAL_VALUE, 
        RESIDUAL_VALUE_V, USE_LIMIT, CREATE_USERID, ORG_ID ,
-       EQUIPMENT_CODE
+       EQUIPMENT_CODE, RECODR_DATE
 <!--         FMODEL, SPEC, -->
 <!--      MAINTAIN_DAY, QA_LEVEL,  -->
 <!--     DEPRECIATION_LIMIT, REPAIR_FLAG,  -->
@@ -264,7 +264,7 @@
       #{list[${index}].carryingAmount,jdbcType=VARCHAR}, #{list[${index}].residualValue,jdbcType=VARCHAR}, 
       #{list[${index}].residualValueV,jdbcType=VARCHAR}, #{list[${index}].useLimit,jdbcType=DECIMAL}, 
       #{list[${index}].createUserid,jdbcType=VARCHAR}, #{list[${index}].orgId,jdbcType=DECIMAL},
-      #{list[${index}].equipmentCode,jdbcType=VARCHAR} 
+      #{list[${index}].equipmentCode,jdbcType=VARCHAR} , sysdate
       from dual
       
 <!--       #{list[${index}].fmodel,jdbcType=VARCHAR}, #{list[${index}].spec,jdbcType=VARCHAR},  -->

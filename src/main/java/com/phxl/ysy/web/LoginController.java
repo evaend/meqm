@@ -140,6 +140,21 @@ public class LoginController {
 		return userService.selectUserMenu(userId);
 		// return result;
 	}
+	/**
+	 * @author 获取微信用户模块和权限json
+	 * @param userId
+	 */
+	@ResponseBody
+	@RequestMapping(value = "/getWeiXinUserM", produces = { "application/json;charset=UTF-8" })
+	public List<Map<String, Object>> getWeiXinUserM(HttpServletRequest request, HttpServletResponse response)
+			throws ValidationException {
+		String userId = (String) request.getSession().getAttribute(LoginUser.SESSION_USERID);
+		if (StringUtils.isBlank(userId)) {
+			throw new ValidationException("无登录信息");
+		}
+		return userService.selectWeiXinUserMenu(userId);
+	}
+	
 
 	/**
 	 * @author taoyou 获取用户信息

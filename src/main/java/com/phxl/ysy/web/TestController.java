@@ -52,6 +52,9 @@ import com.phxl.ysy.web.weixin.AccessTokenInfo;
 import com.phxl.ysy.web.weixin.AccessTokenServlet;
 import com.phxl.ysy.web.weixin.ticket.JsapiTicket;
 import com.phxl.ysy.web.weixin.ticket.JsapiTicketInfo;
+import it.sauronsoftware.jave.AudioAttributes;
+import it.sauronsoftware.jave.Encoder;
+import it.sauronsoftware.jave.EncodingAttributes;
 
 @Controller
 @RequestMapping("/test")
@@ -78,7 +81,7 @@ public class TestController {
 	@RequestMapping(value = "/test.html", method = RequestMethod.GET)
     public void testPage(Model model,HttpServletRequest request,HttpServletResponse response) throws Exception {
 
-        String url = "http://vupv29.natappfree.cc/test/test.html";
+        String url = "http://m3i8yc.natappfree.cc/test/test.html";
         WxJsUtils jsUtils = new WxJsUtils();
 		final String appId = SystemConfig.getProperty("wechat.config.appid");
         Map<String, String> ret = jsUtils.sign(url);
@@ -91,12 +94,16 @@ public class TestController {
         request.getRequestDispatcher("/index.jsp").forward(request, response);
     }
 	
-	
+	/**
+	 * 打开微信录音
+	 * @param model
+	 * @param request
+	 * @param response
+	 * @throws Exception
+	 */
 	@RequestMapping(value = "/testScan", method = RequestMethod.GET)
-	@ResponseBody
-    public Map<String, String> testScan(Model model,HttpServletRequest request,HttpServletResponse response) throws Exception {
-		System.out.println("..............");
-        String url = "http://hsms.com.cn/test/testScan";
+    public void testScan(Model model,HttpServletRequest request,HttpServletResponse response) throws Exception {
+        String url = "http://m3i8yc.natappfree.cc/test/testScan";
         WxJsUtils jsUtils = new WxJsUtils();
 		final String appId = SystemConfig.getProperty("wechat.config.appid");
         Map<String, String> ret = jsUtils.sign(url);
@@ -106,7 +113,7 @@ public class TestController {
             request.setAttribute(entry.getKey().toString(), entry.getValue());
             session.setAttribute(entry.getKey().toString(), entry.getValue());
         }
-        return ret;
+        request.getRequestDispatcher("/test.jsp").forward(request, response);
     }
 	
 	/**
@@ -118,78 +125,134 @@ public class TestController {
 	 */
 	@RequestMapping("/luyinTest")
 	@ResponseBody
-	public void luyinTest(String serverId , String luyintime , HttpServletRequest request , HttpServletResponse response){
+	public String luyinTest(String serverId , String luyintime , HttpServletRequest request , HttpServletResponse response){
 		InputStream is = null;  
 	    File amrPath = null;  
 	    File mp3Path = null;  
 	    String access_token = AccessTokenInfo.accessToken.getAccessToken(); 
 		String url = "https://qyapi.weixin.qq.com/cgi-bin/media/get?access_token="    
 	               + access_token + "&media_id=" + serverId;  
-	       try {  
-	           URL urlGet = new URL(url);    
-	           HttpURLConnection http = (HttpURLConnection) urlGet    
-	                   .openConnection();    
-	           http.setRequestMethod("GET"); // 必须是get方式请求    
-	           http.setRequestProperty("Content-Type","audio/mp3");    
-	           http.setDoOutput(true);    
-	           http.setDoInput(true);    
-	           System.setProperty("sun.net.client.defaultConnectTimeout", "30000");// 连接超时30秒    
-	           System.setProperty("sun.net.client.defaultReadTimeout", "30000"); // 读取超时30秒    
-	           http.connect();    
-	           // 获取文件转化为byte流    
-	           is = http.getInputStream();  
-	             
-	           //获取项目路径  
-	           String path = Thread.currentThread().getContextClassLoader().getResource("").toString();   
-	        path = path.replace('/', '\\'); // 将/换成\    
-	        path = path.replace("file:", ""); //去掉file:    
-	        path = path.replace("classes\\", ""); //去掉classes\    
-	        path = path.replace("target\\", ""); //去掉target\    
-	        path = path.replace("WEB-INF\\", "");//去掉web-inf\  
-	        path = path.substring(1); //去掉第一个\,如 \D:\JavaWeb...   
-	        //文件添加下级目录地址  
-	        path += "static"+File.separator +"common" + File.separator +"voice";  
-	           UUID uuid = UUID.randomUUID();  
-	           String fileName = uuid.toString().replace("-", "");  
-	           SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");  
-	           File file = new File(path);  
-	           File todayFile = new File(path + "\\" + sdf.format(new Date()));  
-	           amrPath = new File(todayFile + "\\" + fileName + ".amr");  
-	           mp3Path = new File(amrPath.toString().replace(".amr", ".mp3"));  
-	        //如果文件夹不存在则创建      
-	        if  (!file.exists()  && !file.isDirectory()){  
-	            file.mkdir();  
-	        }  
-	        if  (!todayFile.exists()  && !todayFile.isDirectory()){  
-	            todayFile.mkdir();  
-	        }  
-	          
-	           BufferedInputStream in = new BufferedInputStream(is);  
-	           BufferedOutputStream out = new BufferedOutputStream(new FileOutputStream(amrPath));  
-	           byte[] by = new byte[1024];  
-	           int lend = 0;  
-	           while((lend = in.read(by)) != -1){  
-	               out.write(by,0,lend);  
-	           }  
-	           in.close();  
-	           out.close();  
-	           //转码  
-//	           changeToMp3(amrPath.toString(),mp3Path.toString());  
-	           //删除amr文件  
-	           if(amrPath.isFile() && amrPath.exists()){  
-	            amrPath.delete();  
-	           }  
-	       } catch (Exception e) {  
-	           e.printStackTrace();    
+		System.out.println("url================"+url);
+        try {  
+           URL urlGet = new URL(url);    
+           HttpURLConnection http = (HttpURLConnection) urlGet    
+                   .openConnection();    
+           http.setRequestMethod("GET"); // 必须是get方式请求    
+           http.setRequestProperty("Content-Type","audio/mp3");    
+           http.setDoOutput(true);    
+           http.setDoInput(true);    
+           System.setProperty("sun.net.client.defaultConnectTimeout", "30000");// 连接超时30秒    
+           System.setProperty("sun.net.client.defaultReadTimeout", "30000"); // 读取超时30秒    
+           http.connect();    
+           // 获取文件转化为byte流    
+           is = http.getInputStream();  
+             
+           //获取项目路径  
+           String path = "E:\\test";
+//         Thread.currentThread().getContextClassLoader().getResource("").toString();   
+//	       path = path.replace('/', '\\'); // 将/换成\    
+//	       path = path.replace("file:", ""); //去掉file:    
+//	       path = path.replace("classes\\", ""); //去掉classes\    
+//	       path = path.replace("target\\", ""); //去掉target\    
+//	       path = path.replace("WEB-INF\\", "");//去掉web-inf\  
+//	       path = path.substring(1); //去掉第一个\,如 \D:\JavaWeb...   
+	       //文件添加下级目录地址  
+//	       path += "static"+File.separator +"common" + File.separator +"voice";  
+	       UUID uuid = UUID.randomUUID();  
+	       String fileName = uuid.toString().replace("-", "");  
+           SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");  
+           File file = new File(path);  
+           File todayFile = new File(path + "\\" + sdf.format(new Date()));  
+           amrPath = new File(todayFile + "\\" + fileName + ".amr");  
+           mp3Path = new File(amrPath.toString().replace(".amr", ".mp3"));  
+	       //如果文件夹不存在则创建      
+	       if  (!file.exists()  && !file.isDirectory()){  
+	           file.mkdir();  
 	       }  
-	         
-	       //返回一个数据库存储的格式 ：wgBank\static\common\voice\2017-10-23\3d1043b7dafe44a78cf4f2e45047d999.mp3  
-	       String newPath = mp3Path.toString().replace("\\", "/");  
-	       newPath = newPath.substring(newPath.toString().lastIndexOf("/wgBank"));  
-//	       return newPath;  
+	       if  (!todayFile.exists()  && !todayFile.isDirectory()){  
+	           todayFile.mkdir();  
+	       }  
+	          
+           BufferedInputStream in = new BufferedInputStream(is);  
+           BufferedOutputStream out = new BufferedOutputStream(new FileOutputStream(amrPath));  
+           byte[] by = new byte[1024];  
+           int lend = 0;  
+           while((lend = in.read(by)) != -1){  
+               out.write(by,0,lend);  
+           }  
+           in.close();  
+           out.close();  
+           //转码  
+           change(amrPath.toString(),mp3Path.toString());  
+           //删除amr文件  
+//           if(amrPath.isFile() && amrPath.exists()){  
+//            amrPath.delete();  
+//           }  
+       } catch (Exception e) {  
+           e.printStackTrace();    
+       }  
+         
+       //返回一个数据库存储的格式 ：wgBank\static\common\voice\2017-10-23\3d1043b7dafe44a78cf4f2e45047d999.mp3  
+       String newPath = mp3Path.toString().replace("\\", "/");  
+//       newPath = newPath.substring(newPath.toString().lastIndexOf("/wgBank"));  
+	   return newPath;  
 	}
 	
+	/**
+	 * 文件类型转换
+	 * @param amrPath
+	 * @param mp3Path
+	 */
+	public static void change(String amrPath,String mp3Path) {
+		File source = new File(amrPath);
+		File target = new File(mp3Path);
+		AudioAttributes audio = new AudioAttributes();
+		Encoder encoder = new Encoder();
 	
+		audio.setCodec("libmp3lame");
+		EncodingAttributes attrs = new EncodingAttributes();
+		attrs.setFormat("mp3");
+		attrs.setAudioAttributes(audio);
+	
+		try {
+			encoder.encode(source, target, attrs);
+		} catch (Exception e) {
+			e.printStackTrace();
+		} 
+	}
+	
+//	/**
+//	 * 音频转为Mp3
+//	 * @param source                需要转换的音频源文件
+//	 * @param desFileName           转换为mp3文件的路径
+//	 * @return  返回是否转换成功
+//	 */
+//	public static void audioToMp3(File source, String desFileName){
+//		File target = new File(desFileName);
+//		AudioAttributes audio = new AudioAttributes();
+//		audio.setCodec("libmp3lame");
+//		audio.setBitRate(new Integer(128000));
+//		audio.setChannels(new Integer(2));
+//		audio.setSamplingRate(new Integer(44100));
+//		EncodingAttributes attrs = new EncodingAttributes();
+//		attrs.setFormat("mp3");
+//		attrs.setAudioAttributes(audio);
+//		Encoder encoder = new Encoder();
+//		
+//		try {
+//			encoder.encode(source, target, attrs);
+//		} catch (Exception e) {
+//			e.printStackTrace();
+//		}
+//		    
+//	}
+	
+	/**
+	 * 单独获取jsapiTicket
+	 * @param request
+	 * @param response
+	 * @throws Exception
+	 */
 	@RequestMapping("/decoderQRCode")
 	@ResponseBody
 	public void decoderQRCode(HttpServletRequest request ,HttpServletResponse response) throws Exception{  
@@ -219,6 +282,11 @@ public class TestController {
 		}
 	}
 	
+	/**
+	 * 获取配置config里面的基本信息
+	 * @param request
+	 * @param response
+	 */
 	@RequestMapping("/getTest")
 	@ResponseBody
 	public void getTest(HttpServletRequest request ,HttpServletResponse response) {
@@ -233,6 +301,12 @@ public class TestController {
 	}
 	
 
+	/**
+	 * 获取用户权限，跳转到程序中获取用户信息的接口
+	 * @param request
+	 * @param response
+	 * @return
+	 */
 	@RequestMapping("/permission")
 	@ResponseBody
 	public String permission(HttpServletRequest request ,HttpServletResponse response) throws Exception{

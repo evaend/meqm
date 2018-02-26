@@ -140,9 +140,6 @@ public class AssetsRecordController {
 	public Map<String, Object> selectAssetsRecordDetail(
 			@RequestParam(value="assetsRecordGuid",required = false) String assetsRecordGuid,
 			@RequestParam(value="assetsRecord",required = false) String assetsRecord) throws ValidationException{
-		if (StringUtils.isBlank(assetsRecordGuid)) {
-			throw new ValidationException("资产id不允许为空");
-		}
 		Pager<Map<String, Object>> pager = new Pager<Map<String,Object>>(false);
 		pager.addQueryParam("assetsRecordGuid", assetsRecordGuid);
 		pager.addQueryParam("assetsRecord", assetsRecord);

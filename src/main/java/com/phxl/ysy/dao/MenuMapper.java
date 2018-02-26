@@ -17,6 +17,9 @@ public interface MenuMapper {
 	 * @return	List<Menu>
 	 */
 	public List<Menu> findMenuList(Pager pager);
+	
+	//查询所有菜单
+	List<Map<String, Object>> searchWeiXinMenu(@Param(value = "list") String [] list);
 
 	//查询模块菜单列表，加层级标记
 	List<Map<String, Object>> searchMenuWithLevel(@Param("moduleId")String moduleId);

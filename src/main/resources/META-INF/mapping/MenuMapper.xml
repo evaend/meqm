@@ -24,7 +24,21 @@
 		m.MENU_ID, m.MENU_NAME, m.MENU_URL, m.FSTATE, m.TF_REMARK, m.MODIFY_TIME, m.CREATE_TIME, m.CREATE_USERID,
 		m.MODIFY_USERID, m.PARENT_MENUID, m.FSORT, m.MENU_CODE
 	</sql>
-
+	
+	<!-- 查询所有菜单 -->
+	<select id="searchWeiXinMenu" resultType="java.util.HashMap" parameterType="java.util.HashMap">
+		select menu_id "id",menu_name "name",menu_code "key",menu_url "path",fsort "fsort",
+		parent_menuid "parentId",0 "levelr"
+		    from ts_menu 
+		    where 1 = 1 
+		    <if test="list != null and list != ''">
+        	and menu_id  in
+            <foreach collection="list" index="index" open="(" close=")" separator=",">
+                #{list[${index}], jdbcType=VARCHAR}
+            </foreach>
+        </if>
+	</select>
+	
 	 <select id="searchMenuWithLevel" resultType="HashMap">
 		with search_child(id,name,key,path,fsort,parent_id,levelr)
 		as(

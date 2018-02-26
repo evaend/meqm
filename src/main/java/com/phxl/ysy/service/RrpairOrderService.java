@@ -29,6 +29,10 @@ public interface RrpairOrderService extends IBaseService {
 	
 	//查询维修工单信息——（资产信息）
 	Map<String, Object> selectRrpairDetailIsAssets(Pager pager);
+	
+	//查询维修工单信息——（维修单）
+	Map<String, Object> selectRrpairDetail(Pager pager);
+	
 	//查询设备维修列表
 	List<Map<String, Object>> selectRrpairDetailList(Pager pager);
 

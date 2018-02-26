@@ -32,6 +32,7 @@ import com.phxl.ysy.constant.CustomConst;
 import com.phxl.ysy.constant.CustomConst.GroupType;
 import com.phxl.ysy.constant.CustomConst.LoginUser;
 import com.phxl.ysy.constant.CustomConst.UserLevel;
+import com.phxl.ysy.dao.MenuMapper;
 import com.phxl.ysy.dao.UserInfoMapper;
 import com.phxl.ysy.entity.Group;
 import com.phxl.ysy.entity.GroupUserKey;
@@ -59,6 +60,8 @@ public class UserServiceImpl extends BaseService implements UserService {
 	private MenuService menuService;
 	@Autowired
 	HttpSession session;
+	@Autowired
+	MenuMapper menuMapper;
 
 	public int findUserNoExist(String userNo) {
 	    return userInfoMapper.findUserNoExist(userNo);
@@ -176,10 +179,52 @@ public class UserServiceImpl extends BaseService implements UserService {
 			
 			//查询当前用户的菜单权限
 			JSONUtils json = new JSONUtils();
-			map.put("menuList", json.toPrettyJson(this.selectUserMenu(newUserInfo.getUserId())));            
+			map.put("menuList", json.toPrettyJson(this.selectWeiXinUserMenu(newUserInfo.getUserId())));            
 		}
 		map.put("result", result);
 		return map;
+	}
+	
+	/**
+	 * 查询移动端用户权限
+	 * @param userId
+	 * @return
+	 */
+	public List<Map<String,Object>> selectWeiXinUserMenu(String userId){
+		// TODO Auto-generated method stub
+		Map<String,Object> resultMap = new HashMap<String,Object>();
+		List<Map<String,Object>> resultMaps = new ArrayList<Map<String,Object>>();
+		List<Map<String,Object>> userMenus = userInfoMapper.selectUserMenu(userId);
+		
+		String [] menuIds = new String [userMenus.size()];
+		for (int i = 0; i < userMenus.size(); i++) {
+			Map<String, Object> map = userMenus.get(i);
+			menuIds[i] = map.get("MENU_ID").toString();
+		}
+		
+		List<Map<String,Object>> allMenus = menuMapper.searchWeiXinMenu(menuIds);//查询用户对应模块
+		//将一级菜单摘出
+		for (Map<String, Object> map : allMenus) {
+			if (("").equals(map.get("parentId")) || map.get("parentId")==null) {
+				map.put("levelr", 0);
+				resultMaps.add(map);
+			}else {
+				map.put("levelr", 1);
+			}
+		}
+		for (Map<String, Object> headMap : resultMaps) {
+			List<Map<String, Object>> m = new ArrayList<Map<String,Object>>();
+			for (Map<String, Object> map : allMenus) {
+				if (("").equals(map.get("parentId")) || map.get("parentId")==null) {
+				}else {
+					m.add(map);
+				}
+			}
+			//存放二级菜单的列表
+			headMap.put("subMenus", m);
+		}
+		
+		return resultMaps;
 	}
 
 	/**

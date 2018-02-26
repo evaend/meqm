@@ -4,6 +4,11 @@ import java.util.Date;
 
 import com.phxl.core.base.annotation.BaseSql;
 
+/**
+ * 微信自动注册的用户角色权限
+ * @author Administrator
+ *
+ */
 @BaseSql(tableName="TD_WECAT_REGISTER", resultName="com.phxl.ysy.dao.WecatRegisterMapper.BaseResultMap")
 public class WecatRegister {
     private Long wecatRegisterId;

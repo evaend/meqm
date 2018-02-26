@@ -127,4 +127,11 @@ public interface UserService extends IBaseService {
 	 * @param weixinOpenUser
 	 */
 	public void insertWxUser(WecatRegister wecatRegister, WeixinOpenUser wxUser)throws Exception ;
+
+	/**
+	 * 查询移动端用户权限
+	 * @param userId
+	 * @return
+	 */
+	public List<Map<String,Object>> selectWeiXinUserMenu(String userId);
 }

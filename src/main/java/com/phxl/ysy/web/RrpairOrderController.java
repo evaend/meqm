@@ -37,6 +37,7 @@ import com.phxl.ysy.constant.CustomConst;
 import com.phxl.ysy.constant.CustomConst.LoginUser;
 import com.phxl.ysy.entity.AssetsExtend;
 import com.phxl.ysy.entity.AssetsRecord;
+import com.phxl.ysy.entity.DeptUser;
 import com.phxl.ysy.entity.Equipment;
 import com.phxl.ysy.entity.RrpairFittingUse;
 import com.phxl.ysy.entity.RrpairOrder;
@@ -473,6 +474,7 @@ public class RrpairOrderController {
 			String [] faultDescribe = StringUtils.split(selectRrpairDetailIsOrder.get("faultDescribe").toString(), ',');
 			selectRrpairDetailIsOrder.put("faultDescribe",faultDescribe);
 		}
+		result.put("selectRrpairDetail", rrpairOrderService.selectRrpairDetail(pager));
 		result.put("selectRrpairDetailIsAssets", rrpairOrderService.selectRrpairDetailIsAssets(pager));
 		result.put("selectRrpairDetailIsOrder", selectRrpairDetailIsOrder);
 		result.put("selectRrpairDetailIsCall", rrpairOrderService.selectRrpairDetailIsCall(pager));
@@ -666,6 +668,13 @@ public class RrpairOrderController {
 			rrpair.setRrpairOrderGuid(IdentifieUtil.getGuId());
 			rrpair.setRrpairOrderNo(rrpairOrder);
 			rrpair.setCreateDate(new Date());
+			rrpair.setRrpairUserid(session.getAttribute(LoginUser.SESSION_USERID).toString());
+			rrpair.setRrpairUsername(session.getAttribute(LoginUser.SESSION_USERNAME).toString());
+			DeptUser deptUser = new DeptUser();
+			deptUser.setUserId(session.getAttribute(LoginUser.SESSION_USERID).toString());
+			DeptUser duser = rrpairOrderService.searchEntity(deptUser);
+			rrpair.setUseDeptCode(duser.getDeptGuid());
+			rrpair.setuOrg(session.getAttribute(LoginUser.SESSION_USER_ORGID).toString());
 		}
 		
 		if (StringUtils.isNotBlank(dto.getOrderFstate())) {
@@ -688,9 +697,6 @@ public class RrpairOrderController {
 			rrpair.setFaultDescribe(faultDescribe);
 			rrpair.setTfRemarkBx(dto.getTfRemarkBx());
 			rrpair.setFaultWords(dto.getFaultWords());
-			rrpair.setCreateDate(new Date());
-			rrpair.setRrpairUserid(session.getAttribute(LoginUser.SESSION_USERID).toString());
-			rrpair.setRrpairUsername(session.getAttribute(LoginUser.SESSION_USERNAME).toString());
 			String fault = "";
 			if (dto.getTfAccessory()!=null && dto.getTfAccessory().size()!=0) {
 				int i = 0;
@@ -748,12 +754,13 @@ public class RrpairOrderController {
 			rrpair.setAssetsRecord(assetsRecord.getAssetsRecord());
 			rrpair.setUseDeptCode(assetsRecord.getUseDeptCode());
 		}
-		rrpair.setModifyTime(new Date());
 		SimpleDateFormat format = new SimpleDateFormat("yyyy-mm-dd");
 		if (StringUtils.isNotBlank(dto.getRrpairType())) {
 			rrpair.setRrpairType(dto.getRrpairType());
 			if (dto.getRrpairType().equals("00")) {
 				rrpair.setInRrpairPhone(dto.getInRrpairPhone()==null ? rrpair.getInRrpairPhone() : dto.getInRrpairPhone());
+				rrpair.setInRrpairUserid(session.getAttribute(LoginUser.SESSION_USERID).toString());
+				rrpair.setInRrpairUsername(session.getAttribute(LoginUser.SESSION_USERNAME).toString());
 				rrpair.setRepairContentType(dto.getRepairContentType()==null ? rrpair.getRepairContentType() : dto.getRepairContentType());
 				rrpair.setRepairContentTyp(dto.getRepairContentTyp()==null ? rrpair.getRepairContentTyp() : dto.getRepairContentTyp());
 				rrpair.setRepairResult(dto.getRepairResult()==null ? rrpair.getRepairResult() : dto.getRepairResult());
@@ -761,19 +768,20 @@ public class RrpairOrderController {
 					rrpair.setActualPrice(BigDecimal.valueOf(Long.valueOf(dto.getActualPrice())));
 				}
 				rrpair.setTfRemarkWx(dto.getTfRemarkWx()==null ? rrpair.getTfRemarkWx() : dto.getTfRemarkWx());
+				rrpair.setRrpairDate(new Date()); 	//修复日期
 				rrpair.setOffCause(dto.getOffCause()==null ? rrpair.getOffCause() : dto.getOffCause());
 				rrpair.setFollowupTreatment(dto.getFollowupTreatment()==null ? rrpair.getFollowupTreatment() : dto.getFollowupTreatment());
 				rrpair.setTfRemarkGb(dto.getTfRemarkGb()==null ? rrpair.getTfRemarkGb() : dto.getTfRemarkGb());
 			}else if (dto.getRrpairType().equals("01")){
 				rrpair.setOutOrg(dto.getOutOrg()==null ? rrpair.getOutOrg() : dto.getOutOrg());
 				rrpair.setOutRrpairPhone(dto.getOutRrpairPhone()==null ? rrpair.getOutRrpairPhone() : dto.getOutRrpairPhone());
-				rrpair.setCompletTime(dto.getCompletTime()==null ? rrpair.getCompletTime() : format.parse(dto.getCompletTime()));
+				rrpair.setCompletTime(dto.getCompletTime()=="" ? rrpair.getCompletTime() : format.parse(dto.getCompletTime()));
 				rrpair.setTfRemarkZp(dto.getTfRemarkZp()==null ? rrpair.getTfRemarkZp() : dto.getTfRemarkZp());
 			}else {
 				throw new ValidationException("当前维修类型有误！");
 			}
 		}
-
+		rrpair.setModifyTime(new Date()); 	//最后更新时间
 		List<String> assetsExtendGuid = new ArrayList<String>();
 		List<Integer> acceNum = new ArrayList<Integer>();
 		if (dto.getAssetsExtendGuids() == null) {
@@ -984,7 +992,7 @@ public class RrpairOrderController {
 	}
 	
 	/**
-	 * 验收
+	 * 维修工单验收
 	 * @param rrpairOrderGuid 维修记录guid
 	 * @param rrAcceFstate 通过/不通过 65通过 66不通过
 	 * @param tfRemark 备注
@@ -1006,21 +1014,33 @@ public class RrpairOrderController {
 		if (rrpairOrder==null) {
 			throw new ValidationException("当前维修记录不存在");
 		}
-		RrpairOrderAcce rrpairOrderAcce = new RrpairOrderAcce();
-		rrpairOrderAcce.setRrpairOrderAcce(IdentifieUtil.getGuId());
-		rrpairOrderAcce.setRrpairOrder(rrpairOrderGuid);
-		rrpairOrderAcce.setRrAcceUserid(session.getAttribute(LoginUser.SESSION_USERID).toString());
-		rrpairOrderAcce.setRrAcceUsername(session.getAttribute(LoginUser.SESSION_USERNAME).toString());
-		rrpairOrderAcce.setRrAcceFstate(rrAcceFstate);
-		rrpairOrderAcce.setEvaluate(evaluate);
-		rrpairOrderAcce.setTfRemark(tfRemark);
-		if (rrAcceFstate.equals("66")) {
-			rrpairOrderAcce.setNotCause(notCause);
+		RrpairOrderAcce rracce = new RrpairOrderAcce();
+		rracce.setRrpairOrder(rrpairOrderGuid);
+		RrpairOrderAcce acce = rrpairOrderService.searchEntity(rracce);
+		if (acce != null) {
+			acce.setRrAcceFstate(StringUtils.isBlank(rrAcceFstate) ? acce.getRrAcceFstate() : rrAcceFstate);
+			acce.setTfRemark(StringUtils.isBlank(tfRemark) ? acce.getTfRemark() : tfRemark);
+			acce.setEvaluate(StringUtils.isBlank(evaluate) ? acce.getEvaluate() : evaluate);
+			acce.setNotCause(StringUtils.isBlank(notCause) ? acce.getNotCause() : notCause);
+			acce.setEvaluate(StringUtils.isBlank(evaluate) ? acce.getEvaluate() : evaluate);
+			rrpairOrderService.updateInfo(acce);
+		}else{
+			RrpairOrderAcce rrpairOrderAcce = new RrpairOrderAcce();
+			rrpairOrderAcce.setRrpairOrderAcce(IdentifieUtil.getGuId());
+			rrpairOrderAcce.setRrpairOrder(rrpairOrderGuid);
+			rrpairOrderAcce.setRrAcceUserid(session.getAttribute(LoginUser.SESSION_USERID).toString());
+			rrpairOrderAcce.setRrAcceUsername(session.getAttribute(LoginUser.SESSION_USERNAME).toString());
+			rrpairOrderAcce.setRrAcceFstate(rrAcceFstate);
+			rrpairOrderAcce.setEvaluate(evaluate);
+			rrpairOrderAcce.setTfRemark(tfRemark);
+			if (rrAcceFstate.equals("66")) {
+				rrpairOrderAcce.setNotCause(notCause);
+			}
+			rrpairOrderAcce.setRrAcceDate(new Date());
+			
+			rrpairOrder.setOrderFstate("90");
+			rrpairOrderService.insertRrpairOrderAcce(rrpairOrderAcce, rrpairOrder);
 		}
-		rrpairOrderAcce.setRrAcceDate(new Date());
-		
-		rrpairOrder.setOrderFstate("90");
-		rrpairOrderService.insertRrpairOrderAcce(rrpairOrderAcce, rrpairOrder);
 	}
 	
 	/**
@@ -1055,7 +1075,7 @@ public class RrpairOrderController {
 			@RequestParam(value="callDeptName",required = false) String callDeptName,
 			@RequestParam(value="inRrpairUserid",required = false) String inRrpairUserid,
 			@RequestParam(value="inRrpairUsername",required = false) String inRrpairUsername,
-			@RequestParam(value="tfRemarkWx",required = false) String tfRemarkWx,
+//			@RequestParam(value="tfRemarkWx",required = false) String tfRemarkWx,
 			@RequestParam(value="offCause",required = false) String offCause,
 			@RequestParam(value="followupTreatment",required = false) String followupTreatment,
 			@RequestParam(value="tfRemarkGb",required = false) String tfRemarkGb,
@@ -1082,7 +1102,7 @@ public class RrpairOrderController {
 				rrpair.setCallDeptCode(callDeptCode);
 				rrpair.setInRrpairUserid(inRrpairUserid);
 				rrpair.setInRrpairUsername(inRrpairUsername);
-				rrpair.setTfRemarkWx(tfRemarkWx);
+				rrpair.setTfRemarkZp(tfRemarkZp);
 				rrpair.setCallTime(new Date());
 				rrpair.setCompletTime(StringUtils.isBlank(completTime)==true ? null : format.parse(completTime));
 			}
