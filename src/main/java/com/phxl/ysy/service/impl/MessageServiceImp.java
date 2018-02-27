@@ -67,6 +67,7 @@ public class MessageServiceImp extends BaseService implements IMessageService{
 				e.printStackTrace();
 			}
 		}
+		System.out.println("WeChatContent="+WeChatContent);
 		return WeChatContent;
 	}
 	

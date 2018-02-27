@@ -2,7 +2,33 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
 <mapper namespace="com.phxl.ysy.dao.OrgDeptMapper" >
   <resultMap id="BaseResultMap" type="com.phxl.ysy.entity.OrgDept" >
+    <id column="DEPT_GUID" property="deptGuid" jdbcType="VARCHAR" />
+    <result column="ORG_ID" property="orgId" jdbcType="DECIMAL" />
     <result column="DEPT_CODE" property="deptCode" jdbcType="VARCHAR" />
     <result column="DEPT_NAME" property="deptName" jdbcType="VARCHAR" />
+    <result column="FQUN" property="fqun" jdbcType="VARCHAR" />
+    <result column="PARENT_DEPT_GUID" property="parentDeptGuid" jdbcType="VARCHAR" />
+    <result column="FFLAG" property="fflag" jdbcType="VARCHAR" />
+    <result column="FSTATE" property="fstate" jdbcType="VARCHAR" />
+    <result column="DEPT_TYPE_CODE" property="deptTypeCode" jdbcType="VARCHAR" />
+    <result column="DEPT_TYPE_NAME" property="deptTypeName" jdbcType="VARCHAR" />
+    <result column="TF_REMARK" property="tfRemark" jdbcType="VARCHAR" />
+    <result column="EQ_M_FSTATE" property="eqMFstate" jdbcType="VARCHAR" />
+    <result column="EQ_P_FSTATE" property="eqPFstate" jdbcType="VARCHAR" />
   </resultMap>
+  <sql id="Base_Column_List" >
+    DEPT_GUID, ORG_ID, DEPT_CODE, DEPT_NAME, FQUN, PARENT_DEPT_GUID, FFLAG, FSTATE, DEPT_TYPE_CODE, 
+    DEPT_TYPE_NAME, TF_REMARK, EQ_M_FSTATE, EQ_P_FSTATE
+  </sql>
+  
+  <!-- 查询所属机构所有管理科室 -->
+  <select id="selectUseDeptList" resultType="hashMap" parameterType="com.phxl.core.base.entity.Pager">
+  	SELECT
+			DISTINCT d.DEPT_GUID "value", d.DEPT_NAME "text"
+		FROM TD_ORG_INFO d
+		WHERE
+		<!-- 指定机构体系 -->
+		d.ORG_ID = #{conditiions.orgId, jdbcType=VARCHAR}
+  </select>
+  
 </mapper>

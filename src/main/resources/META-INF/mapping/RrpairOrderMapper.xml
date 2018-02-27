@@ -383,23 +383,27 @@
         left join td_assets_record tar on ro.assets_record=tar.assets_record
         left join td_org_dept tdi on tar.b_dept_guid=tdi.dept_guid
         where 1=1
+        <!-- 如果当前用户是使用科室，则只能看见本科室的报修信息 -->
         <if test="conditiions.groupName == 'syks'">
             and tar.b_dept_guid in (
                 select tdu.dept_guid from td_dept_user tdu
                 where tdu.user_id=#{conditiions.userId, jdbcType=VARCHAR}
             )
         </if>
+        <!-- 查询对应维修状态 -->
         <if test="conditiions.params != null and conditiions.params != ''">
             and regexp_like(ro.rrpair_order_no, #{conditiions.params, jdbcType=VARCHAR}) OR
                 regexp_like(ro.assets_record, #{conditiions.params, jdbcType=VARCHAR}) OR
                 regexp_like(te.equipment_standard_name, #{conditiions.params, jdbcType=VARCHAR})
         </if>
+        <!-- 查询不同维修状态 -->
         <if test="conditiions.orderFstates != null and conditiions.orderFstates != ''">
         	and ro.order_fstate  in
             <foreach collection="conditiions.orderFstates" index="index" open="(" close=")" separator=",">
                 #{conditiions.orderFstates[${index}], jdbcType=VARCHAR}
             </foreach>
         </if>
+        <!-- 排序 -->
         <if test="conditiions.orderMark != null and conditiions.orderMark != '' and conditiions.orderField != null and conditiions.orderField!=''">
             order by "${conditiions.orderField}" ${conditiions.orderMark}
         </if>

@@ -24,6 +24,7 @@ import javax.servlet.http.HttpSession;
 
 import net.sf.json.JSONObject;
 
+import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -37,8 +38,10 @@ import org.springframework.web.servlet.view.RedirectView;
 import com.phxl.core.base.exception.ValidationException;
 import com.phxl.core.base.util.IdentifieUtil;
 import com.phxl.core.base.util.SystemConfig;
+import com.phxl.ysy.constant.CustomConst;
 import com.phxl.ysy.constant.CustomConst.LoginUser;
 import com.phxl.ysy.entity.Group;
+import com.phxl.ysy.entity.RrpairOrder;
 import com.phxl.ysy.entity.UserInfo;
 import com.phxl.ysy.entity.WecatRegister;
 import com.phxl.ysy.entity.WeixinOpenUser;
@@ -52,6 +55,7 @@ import com.phxl.ysy.web.weixin.AccessTokenInfo;
 import com.phxl.ysy.web.weixin.AccessTokenServlet;
 import com.phxl.ysy.web.weixin.ticket.JsapiTicket;
 import com.phxl.ysy.web.weixin.ticket.JsapiTicketInfo;
+
 import it.sauronsoftware.jave.AudioAttributes;
 import it.sauronsoftware.jave.Encoder;
 import it.sauronsoftware.jave.EncodingAttributes;
@@ -81,7 +85,7 @@ public class TestController {
 	@RequestMapping(value = "/test.html", method = RequestMethod.GET)
     public void testPage(Model model,HttpServletRequest request,HttpServletResponse response) throws Exception {
 
-        String url = "http://m3i8yc.natappfree.cc/test/test.html";
+        String url = "http://z75we2.natappfree.cc/test/test.html";
         WxJsUtils jsUtils = new WxJsUtils();
 		final String appId = SystemConfig.getProperty("wechat.config.appid");
         Map<String, String> ret = jsUtils.sign(url);
@@ -103,7 +107,7 @@ public class TestController {
 	 */
 	@RequestMapping(value = "/testScan", method = RequestMethod.GET)
     public void testScan(Model model,HttpServletRequest request,HttpServletResponse response) throws Exception {
-        String url = "http://m3i8yc.natappfree.cc/test/testScan";
+        String url = "http://z75we2.natappfree.cc/test/testScan";
         WxJsUtils jsUtils = new WxJsUtils();
 		final String appId = SystemConfig.getProperty("wechat.config.appid");
         Map<String, String> ret = jsUtils.sign(url);
@@ -311,7 +315,7 @@ public class TestController {
 	@ResponseBody
 	public String permission(HttpServletRequest request ,HttpServletResponse response) throws Exception{
 		Long EventKey = 1L;
-		return "https://open.weixin.qq.com/connect/oauth2/authorize?appid=wxe1ba6ec9765d99ac&redirect_uri=http%3A%2F%2Fvupv29.natappfree.cc%2Ftest%2FgetPermission&response_type=code&scope=snsapi_base&state="+EventKey+"#wechat_redirect";
+		return "https://open.weixin.qq.com/connect/oauth2/authorize?appid=wxe1ba6ec9765d99ac&redirect_uri=http%3A%2F%2Fm3i8yc.natappfree.cc%2Ftest%2FgetPermission&response_type=code&scope=snsapi_base&state="+EventKey+"#wechat_redirect";
 	}
 
 	/**
@@ -401,26 +405,36 @@ public class TestController {
 	 * @param id
 	 * @param request
 	 * @param response
+	 * @throws ValidationException 
 	 */
 	@RequestMapping("/pushMessage")
 	@ResponseBody
 	public void pushMessage(
-			@RequestParam(value="id",required = false) String id,
-			HttpServletRequest request ,HttpServletResponse response) {
+			@RequestParam(value="userId",required = false) String userId,
+			@RequestParam(value="rrpairOrderGuid",required = false) String rrpairOrderGuid,
+			HttpServletRequest request ,HttpServletResponse response) throws ValidationException {
+		if (StringUtils.isBlank(rrpairOrderGuid)) {
+			throw new ValidationException("当前维修单id不允许为空");
+		}
+		if (StringUtils.isBlank(userId)) {
+			throw new ValidationException("无登录信息");
+		}
+		RrpairOrder rrpairOrder = userService.find(RrpairOrder.class, rrpairOrderGuid);
+		if (rrpairOrder==null) {
+			throw new ValidationException("当前维修工单不存在");
+		}
+		UserInfo user = userService.findUserInfoById(userId);
 		Map<String,Object> argument = new HashMap<String,Object>(); 
-        argument.put("first", id);
-        argument.put("keyword1", "IT78922");
-        argument.put("keyword2","维修中");
-        argument.put("keyword3",new Date());
-        argument.put("keyword4","陶悠");
-        argument.put("keyword5","维修中");
+        argument.put("first", rrpairOrderGuid);
+        argument.put("keyword1", rrpairOrder.getRrpairOrderNo());
+        argument.put("keyword2", CustomConst.RrpairFstateMap.get(rrpairOrder.getOrderFstate()));
+        argument.put("keyword3", new Date());
+        argument.put("keyword4", user.getUserName());
+        argument.put("keyword5", "IT78922");
         argument.put("remark","所属科室：设备科");
-//		System.out.println("resultStr = "+resultStr);
-//		System.out.println("errMsg = "+errMsg);
-		System.out.println("1111");
 
         String message = imessageService.getMessageJsonContent(argument,
-        		"A6C68D5EFF5E4D55B5D8396CB3232DE0","www.baidu.com ","1");
+        		"A6C68D5EFF5E4D55B5D8396CB3232DE0","www.baidu.com ",userId);
         imessageService.pushMessages(message);
 	}
 	

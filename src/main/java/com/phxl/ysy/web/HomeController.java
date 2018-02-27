@@ -126,7 +126,7 @@ public class HomeController {
 				session.setAttribute(LoginUser.CUR_USER_MENULIST, userMenuList);
 				resultMap.put("userInfo", userInfo);
 			}
-			ModelAndView mav = new ModelAndView(new RedirectView("http://182.254.152.181:8080/ysynet/#/"));
+			ModelAndView mav = new ModelAndView(new RedirectView("http://192.168.31.224:3001/#/workplace?userId="+session.getAttribute(LoginUser.SESSION_USERID)));
 			mav.addObject("resultMap", resultMap);
 			return mav;
 		}
@@ -144,14 +144,8 @@ public class HomeController {
 			}
 			//微信自动注册用户，并将用户信息存在session中
 			userService.insertWxUser(wecatRegister, wxUser);
-			if (request.getSession(false)!=null) {
-				ModelAndView mav = new ModelAndView(new RedirectView("http://182.254.152.181:8080/ysynet/#/"));
-				return mav;
-			}else{
-				//如果用户登录的session失效，则跳转到登录页面，重新登录
-				return new ModelAndView(new RedirectView("http://182.254.152.181:8080/ysynet/#/proName/#/login"));
-			}
-
+			ModelAndView mav = new ModelAndView(new RedirectView("http://192.168.31.224:3001/#/workplace?userId="+session.getAttribute(LoginUser.SESSION_USERID)));
+			return mav;
 		}	
 	}
 }

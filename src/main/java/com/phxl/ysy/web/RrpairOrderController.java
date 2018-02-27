@@ -60,7 +60,7 @@ public class RrpairOrderController {
 	 * @param request
 	 * @param response
 	 * @return
-	 *//*
+	 */
 	@RequestMapping("/selectRrpairFstateNum")
 	@ResponseBody
 	public List<Map<String, Object>> selectRrpairFstateNum(
@@ -69,7 +69,7 @@ public class RrpairOrderController {
 		return list;
 	}
 	
-	*//**
+	/**
 	 * 维修单详情——查询备注/评价
 	 * @param rrpairOrder 维修单号
 	 * @param type 备注/评价（备注0 ，评价1）
@@ -641,6 +641,9 @@ public class RrpairOrderController {
 		ObjectMapper objectMapper = new ObjectMapper();
 		objectMapper.setDateFormat(new SimpleDateFormat("yyyy-MM-dd"));//配置项:默认日期格式
 		objectMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);//配置项:忽略未知属性
+		if (session.getAttribute(LoginUser.SESSION_USERID)==null) {
+			throw new ValidationException("无登录信息");
+		}
 		//获取当前要添加或修改的维修工单信息
 		InsertRrpairOrderDto dto = objectMapper.readValue(request.getReader(), InsertRrpairOrderDto.class);
 		AssetsRecord assetsRecord = null;
@@ -670,6 +673,7 @@ public class RrpairOrderController {
 			rrpair.setCreateDate(new Date());
 			rrpair.setRrpairUserid(session.getAttribute(LoginUser.SESSION_USERID).toString());
 			rrpair.setRrpairUsername(session.getAttribute(LoginUser.SESSION_USERNAME).toString());
+			//查询出当前用户对应的科室（目前1对1）
 			DeptUser deptUser = new DeptUser();
 			deptUser.setUserId(session.getAttribute(LoginUser.SESSION_USERID).toString());
 			DeptUser duser = rrpairOrderService.searchEntity(deptUser);

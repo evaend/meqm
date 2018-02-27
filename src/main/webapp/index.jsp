@@ -63,11 +63,10 @@ String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.
 <script src="http://res.wx.qq.com/open/js/jweixin-1.0.0.js"></script>
 <script type="text/javascript">
 	$(function() {
-		 var appId =  "${appId}";
-		 var timestamp =  "${timestamp}";
-		 var nonceStr =  "${nonceStr}";
-		 var signature =  "${signature}";
-		 alert(appId);
+		 var appId = $('#appId').val();
+		 var timestamp = $('#timestamp').val();
+		 var nonceStr = $('#nonceStr').val();
+		 var signature = $('#signature').val();
 		 wx.config({
 			        debug : false, // 开启调试模式,调用的所有api的返回值会在客户端alert出来，若要查看传入的参数，可以在pc端打开，参数信息会通过log打出，仅在pc端时才会打印。
 			        appId : appId, // 必填，公众号的唯一标识
@@ -84,7 +83,7 @@ String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.
 			        desc : 'scanQRCode desc',
 			        success : function(res) {
 //	 					alert(res);
-						window.location.href = 'http://mobile.medqcc.com/#/equipment/applyRepair?assetsRecord='+res.resultStr
+						window.location.href = 'http://192.168.31.224:3001/#/repair/repairReg?id='+res.assetsRecordGuid
 			        },
 			        error: function(err){
 			        	console.log(err)
@@ -109,10 +108,10 @@ String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.
 			<p class="text flex centerh">点击图标扫一扫</p>
 		</div>
 	</div>
-    <input id="appId" type="hidden" value="${sessionScope.appId}" />
-    <input id="timestamp" type="hidden" value="${sessionScope.timestamp}" />
-    <input id="nonceStr" type="hidden" value="${sessionScope.nonceStr}" />
-    <input id="signature" type="hidden" value="${sessionScope.signature}" />
+    <input id="appId" type="hidden" value="${requestScope.appId}" />
+    <input id="timestamp" type="hidden" value="${requestScope.timestamp}" />
+    <input id="nonceStr" type="hidden" value="${requestScope.nonceStr}" />
+    <input id="signature" type="hidden" value="${requestScope.signature}" />
 	
 	<script type="text/javascript">
 		$("#scanQRCode").click(function() {
@@ -122,7 +121,7 @@ String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.
 			        desc : 'scanQRCode desc',
 			        success : function(res) {
 	// 					alert(res);
-						window.location.href = 'http://mobile.medqcc.com/#/equipment/applyRepair?assetsRecord='+res.resultStr
+						window.location.href = 'http://192.168.31.224:3001/#/repair/repairReg?id='+res.assetsRecordGuid
 			        },
 			        error: function(err){
 			        	console.log(err)

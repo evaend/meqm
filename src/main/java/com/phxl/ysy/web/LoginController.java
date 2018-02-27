@@ -51,6 +51,9 @@ public class LoginController {
 	@Autowired
 	WeixinAPIInterface weixinAPIInterface;
 	
+	@Autowired
+	HttpSession session;
+	
 	/**
 	 * @author taoyou 用户登录
 	 * @throws Exception
@@ -146,9 +149,13 @@ public class LoginController {
 	 */
 	@ResponseBody
 	@RequestMapping(value = "/getWeiXinUserM", produces = { "application/json;charset=UTF-8" })
-	public List<Map<String, Object>> getWeiXinUserM(HttpServletRequest request, HttpServletResponse response)
+	public List<Map<String, Object>> getWeiXinUserM(@RequestParam(value = "userId", required = false) String userId,
+			HttpServletRequest request, HttpServletResponse response)
 			throws ValidationException {
-		String userId = (String) request.getSession().getAttribute(LoginUser.SESSION_USERID);
+		System.out.println("userId==========="+userId);
+		if (StringUtils.isBlank(userId)) {
+			userId = (String)session.getAttribute(LoginUser.SESSION_USERID);
+		}
 		if (StringUtils.isBlank(userId)) {
 			throw new ValidationException("无登录信息");
 		}
@@ -161,16 +168,25 @@ public class LoginController {
 	 */
 	@ResponseBody
 	@RequestMapping(value = "/getUserInfo", produces = { "application/json;charset=UTF-8" })
-	public UserInfo getUserInfo(HttpServletRequest request, HttpServletResponse response) throws ValidationException {
+	public UserInfo getUserInfo(@RequestParam(value = "userId", required = false) String userId,
+			HttpServletRequest request, HttpServletResponse response) throws ValidationException {
 		UserInfo result = null;
-		String userId = (String) request.getSession().getAttribute(LoginUser.SESSION_USERID);
+		System.out.println("userId==========="+userId);
+		if (StringUtils.isBlank(userId)) {
+			userId = (String)session.getAttribute(LoginUser.SESSION_USERID);
+		}
+		
 		if (StringUtils.isBlank(userId)) {
 			throw new ValidationException("无登录信息");
 		}
 		
-		result = (UserInfo) request.getSession().getAttribute(LoginUser.SESSION_USER_INFO);
-		if (result == null) {
-			throw new ValidationException("无用户信息");
+		if (session.getAttribute(LoginUser.SESSION_USER_INFO)==null) {
+			result = userService.findUserInfoById(userId);
+		}else {
+			result = (UserInfo) session.getAttribute(LoginUser.SESSION_USER_INFO);
+			if (result == null) {
+				throw new ValidationException("无用户信息");
+			}
 		}
 		
 		GroupUserKey groupUserKey = new GroupUserKey();
@@ -197,119 +213,118 @@ public class LoginController {
 	}
 	
 	
-	// 查看微信用户是否被绑定
-		@ResponseBody
-		@RequestMapping("/weValidation")
-		public Map<String, Object> weValidation(@RequestParam(value = "code", required = false) String code,
-				@RequestParam(value = "openid", required = false) String openid, HttpServletRequest request,
-				HttpSession session, HttpServletResponse response) {
-			Map<String, Object> map = new HashMap<String, Object>();
-			try {
-				UserInfo u = new UserInfo();
-				if (StringUtils.isBlank(openid)) {
-					String appid = SystemConfig.getProperty("wechat.config.appid");// appid
-					String secret = SystemConfig.getProperty("wechat.config.secret");// secret
-					openid = weixinAPIInterface.getOpenid(appid, secret, code);
-				}
-				map.put("openid", openid);
-				u.setWechatOpenid(openid);
-				UserInfo user = userService.searchEntity(u);
-				if (user != null) {
-					map.put("name", user.getUserNo());
-					map.put("result", "binded");// 已绑定过
-				} else {
-					map.put("result", "unBinded");// 未绑定
-				}
-			} catch (Exception e) {
-				map.put("result", "error");
-				logger.error(e.getMessage());
-			}
-			return map;
-		}
-
-		// 绑定医商云用户的微信
-		@ResponseBody
-		@RequestMapping("/weBind")
-		public ModelAndView weBind(@RequestParam(value = "name") String name, @RequestParam(value = "pwd") String pwd,
-				@RequestParam(value = "openid", required = false) String openid, HttpServletRequest request,
-				HttpSession session, HttpServletResponse response) {
-			ModelAndView mav = new ModelAndView("http://182.254.152.181:8080/ysynet/#/");
-			String userId = (String) request.getSession().getAttribute(LoginUser.SESSION_USERID);
+	//查看微信用户是否被绑定
+	@ResponseBody
+	@RequestMapping("/weValidation")
+	public Map<String, Object> weValidation(@RequestParam(value = "code", required = false) String code,
+			@RequestParam(value = "openid", required = false) String openid, HttpServletRequest request,
+			HttpSession session, HttpServletResponse response) {
+		Map<String, Object> map = new HashMap<String, Object>();
+		try {
+			UserInfo u = new UserInfo();
 			if (StringUtils.isBlank(openid)) {
-				if (request.getSession()!= null && request.getSession().getAttribute("openid")!=null) {
-					openid = request.getSession().getAttribute("openid").toString();
-				}else{
-					mav.addObject("message", "session已经过期");
-				}
+				String appid = SystemConfig.getProperty("wechat.config.appid");// appid
+				String secret = SystemConfig.getProperty("wechat.config.secret");// secret
+				openid = weixinAPIInterface.getOpenid(appid, secret, code);
 			}
-			UserInfo userInfo = new UserInfo();
-			userInfo.setUserNo(name);
-			UserInfo newUserInfo = userService.searchEntity(userInfo);
-			boolean bindSuccess = true;
-
-			if (newUserInfo == null) {
-				bindSuccess = false;
-				mav.addObject("message", "用户名不存在");
+			map.put("openid", openid);
+			u.setWechatOpenid(openid);
+			UserInfo user = userService.searchEntity(u);
+			if (user != null) {
+				map.put("name", user.getUserNo());
+				map.put("result", "binded");// 已绑定过
 			} else {
-				try {
-					pwd = MD5Util.MD5Encrypt(pwd);
-				} catch (Exception e) {
-				}
-				if (!pwd.toUpperCase().equals(newUserInfo.getPwd().toUpperCase())) {
-					bindSuccess = false;
-					mav.addObject("message", "用户名或者密码错误");
-				} else if (!newUserInfo.getFstate().equals("" + CustomConst.Fstate.USABLE)) {
-					bindSuccess = false;
-					mav.addObject("message", "用户已停用");
-				} else if (newUserInfo.getOrgId() == null) {
-					bindSuccess = false;
-					mav.addObject("message", "该用户没有机构信息");
-				} else if (StringUtils.isNotBlank(newUserInfo.getWechatOpenid())) {
-					bindSuccess = false;
-					mav.addObject("message", "该用户已绑定过微信");
-				} else {
-					newUserInfo.setWechatOpenid(openid);
-					WeixinOpenUser weiUser = weixinAPIInterface.getUserInfo(openid);
-					newUserInfo.setWechatNo(weiUser.getUserName());
-					newUserInfo.setModifyTime(new Date());
-					newUserInfo.setModifyUserid(userId);
-					userService.updateInfo(newUserInfo);
-					mav.addObject("message", "绑定成功");
-				}
+				map.put("result", "unBinded");// 未绑定
 			}
-			mav.addObject("bindMessage", bindSuccess);
-			mav.addObject("openid", openid);
-			return mav;
+		} catch (Exception e) {
+			map.put("result", "error");
+			logger.error(e.getMessage());
 		}
+		return map;
+	}
 
-		// 解除绑定
-		@ResponseBody
-		@RequestMapping("/weUnBind")
-		public String weUnBind(@RequestParam(value = "openid", required = false) String openid, HttpServletRequest request,
-				HttpSession session, HttpServletResponse response) {
-			Map<String, Object> map = new HashMap<String, Object>();
-			String userId = (String) request.getSession().getAttribute(LoginUser.SESSION_USERID);
-			String result = "success";
-			try {
-				UserInfo userInfo = new UserInfo();
-				userInfo.setWechatOpenid(openid);
-				UserInfo sUserInfo = userService.searchEntity(userInfo);
-				if (sUserInfo != null) {
-					sUserInfo.setWechatOpenid(null);
-					sUserInfo.setWechatNo(null);
-					sUserInfo.setModifyUserid(userId);
-					sUserInfo.setModifyTime(new Date());
-					userService.updateInfoCover(sUserInfo);
-				} else {
-					result = "error";
-				}
-			} catch (Exception e) {
-				result = "error";
-				System.out.println(e.getMessage());
+	// 绑定医商云用户的微信
+	@ResponseBody
+	@RequestMapping("/weBind")
+	public ModelAndView weBind(@RequestParam(value = "name") String name, @RequestParam(value = "pwd") String pwd,
+			@RequestParam(value = "openid", required = false) String openid, HttpServletRequest request,
+			HttpSession session, HttpServletResponse response) {
+		ModelAndView mav = new ModelAndView("http://182.254.152.181:8080/ysynet/#/");
+		String userId = (String) request.getSession().getAttribute(LoginUser.SESSION_USERID);
+		if (StringUtils.isBlank(openid)) {
+			if (request.getSession()!= null && request.getSession().getAttribute("openid")!=null) {
+				openid = request.getSession().getAttribute("openid").toString();
+			}else{
+				mav.addObject("message", "session已经过期");
 			}
-			return result;
 		}
-		
+		UserInfo userInfo = new UserInfo();
+		userInfo.setUserNo(name);
+		UserInfo newUserInfo = userService.searchEntity(userInfo);
+		boolean bindSuccess = true;
+
+		if (newUserInfo == null) {
+			bindSuccess = false;
+			mav.addObject("message", "用户名不存在");
+		} else {
+			try {
+				pwd = MD5Util.MD5Encrypt(pwd);
+			} catch (Exception e) {
+			}
+			if (!pwd.toUpperCase().equals(newUserInfo.getPwd().toUpperCase())) {
+				bindSuccess = false;
+				mav.addObject("message", "用户名或者密码错误");
+			} else if (!newUserInfo.getFstate().equals("" + CustomConst.Fstate.USABLE)) {
+				bindSuccess = false;
+				mav.addObject("message", "用户已停用");
+			} else if (newUserInfo.getOrgId() == null) {
+				bindSuccess = false;
+				mav.addObject("message", "该用户没有机构信息");
+			} else if (StringUtils.isNotBlank(newUserInfo.getWechatOpenid())) {
+				bindSuccess = false;
+				mav.addObject("message", "该用户已绑定过微信");
+			} else {
+				newUserInfo.setWechatOpenid(openid);
+				WeixinOpenUser weiUser = weixinAPIInterface.getUserInfo(openid);
+				newUserInfo.setWechatNo(weiUser.getUserName());
+				newUserInfo.setModifyTime(new Date());
+				newUserInfo.setModifyUserid(userId);
+				userService.updateInfo(newUserInfo);
+				mav.addObject("message", "绑定成功");
+			}
+		}
+		mav.addObject("bindMessage", bindSuccess);
+		mav.addObject("openid", openid);
+		return mav;
+	}
+
+	// 解除绑定
+	@ResponseBody
+	@RequestMapping("/weUnBind")
+	public String weUnBind(@RequestParam(value = "openid", required = false) String openid, HttpServletRequest request,
+			HttpSession session, HttpServletResponse response) {
+		Map<String, Object> map = new HashMap<String, Object>();
+		String userId = (String) request.getSession().getAttribute(LoginUser.SESSION_USERID);
+		String result = "success";
+		try {
+			UserInfo userInfo = new UserInfo();
+			userInfo.setWechatOpenid(openid);
+			UserInfo sUserInfo = userService.searchEntity(userInfo);
+			if (sUserInfo != null) {
+				sUserInfo.setWechatOpenid(null);
+				sUserInfo.setWechatNo(null);
+				sUserInfo.setModifyUserid(userId);
+				sUserInfo.setModifyTime(new Date());
+				userService.updateInfoCover(sUserInfo);
+			} else {
+				result = "error";
+			}
+		} catch (Exception e) {
+			result = "error";
+			System.out.println(e.getMessage());
+		}
+		return result;
+	}
 	
 	/**
 	 * 验证session是否过期

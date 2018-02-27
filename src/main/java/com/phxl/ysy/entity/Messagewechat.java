@@ -2,6 +2,9 @@ package com.phxl.ysy.entity;
 
 import java.util.Date;
 
+import com.phxl.core.base.annotation.BaseSql;
+
+@BaseSql(tableName="TM_MESSAGEWECHAT", resultName="com.phxl.ysy.dao.MessagewechatMapper.BaseResultMap")
 public class Messagewechat {
     private String messagewechatGuid;
 

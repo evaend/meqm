@@ -36,10 +36,10 @@ public interface RrpairOrderService extends IBaseService {
 	//查询设备维修列表
 	List<Map<String, Object>> selectRrpairDetailList(Pager pager);
 
-	/*//（移动端）查询设备维修各状态数量
+	//（移动端）查询设备维修各状态数量
 	List<Map<String, Object>> selectRrpairFstateNum();
 
-	//查询备注/评论
+	/*//查询备注/评论
 	String selectRrpairContent(String rrpairOrder,Integer type);
 
 	//修改备注/评论

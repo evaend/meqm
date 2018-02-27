@@ -142,6 +142,7 @@ public class UserServiceImpl extends BaseService implements UserService {
 		userInfo.setWechatOpenid(openId);
 		//由于用户账号是唯一的，所以使用账号验证用户是否存在
 		UserInfo newUserInfo = this.searchEntity(userInfo);
+		System.out.println("newUserInfo="+newUserInfo.getUserId());
 		boolean loginSuccess = true;
 		if(newUserInfo == null){
 			loginSuccess = false;
@@ -449,7 +450,7 @@ public class UserServiceImpl extends BaseService implements UserService {
 		JSONUtils json = new JSONUtils();
 		session.setAttribute(LoginUser.SESSION_USERNAME, newU.getUserName());
 		session.setAttribute(LoginUser.SESSION_USER_ORGID, newU.getOrgId());
-		session.setAttribute(LoginUser.SESSISON_USER_LEVEL, json.toPrettyJson(this.selectUserMenu(newU.getUserId())));
+		session.setAttribute(LoginUser.SESSISON_USER_LEVEL, json.toPrettyJson(this.selectWeiXinUserMenu(newU.getUserId())));
 		session.setAttribute(LoginUser.SESSION_USER_ORG_TYPE, newU.getOrgType());
 		session.setAttribute(LoginUser.SESSION_USER_INFO, newU);
 		session.setAttribute(LoginUser.SESSION_USERID, newU.getUserId());

@@ -86,6 +86,9 @@
 		a.use_dept_GUID "useDeptCode" , 
 		(select dept_name from td_org_dept where dept_guid = a.use_dept_guid) "useDept" , 
 		a.b_dept_GUID "bDeptCode" , 
+    	a.qrcode "qrcode" , 
+		e.fmodel "fmodel" , 
+		to_char(a.buy_date,'yyyy-MM-dd') "buyDate" , 
 		(select dept_name from td_org_dept where dept_guid = a.b_dept_guid) "bDept" 
 		from td_assets_record a left join td_equipment e
 		on (a.equipment_code = e.equipment_code)
@@ -94,6 +97,9 @@
 			and ( regexp_like(a.assets_record, #{conditiions.mobile})
 				or regexp_like(e.equipment_standard_name, #{conditiions.mobile})
 			) 	
+  		</if>
+  		<if test="conditiions.assetsRecordGuid != null and conditiions.assetsRecordGuid != ''">
+  			and a.assets_record_m = #{conditiions.assetsRecordGuid}
   		</if>
   		<if test="conditiions != null and conditiions.orderMark != null and conditiions.orderField != null and conditiions.orderField!=''">
 <!--   			<if test="conditiions.orderField == 'useDept'"> -->
@@ -168,7 +174,6 @@
     	a.original_value "originalValue" , 
     	e.metering_unit "meteringUnit", 
     	a.tf_brand "tfBrand" 
-<!-- 		 , e.qrcode "qrcode" -->
 		from td_assets_record a left join td_equipment e
 		on (a.equipment_code = e.equipment_code)
   		where 1 = 1 

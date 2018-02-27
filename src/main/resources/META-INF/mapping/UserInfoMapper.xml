@@ -33,7 +33,7 @@
 	<sql id="Base_Column_List_With_Prefix">
 		u.USER_ID, u.USER_NO, u.USER_NAME, u.PWD, u.FSTATE, u.TF_REMARK, u.MODIFY_TIME, u.CREATE_TIME,
 		u.CREATE_USERID, u.MODIFY_USERID, u.USER_LEVEL, u.MOBILE_PHONE, u.E_MAIL, u.QQ,
-		u.ORG_ID, u.WECHAT_OPENID, u.WECHAT_NO, u.ORG_TYPE, u.JOB_NUM		
+		u.ORG_ID, u.WECHAT_OPENID, u.WECHAT_NO, u.ORG_TYPE, u.JOB_NUM , u.USER_HEAD_PORTRAIT
 	</sql>
 	
 	<select id="findUserNoExist" resultType="int">
@@ -55,6 +55,7 @@
     </select>
 
 	<resultMap id="UserExtResultMap" type="com.phxl.ysy.entity.UserInfo" extends="BaseResultMap">
+		<result column="USER_HEAD_PORTRAIT" property="headImgUrl" jdbcType="VARCHAR"/>
 		<result column="ORG_NAME" property="orgName" jdbcType="VARCHAR"/>
 		<result column="GROUPS" property="groups" jdbcType="VARCHAR"/>
 	</resultMap>

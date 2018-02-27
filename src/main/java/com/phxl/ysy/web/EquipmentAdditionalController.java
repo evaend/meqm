@@ -149,14 +149,14 @@ public class EquipmentAdditionalController {
 	 */
 	@ResponseBody
 	@RequestMapping("/printEquipmentQrcode")
-	public void printEquipmentQrcode(@RequestParam(value = "assetsRecord", required = false) String assetsRecord,
+	public void printEquipmentQrcode(@RequestParam(value = "assetsRecordGuid", required = false) String assetsRecordGuid,
 			HttpServletResponse response,
 			HttpServletRequest request) throws Exception {
-		if (StringUtils.isBlank(assetsRecord)) {
+		if (StringUtils.isBlank(assetsRecordGuid)) {
 			throw new ValidationException("请选择要打印的资产");
 		}
 		Pager<Map<String, Object>> pager = new Pager<Map<String, Object>>(false);
-		pager.addQueryParam("assetsRecordOne", assetsRecord);
+		pager.addQueryParam("assetsRecordGuid", assetsRecordGuid);
 		
 		List<Map<String, Object>> listData = assetsRecordService.selectAssetsList(pager);
 

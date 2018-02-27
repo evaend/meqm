@@ -77,7 +77,6 @@ public class RrpairOrderServiceImpl extends BaseService implements RrpairOrderSe
 		}*/
 		return list;
 	}
-/*
 
 	public List<Map<String, Object>> selectRrpairFstateNum() {
 		Map<String, Object> m = new HashMap<String, Object>();
@@ -134,7 +133,8 @@ public class RrpairOrderServiceImpl extends BaseService implements RrpairOrderSe
 		returnList.add(map1);
 		return returnList;
 	}
-
+	
+	/*
 	public String selectRrpairContent(String rrpairOrder,Integer type) {
 		Map<String, Object> map = new HashMap<String, Object>();
 		map.put("rrpairOrder", rrpairOrder);
