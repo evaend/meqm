@@ -27,4 +27,13 @@ public class DeptController {
 		pager.addQueryParam("orgId", orgId);
 		return orgDeptService.selectUseDeptList(pager);
 	}
+
+	@RequestMapping("selectDeptOfUseList")
+	@ResponseBody
+	public List<Map<String, Object>> selectDeptOfUseList(
+			@RequestParam(value = "depId", required = false) String depId) {
+		Pager<Map<String, Object>> pager = new Pager<Map<String,Object>>(false);
+		pager.addQueryParam("depId", depId);
+		return orgDeptService.selectDeptOfUseList(pager);
+	}
 }

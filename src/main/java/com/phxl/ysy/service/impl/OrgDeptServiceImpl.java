@@ -22,4 +22,9 @@ public class OrgDeptServiceImpl extends BaseService implements OrgDeptService{
 		return orgDeptMapper.selectUseDeptList(pager);
 	}
 
+	@Override
+	public List<Map<String, Object>> selectDeptOfUseList(Pager pager) {
+		return orgDeptMapper.selectDeptOfUseList(pager);
+	}
+
 }

@@ -10,4 +10,7 @@ public interface OrgDeptService extends IBaseService{
 	//查询所属机构所有管理科室
     List<Map<String, Object>> selectUseDeptList(Pager pager);
 
+    //查询科室用户
+    List<Map<String, Object>> selectDeptOfUseList(Pager pager);
+
 }
