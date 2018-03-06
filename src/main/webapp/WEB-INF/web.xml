@@ -34,6 +34,9 @@
 	<listener>
 		<listener-class>org.springframework.web.context.ContextLoaderListener</listener-class>
 	</listener>
+	<listener>
+		<listener-class>com.phxl.ysy.constant.MySessionListener</listener-class>
+	</listener>
 	
 	<servlet>
 		<servlet-name>springMVC</servlet-name>
@@ -135,6 +138,20 @@
 	</filter>
 	<filter-mapping>
 		<filter-name>druidWebStatFilter</filter-name>
+		<url-pattern>/*</url-pattern>
+	</filter-mapping>
+	
+	<!-- servlet过滤器 spring注入方式 -->
+	<filter>
+		<filter-name>checkLoginServlet</filter-name>
+		<filter-class>org.springframework.web.filter.DelegatingFilterProxy</filter-class>
+		<init-param>
+            <param-name>targetFilterLifecycle</param-name>
+            <param-value>true</param-value>
+        </init-param>
+	</filter>
+	<filter-mapping>
+		<filter-name>checkLoginServlet</filter-name>
 		<url-pattern>/*</url-pattern>
 	</filter-mapping>
 	

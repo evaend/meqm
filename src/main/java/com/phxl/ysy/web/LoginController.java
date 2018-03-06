@@ -131,10 +131,14 @@ public class LoginController {
 	 */
 	@ResponseBody
 	@RequestMapping(value = "/getUserM", produces = { "application/json;charset=UTF-8" })
-	public List<Map<String, Object>> getUserM(HttpServletRequest request, HttpServletResponse response)
+	public List<Map<String, Object>> getUserM(@RequestParam(value = "userId", required = false) String userId,
+			HttpServletRequest request, HttpServletResponse response)
 			throws ValidationException {
 		// String result = null;
-		String userId = (String) request.getSession().getAttribute(LoginUser.SESSION_USERID);
+		if (StringUtils.isBlank(userId)) {
+			userId = (String)session.getAttribute(LoginUser.SESSION_USERID);
+		}
+		
 		if (StringUtils.isBlank(userId)) {
 			throw new ValidationException("无登录信息");
 		}
@@ -152,7 +156,6 @@ public class LoginController {
 	public List<Map<String, Object>> getWeiXinUserM(@RequestParam(value = "userId", required = false) String userId,
 			HttpServletRequest request, HttpServletResponse response)
 			throws ValidationException {
-		System.out.println("userId==========="+userId);
 		if (StringUtils.isBlank(userId)) {
 			userId = (String)session.getAttribute(LoginUser.SESSION_USERID);
 		}
@@ -162,6 +165,52 @@ public class LoginController {
 		return userService.selectWeiXinUserMenu(userId);
 	}
 	
+	/**
+	 * @author 获取移动端用户信息
+	 */
+	@ResponseBody
+	@RequestMapping(value = "/getWeiXinUserInfo", produces = {"application/json;charset=UTF-8" })
+	public UserInfo getWeiXinUserInfo(@RequestParam(value = "userId", required = false) String userId,
+			HttpServletRequest request, HttpServletResponse response) throws ValidationException {
+		UserInfo result = null;
+		System.out.println("session=++++++"+request.getSession().getId());
+		if (StringUtils.isBlank(userId)) {
+			userId = (String)session.getAttribute(LoginUser.SESSION_USERID);
+		}
+		if (StringUtils.isBlank(userId)) {
+			throw new ValidationException("无登录信息");
+		}
+		result = userService.findUserInfoById(userId);
+		session.setAttribute(LoginUser.SESSION_USERNAME, result.getUserName());
+		session.setAttribute(LoginUser.SESSION_USER_ORGID, result.getOrgId());
+		session.setAttribute(LoginUser.SESSISON_USER_LEVEL, result.getUserLevel());
+		session.setAttribute(LoginUser.SESSION_USER_ORG_TYPE, result.getOrgType());
+		session.setAttribute(LoginUser.SESSION_USER_INFO, result);
+		session.setAttribute(LoginUser.SESSION_USERID, result.getUserId());
+		session.setAttribute(LoginUser.SESSION_USERNO, result.getUserNo());
+		session.setAttribute(LoginUser.SESSION_USER_ORGNAME, result.getOrgName());
+		GroupUserKey groupUserKey = new GroupUserKey();
+		groupUserKey.setUserId(result.getUserId());
+		GroupUserKey group = userService.searchEntity(groupUserKey);
+		if (group!=null) {
+			Group g = userService.find(Group.class, group.getGroupId());
+			result.setGroupName(g.getGroupName());
+			session.setAttribute("getUserGroupName", g.getGroupName());
+		}
+		//计算登录用户的未读消息数
+		Integer unread = 0;
+		Message message = new Message();
+		message.setMiReceiveUserid(userId);
+		message.setMiSendType("message");
+		message.setMessageSendfstate("00");
+		message.setMessageReadfstate("00");
+		message.setMiReceiveDelete("00");
+		List<Message> unreadList = userService.searchList(message);
+		if(unreadList!=null && !unreadList.isEmpty()){
+		    unread = unreadList.size();
+		}
+		return result;
+	}
 
 	/**
 	 * @author taoyou 获取用户信息
@@ -170,8 +219,8 @@ public class LoginController {
 	@RequestMapping(value = "/getUserInfo", produces = { "application/json;charset=UTF-8" })
 	public UserInfo getUserInfo(@RequestParam(value = "userId", required = false) String userId,
 			HttpServletRequest request, HttpServletResponse response) throws ValidationException {
+		System.out.println("sessionId="+request.getSession().getId());
 		UserInfo result = null;
-		System.out.println("userId==========="+userId);
 		if (StringUtils.isBlank(userId)) {
 			userId = (String)session.getAttribute(LoginUser.SESSION_USERID);
 		}
@@ -179,22 +228,29 @@ public class LoginController {
 		if (StringUtils.isBlank(userId)) {
 			throw new ValidationException("无登录信息");
 		}
-		
 		if (session.getAttribute(LoginUser.SESSION_USER_INFO)==null) {
 			result = userService.findUserInfoById(userId);
+			session.setAttribute(LoginUser.SESSION_USERNAME, result.getUserName());
+			session.setAttribute(LoginUser.SESSION_USER_ORGID, result.getOrgId());
+			session.setAttribute(LoginUser.SESSISON_USER_LEVEL, result.getUserLevel());
+			session.setAttribute(LoginUser.SESSION_USER_ORG_TYPE, result.getOrgType());
+			session.setAttribute(LoginUser.SESSION_USER_INFO, result);
+			session.setAttribute(LoginUser.SESSION_USERID, result.getUserId());
+			session.setAttribute(LoginUser.SESSION_USERNO, result.getUserNo());
+			session.setAttribute(LoginUser.SESSION_USER_ORGNAME, result.getOrgName());
+			GroupUserKey groupUserKey = new GroupUserKey();
+			groupUserKey.setUserId(result.getUserId());
+			GroupUserKey group = userService.searchEntity(groupUserKey);
+			if (group!=null) {
+				Group g = userService.find(Group.class, group.getGroupId());
+				result.setGroupName(g.getGroupName());
+				session.setAttribute("getUserGroupName", g.getGroupName());
+			}
 		}else {
 			result = (UserInfo) session.getAttribute(LoginUser.SESSION_USER_INFO);
 			if (result == null) {
 				throw new ValidationException("无用户信息");
 			}
-		}
-		
-		GroupUserKey groupUserKey = new GroupUserKey();
-		groupUserKey.setUserId(userId);
-		GroupUserKey group = userService.searchEntity(groupUserKey);
-		if (group!=null) {
-			Group g = userService.find(Group.class, group.getGroupId());
-			result.setGroupName(g.getGroupName());
 		}
 		
 		//计算登录用户的未读消息数

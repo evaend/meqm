@@ -39,13 +39,16 @@ import com.phxl.core.base.exception.ValidationException;
 import com.phxl.core.base.util.IdentifieUtil;
 import com.phxl.core.base.util.SystemConfig;
 import com.phxl.ysy.constant.CustomConst;
+import com.phxl.ysy.constant.MySessionContext;
 import com.phxl.ysy.constant.CustomConst.LoginUser;
 import com.phxl.ysy.entity.Group;
 import com.phxl.ysy.entity.RrpairOrder;
+import com.phxl.ysy.entity.RrpairOrderAcce;
 import com.phxl.ysy.entity.UserInfo;
 import com.phxl.ysy.entity.WecatRegister;
 import com.phxl.ysy.entity.WeixinOpenUser;
 import com.phxl.ysy.service.IMessageService;
+import com.phxl.ysy.service.OrgDeptService;
 import com.phxl.ysy.service.UserService;
 import com.phxl.ysy.service.weixin.WeixinAPIInterface;
 import com.phxl.ysy.util.WebConnect;
@@ -75,6 +78,9 @@ public class TestController {
 	@Autowired
 	UserService userService;
 	
+	@Autowired
+	OrgDeptService orgDeptService;
+	
 	/**
 	 * 维修扫一扫 Test
 	 * @param model
@@ -83,9 +89,12 @@ public class TestController {
 	 * @throws Exception
 	 */
 	@RequestMapping(value = "/test.html", method = RequestMethod.GET)
-    public void testPage(Model model,HttpServletRequest request,HttpServletResponse response) throws Exception {
-
-        String url = "http://z75we2.natappfree.cc/test/test.html";
+	@ResponseBody
+    public void testPage(@RequestParam(value="sessionId",required = false) String sessionId,
+    		Model model,HttpServletRequest request,HttpServletResponse response) throws Exception {
+		System.out.println("1111111111111111");
+		System.out.println(sessionId);
+        String url = "http://cd7if2.natappfree.cc/test/test.html?sessionId="+sessionId;
         WxJsUtils jsUtils = new WxJsUtils();
 		final String appId = SystemConfig.getProperty("wechat.config.appid");
         Map<String, String> ret = jsUtils.sign(url);
@@ -93,8 +102,16 @@ public class TestController {
         for (Map.Entry entry : ret.entrySet()) {
             System.out.println(entry.getKey() + "=" + entry.getValue());
             request.setAttribute(entry.getKey().toString(), entry.getValue());
-            session.setAttribute(entry.getKey().toString(), entry.getValue());
         }
+        if (StringUtils.isNotBlank(sessionId)) {
+			if (session!=null ) {
+				if (!sessionId.equals(session.getId())) {
+					request.setAttribute("sessionId", sessionId);
+				}else {
+					request.setAttribute("sessionId", session.getId());
+				}
+			}
+		}
         request.getRequestDispatcher("/index.jsp").forward(request, response);
     }
 	
@@ -107,7 +124,7 @@ public class TestController {
 	 */
 	@RequestMapping(value = "/testScan", method = RequestMethod.GET)
     public void testScan(Model model,HttpServletRequest request,HttpServletResponse response) throws Exception {
-        String url = "http://z75we2.natappfree.cc/test/testScan";
+        String url = "http://cd7if2.natappfree.cc/test/testScan";
         WxJsUtils jsUtils = new WxJsUtils();
 		final String appId = SystemConfig.getProperty("wechat.config.appid");
         Map<String, String> ret = jsUtils.sign(url);
@@ -315,7 +332,7 @@ public class TestController {
 	@ResponseBody
 	public String permission(HttpServletRequest request ,HttpServletResponse response) throws Exception{
 		Long EventKey = 1L;
-		return "https://open.weixin.qq.com/connect/oauth2/authorize?appid=wxe1ba6ec9765d99ac&redirect_uri=http%3A%2F%2Fm3i8yc.natappfree.cc%2Ftest%2FgetPermission&response_type=code&scope=snsapi_base&state="+EventKey+"#wechat_redirect";
+		return "https://open.weixin.qq.com/connect/oauth2/authorize?appid=wxe1ba6ec9765d99ac&redirect_uri=http%3A%2F%2Fcd7if2.natappfree.cc%2Ftest%2FgetPermission&response_type=code&scope=snsapi_base&state="+EventKey+"#wechat_redirect";
 	}
 
 	/**
@@ -402,7 +419,7 @@ public class TestController {
 	
 	/**
 	 * 向用户推送消息
-	 * @param id
+	 * @param id 
 	 * @param request
 	 * @param response
 	 * @throws ValidationException 
@@ -410,32 +427,16 @@ public class TestController {
 	@RequestMapping("/pushMessage")
 	@ResponseBody
 	public void pushMessage(
-			@RequestParam(value="userId",required = false) String userId,
 			@RequestParam(value="rrpairOrderGuid",required = false) String rrpairOrderGuid,
 			HttpServletRequest request ,HttpServletResponse response) throws ValidationException {
 		if (StringUtils.isBlank(rrpairOrderGuid)) {
 			throw new ValidationException("当前维修单id不允许为空");
 		}
-		if (StringUtils.isBlank(userId)) {
-			throw new ValidationException("无登录信息");
-		}
 		RrpairOrder rrpairOrder = userService.find(RrpairOrder.class, rrpairOrderGuid);
 		if (rrpairOrder==null) {
 			throw new ValidationException("当前维修工单不存在");
 		}
-		UserInfo user = userService.findUserInfoById(userId);
-		Map<String,Object> argument = new HashMap<String,Object>(); 
-        argument.put("first", rrpairOrderGuid);
-        argument.put("keyword1", rrpairOrder.getRrpairOrderNo());
-        argument.put("keyword2", CustomConst.RrpairFstateMap.get(rrpairOrder.getOrderFstate()));
-        argument.put("keyword3", new Date());
-        argument.put("keyword4", user.getUserName());
-        argument.put("keyword5", "IT78922");
-        argument.put("remark","所属科室：设备科");
-
-        String message = imessageService.getMessageJsonContent(argument,
-        		"A6C68D5EFF5E4D55B5D8396CB3232DE0","www.baidu.com ",userId);
-        imessageService.pushMessages(message);
+		imessageService.selectBDeptUser(rrpairOrderGuid);
 	}
 	
 	/**
@@ -448,7 +449,7 @@ public class TestController {
 	 */
 	@RequestMapping("/getWeixinTicket")
 	@ResponseBody
-	public ModelAndView getWeixinTicket(
+	public void getWeixinTicket(
 			@RequestParam(value="orgId",required = false) Long orgId,
 			@RequestParam(value="groupId",required = false) String groupId,
 			@RequestParam(value="deptId",required = false) String deptId,
@@ -461,10 +462,21 @@ public class TestController {
 		wecatRegister.setOrgId(orgId);
 		wecatRegister.setDeptGuid(deptId);
 		WecatRegister we = imessageService.searchEntity(wecatRegister);
+		if (we==null) {
+			throw new ValidationException("没有配置该机构和该用户组的连接");
+		}
 		Long scene_id = we.getWecatRegisterId();
 	    map.put("scene_id", scene_id);
 	    m.put("scene", map);
 	    String ticket = weixinAPIInterface.getWeixinTicket(access_token, m);
-	    return new ModelAndView(new RedirectView("https://mp.weixin.qq.com/cgi-bin/showqrcode?ticket="+ticket));
+	    response.sendRedirect("https://mp.weixin.qq.com/cgi-bin/showqrcode?ticket="+ticket);
+	}
+	
+	@RequestMapping("/getSession")
+	@ResponseBody
+	public void getSession(HttpServletRequest request,HttpServletResponse response){
+		String id = request.getSession().getId();
+		System.out.println("session=++--------"+request.getSession().getId());
+		System.out.println(id);
 	}
 }

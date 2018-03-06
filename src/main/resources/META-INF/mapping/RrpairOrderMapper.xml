@@ -385,10 +385,11 @@
         where 1=1
         <!-- 如果当前用户是使用科室，则只能看见本科室的报修信息 -->
         <if test="conditiions.groupName == 'syks'">
-            and tar.b_dept_guid in (
-                select tdu.dept_guid from td_dept_user tdu
-                where tdu.user_id=#{conditiions.userId, jdbcType=VARCHAR}
-            )
+            and (  (tar.b_dept_guid in (
+	                select tdu.dept_guid from td_dept_user tdu
+	                where tdu.user_id=#{conditiions.userId, jdbcType=VARCHAR} ) )
+	                or (ro.rrpair_userid = #{conditiions.userId, jdbcType=VARCHAR} )
+                ) 
         </if>
         <!-- 查询对应维修状态 -->
         <if test="conditiions.params != null and conditiions.params != ''">
@@ -414,8 +415,15 @@
     
    <!-- 查询当前资产是否正在维修 -->
   <select id="selectAssetsIsUsable" parameterType="java.util.HashMap" resultType="java.util.HashMap">
-  	select * from td_rrpair_order
-		where assets_record = #{assetsRecord} 
-		and order_fstate != '90'
+  	select 
+	  	 RRPAIR_ORDER_GUID "rrpairOrderGuid" , 
+	  	 ORDER_FSTATE "orderFstate"
+	  	 from td_rrpair_order
+			where assets_record = #{assetsRecord} 
+			and order_fstate != '90' 
+			and U_ORG = #{orgId}
+			order by MODIFY_TIME desc
   </select>
+  
+  <!-- 查询当前维修工单的管理科室的所有维修员 -->
 </mapper>

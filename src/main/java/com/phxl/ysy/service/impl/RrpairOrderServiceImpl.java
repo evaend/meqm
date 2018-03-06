@@ -25,9 +25,11 @@ import com.phxl.core.base.exception.ValidationException;
 import com.phxl.core.base.service.impl.BaseService;
 import com.phxl.core.base.util.IdentifieUtil;
 import com.phxl.core.base.util.LocalAssert;
+import com.phxl.ysy.constant.CustomConst;
 import com.phxl.ysy.constant.CustomConst.LoginUser;
 import com.phxl.ysy.dao.AssetsRecordMapper;
 import com.phxl.ysy.dao.CallprocedureMapper;
+import com.phxl.ysy.dao.OrgDeptMapper;
 import com.phxl.ysy.dao.RrpairFittingUseMapper;
 import com.phxl.ysy.dao.RrpairOrderMapper;
 import com.phxl.ysy.entity.AssetsExtend;
@@ -39,6 +41,7 @@ import com.phxl.ysy.entity.RrpairOrder;
 import com.phxl.ysy.entity.RrpairOrderAcce;
 import com.phxl.ysy.entity.WeixinOpenUser;
 import com.phxl.ysy.service.IMessageService;
+import com.phxl.ysy.service.MessageService;
 import com.phxl.ysy.service.RrpairOrderService;
 
 @Service
@@ -61,6 +64,9 @@ public class RrpairOrderServiceImpl extends BaseService implements RrpairOrderSe
 	@Autowired
 	RrpairFittingUseMapper rrpairFittingUseMapper;
 
+	@Autowired
+	OrgDeptMapper orgDeptMapper;
+	
 	public List<Map<String, Object>> selectRrpairDetailList(Pager pager) {
 		List<Map<String, Object>> list = rrpairOrderMapper.selectRrpairDetailList(pager);
 		/*for (Map<String, Object> map : list) {
@@ -80,13 +86,13 @@ public class RrpairOrderServiceImpl extends BaseService implements RrpairOrderSe
 
 	public List<Map<String, Object>> selectRrpairFstateNum() {
 		Map<String, Object> m = new HashMap<String, Object>();
-		m.put("orderFstate", "10");
+		m.put("orderFstate", CustomConst.RrpairOrderFstate.AWAITING_REPAIR);
 		Map<String, Object> m1 = rrpairOrderMapper.selectRrpairFstateNum(m);
-		m.put("orderFstate", "30");
+		m.put("orderFstate", CustomConst.RrpairOrderFstate.MAINTENANCE);
 		Map<String, Object> m3 = rrpairOrderMapper.selectRrpairFstateNum(m);
-		m.put("orderFstate", "50");
+		m.put("orderFstate", CustomConst.RrpairOrderFstate.AWAIT_CHECK);
 		Map<String, Object> m5 = rrpairOrderMapper.selectRrpairFstateNum(m);
-		m.put("orderFstate", "80");
+		m.put("orderFstate", CustomConst.RrpairOrderFstate.REJECT);
 		Map<String, Object> m8 = rrpairOrderMapper.selectRrpairFstateNum(m);
 		List<Map<String, Object>> returnList = new ArrayList<Map<String,Object>>();
 		if (m1== null || m1.size()==0) {
@@ -100,7 +106,7 @@ public class RrpairOrderServiceImpl extends BaseService implements RrpairOrderSe
 		
 		if (m3== null || m3.size()==0) {
 			Map<String, Object> mm3 = new HashMap<String, Object>();
-			mm3.put("code", "30");
+			mm3.put("code", CustomConst.RrpairOrderFstate.MAINTENANCE);
 			mm3.put("num", "0");
 			returnList.add(mm3);
 		}else{
@@ -109,7 +115,7 @@ public class RrpairOrderServiceImpl extends BaseService implements RrpairOrderSe
 
 		if (m5== null || m5.size()==0) {
 			Map<String, Object> mm5 = new HashMap<String, Object>();
-			mm5.put("code", "50");
+			mm5.put("code", CustomConst.RrpairOrderFstate.AWAIT_CHECK);
 			mm5.put("num", "0");
 			returnList.add(mm5);
 		}else{
@@ -118,7 +124,7 @@ public class RrpairOrderServiceImpl extends BaseService implements RrpairOrderSe
 		
 		if (m8== null || m8.size()==0) {
 			Map<String, Object> mm8 = new HashMap<String, Object>();
-			mm8.put("code", "80");
+			mm8.put("code", CustomConst.RrpairOrderFstate.REJECT);
 			mm8.put("num", "0");
 			returnList.add(mm8);
 		}else{
@@ -220,16 +226,16 @@ public class RrpairOrderServiceImpl extends BaseService implements RrpairOrderSe
         argument.put("first", rrpairOrder);
         argument.put("keyword1", map.get("equipmentCode"));
         if (map.get("orderFstate")!=null) {
-        	if(map.get("orderFstate").toString().equals("10")) {
+        	if(map.get("orderFstate").toString().equals(CustomConst.RrpairOrderFstate.AWAITING_REPAIR)) {
     	        argument.put("keyword2","待维修");
         	}
-			else if(map.get("orderFstate").toString().equals("30")) {
+			else if(map.get("orderFstate").toString().equals(CustomConst.RrpairOrderFstate.MAINTENANCE)) {
 		        argument.put("keyword2","维修中");
 			}
-			else if(map.get("orderFstate").toString().equals("50")) {
+			else if(map.get("orderFstate").toString().equals(CustomConst.RrpairOrderFstate.AWAIT_CHECK)) {
 		        argument.put("keyword2","待验收");
 			}
-			else if (map.get("orderFstate").toString().equals("80")) {
+			else if (map.get("orderFstate").toString().equals(CustomConst.RrpairOrderFstate.REJECT)) {
 		        argument.put("keyword2","已关闭");
 			}
         }else {
@@ -241,9 +247,9 @@ public class RrpairOrderServiceImpl extends BaseService implements RrpairOrderSe
         RrpairOrder rrpair = find(RrpairOrder.class, rrpairOrder);
         if(map.get("rrpairType")==null){
         	argument.put("keyword4", "");
-		}else if(map.get("rrpairType").toString().equals("00")){
+		}else if(map.get("rrpairType").toString().equals(CustomConst.RrpairType.IN_REPAIR)){
 			argument.put("keyword4", rrpair.getInRrpairUsername());
-		}else if(map.get("rrpairType").toString().equals("01")){
+		}else if(map.get("rrpairType").toString().equals(CustomConst.RrpairType.OUT_REPAIR)){
 			argument.put("keyword4", rrpair.getOutRrpairUsername());
 		}else{
 			argument.put("keyword4", "");
@@ -288,28 +294,38 @@ public class RrpairOrderServiceImpl extends BaseService implements RrpairOrderSe
 	 * @param rrpairOrder
 	 */
 	public void insertRrpairOrder(RrpairOrder rrpairOrder,AssetsRecord assetsRecord,
-			List<String> assetsExtendGuid,List<Integer> acceNum) throws Exception {
+			List<String> assetsExtendGuid,List<Integer> acceNum,HttpSession session) throws Exception {
 		RrpairOrder rrpair = find(RrpairOrder.class, rrpairOrder.getRrpairOrderGuid());
 		if (rrpair==null) {
 			//如果当前维修工单的资产存在，则判断该资产是否是在维修的状态，如果是，不允许重复报修
 			if (assetsRecord!=null) {
 				Map<String, Object> map = new HashMap<String, Object>();
 				map.put("assetsRecord", assetsRecord.getAssetsRecord());
+				System.out.println("orgid+++++++++++++++++"+session.getAttribute(LoginUser.SESSION_USER_ORGID));
+				map.put("orgId", session.getAttribute(LoginUser.SESSION_USER_ORGID));
 				List<Map<String, Object>> list = rrpairOrderMapper.selectAssetsIsUsable(map);
 				if (list!=null && list.size()!=0) {
 					throw new ValidationException("当前资产正在维修，不允许重复报修");
 				}
 			}
-			
 			insertInfo(rrpairOrder);
-			EqOperation eqOperation = new EqOperation();
-			eqOperation.setTsEqOperationGuId(IdentifieUtil.getGuId());
+//			EqOperation eqOperation = new EqOperation();
+//			eqOperation.setTsEqOperationGuId(IdentifieUtil.getGuId());
 //			eqOperation.setUserId(session.getAttribute(LoginUser.SESSION_USERID).toString());
-			eqOperation.setUserId("11");
-			eqOperation.setCreatetime(new Date());
-			eqOperation.setOpType("");
-			eqOperation.setTfRemark(rrpairOrder.getTfRemarkBx());
-			insertInfo(eqOperation);
+//			eqOperation.setCreatetime(new Date());
+//			eqOperation.setOpType("");
+//			eqOperation.setTfRemark(rrpairOrder.getTfRemarkBx());
+//			insertInfo(eqOperation);
+			//推送消息
+			List<Map<String, Object>> list = orgDeptMapper.selectBDeptUser(rrpairOrder.getRrpairOrderGuid());
+			for (Map<String, Object> map : list) {
+				if (rrpairOrder.getOrderFstate().equals(CustomConst.RrpairOrderFstate.AWAITING_REPAIR)) {
+					map.put("groupName", "nxz");
+					map.put("url", "http://192.168.31.224:3001/#/waitForRepair/detail?groupName="+session.getAttribute("getUserGroupName")+"&id="+rrpairOrder.getRrpairOrderGuid());
+					map.put("remark","有新的报修单，请注意接修");
+				}
+			}
+			imessageService.userListPush(list,rrpairOrder);
 		}else{
 			updateInfo(rrpairOrder);
 		}
@@ -330,9 +346,10 @@ public class RrpairOrderServiceImpl extends BaseService implements RrpairOrderSe
 
 	@Override
 	public void insertRrpairOrderAcce(RrpairOrderAcce rrpairOrderAcce,
-			RrpairOrder rrpairOrder) {
+			RrpairOrder rrpairOrder,AssetsRecord assetsRecord) {
 		insertInfo(rrpairOrderAcce);
 		updateInfo(rrpairOrder);
+		updateInfo(assetsRecord);
 	}
 
 	@Override

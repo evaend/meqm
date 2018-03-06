@@ -8,6 +8,7 @@ import org.springframework.web.multipart.MultipartFile;
 import com.phxl.core.base.entity.Pager;
 import com.phxl.core.base.exception.ValidationException;
 import com.phxl.core.base.service.IBaseService;
+import com.phxl.ysy.entity.RrpairOrder;
 
 public interface AssetsRecordService extends IBaseService {
 
@@ -70,4 +71,13 @@ public interface AssetsRecordService extends IBaseService {
 	 * @throws Exception
 	 */
 	void deleteAssetsFile(String certId)throws Exception;
+	
+	List<Map<String, Object>> selectAssetsRecordFstate(Map<String, Object> map);
+	
+	/**
+	 * 判断用户扫码之后进入哪个页面
+	 * @param rrpairOrder
+	 * @return
+	 */
+	String getUrl(String orderFstate , String rrpairOrderGuid , String groupName);
 }

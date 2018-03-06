@@ -28,7 +28,8 @@
 		FROM TD_ORG_DEPT d
 		WHERE
 		<!-- 指定机构体系 -->
-		d.ORG_ID = #{conditiions.orgId, jdbcType=VARCHAR}
+		d.ORG_ID = #{conditiions.orgId, jdbcType=VARCHAR} 
+		and d.eq_m_fstate = '01'
   </select>
 
   <!-- 查询所属机构所有管理科室 -->
@@ -38,5 +39,17 @@
     <!-- 指定机构 -->
     tdu.dept_guid = #{conditiions.depId, jdbcType=VARCHAR}
   </select>
+  
+  <!-- 根据维修单ID查询对应资产的管理科室维修员 -->
+  <select id="selectBDeptUser" resultType="java.util.HashMap" parameterType="java.lang.String">
+	select tui.user_id "userId" ,tui.user_name "userName" , tui.wechat_openid "openId" 
+  	from ts_user_info tui where tui.user_id in (
+		select tdu.user_id from td_dept_user tdu where tdu.dept_guid =
+			(select tar.b_dept_guid from td_rrpair_order tro 
+				left join td_assets_record tar on (tro.assets_record = tar.assets_record)
+				where tro.rrpair_order_guid = #{rrpairOrderGuid})
+	)
+  </select>
+  
   
 </mapper>

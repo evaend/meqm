@@ -24,6 +24,8 @@ import com.phxl.core.base.util.SHAUtil;
 import com.phxl.core.base.util.SystemConfig;
 import com.phxl.ysy.constant.CustomConst.LoginUser;
 import com.phxl.ysy.service.weixin.WeixinAPIInterface;
+import com.phxl.ysy.entity.Group;
+import com.phxl.ysy.entity.GroupUserKey;
 import com.phxl.ysy.entity.UserInfo;
 import com.phxl.ysy.entity.WecatRegister;
 import com.phxl.ysy.entity.WeixinOpenUser;
@@ -59,11 +61,11 @@ public class HomeController {
 	 * */
 	@RequestMapping("/wechatBinding")
 	@ResponseBody
-	public ModelAndView forwardBinging(HttpServletRequest request, HttpServletResponse response) 
+	public void forwardBinging(HttpServletRequest request, HttpServletResponse response) 
 			throws Exception{
 		String code = request.getParameter("code");
 		String EventKey = request.getParameter("state");
-		
+		EventKey = EventKey.substring(EventKey.length()-1, EventKey.length());
 		String appid = SystemConfig.getProperty("wechat.config.appid");// appid
 		String secret = SystemConfig.getProperty("wechat.config.secret");// secret
 		//获取用户的openid
@@ -124,11 +126,20 @@ public class HomeController {
 				String userMenuList = (String) userLogin.get("menuList") == null ? ""
 						: userLogin.get("menuList").toString();
 				session.setAttribute(LoginUser.CUR_USER_MENULIST, userMenuList);
+				
+				GroupUserKey groupUserKey = new GroupUserKey();
+				groupUserKey.setUserId(userInfo.getUserId());
+				GroupUserKey group = userService.searchEntity(groupUserKey);
+				if (group!=null) {
+					Group g = userService.find(Group.class, group.getGroupId());
+					userInfo.setGroupName(g.getGroupName());
+					session.setAttribute("getUserGroupName", g.getGroupName());
+				}
 				resultMap.put("userInfo", userInfo);
 			}
-			ModelAndView mav = new ModelAndView(new RedirectView("http://192.168.31.224:3001/#/workplace?userId="+session.getAttribute(LoginUser.SESSION_USERID)));
-			mav.addObject("resultMap", resultMap);
-			return mav;
+//			ModelAndView mod = new ModelAndView(new RedirectView("http://192.168.0.109:3001/#/workplace?userId="+session.getAttribute(LoginUser.SESSION_USERID))+"&sessionId="+session.getId());
+//			return mod;
+			response.sendRedirect("http://192.168.0.244:3001/#/workplace?userId="+session.getAttribute(LoginUser.SESSION_USERID)+"&sessionId="+session.getId());
 		}
 		//如果当前微信用户不是项目中的用户，则自动注册
 		else {
@@ -144,8 +155,9 @@ public class HomeController {
 			}
 			//微信自动注册用户，并将用户信息存在session中
 			userService.insertWxUser(wecatRegister, wxUser);
-			ModelAndView mav = new ModelAndView(new RedirectView("http://192.168.31.224:3001/#/workplace?userId="+session.getAttribute(LoginUser.SESSION_USERID)));
-			return mav;
+//			ModelAndView mod = new ModelAndView(new RedirectView("http://192.168.0.109:3001/#/workplace?userId="+session.getAttribute(LoginUser.SESSION_USERID)));
+//			return mod;
+			response.sendRedirect("http://192.168.0.244:3001/#/workplace?userId="+session.getAttribute(LoginUser.SESSION_USERID)+"&sessionId="+session.getId());
 		}	
 	}
 }

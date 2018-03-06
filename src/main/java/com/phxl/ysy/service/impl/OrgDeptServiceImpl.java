@@ -26,5 +26,4 @@ public class OrgDeptServiceImpl extends BaseService implements OrgDeptService{
 	public List<Map<String, Object>> selectDeptOfUseList(Pager pager) {
 		return orgDeptMapper.selectDeptOfUseList(pager);
 	}
-
 }

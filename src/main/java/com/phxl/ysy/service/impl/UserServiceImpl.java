@@ -180,7 +180,7 @@ public class UserServiceImpl extends BaseService implements UserService {
 			
 			//查询当前用户的菜单权限
 			JSONUtils json = new JSONUtils();
-			map.put("menuList", json.toPrettyJson(this.selectWeiXinUserMenu(newUserInfo.getUserId())));            
+			map.put("menuList", json.toPrettyJson(this.selectUserMenu(newUserInfo.getUserId())));            
 		}
 		map.put("result", result);
 		return map;
@@ -450,7 +450,7 @@ public class UserServiceImpl extends BaseService implements UserService {
 		JSONUtils json = new JSONUtils();
 		session.setAttribute(LoginUser.SESSION_USERNAME, newU.getUserName());
 		session.setAttribute(LoginUser.SESSION_USER_ORGID, newU.getOrgId());
-		session.setAttribute(LoginUser.SESSISON_USER_LEVEL, json.toPrettyJson(this.selectWeiXinUserMenu(newU.getUserId())));
+		session.setAttribute(LoginUser.SESSISON_USER_LEVEL, json.toPrettyJson(this.selectUserMenu(newU.getUserId())));
 		session.setAttribute(LoginUser.SESSION_USER_ORG_TYPE, newU.getOrgType());
 		session.setAttribute(LoginUser.SESSION_USER_INFO, newU);
 		session.setAttribute(LoginUser.SESSION_USERID, newU.getUserId());

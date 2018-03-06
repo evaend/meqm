@@ -147,4 +147,9 @@
 		<property name="sqlSessionFactoryBeanName" value="sqlSessionFactory" />
 	</bean>
 	
+	<bean id="multipartResolver" class="org.springframework.web.multipart.commons.CommonsMultipartResolver">       
+	</bean>
+	<!-- spring 管理servlet过滤器 -->
+	<bean id="checkLoginServlet" class="com.phxl.ysy.util.CheckLoginServlet"/>
+	
 </beans>

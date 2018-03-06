@@ -506,4 +506,22 @@ public class CustomConst {
 		/**01、标准*/
 		public static final String STANDARD = "01";
     }
+    
+    /**
+     * 报修后验收人验收
+     */
+    public final static class RrAcceFstate {
+    	/** 50、待验收 */
+		public static final String FOR_ACCEPTANCE = "00";
+		/** 60、管理科室已验收*/
+		public static final String MANAGEMENT_PASS = "01";
+    	/** 61、管理科室验收不通过 */
+		public static final String MANAGEMENT_NO_PASS = "00";
+		/** 65、使用科室已验收*/
+		public static final String USE_PASS = "65";
+    	/** 66、使用科室验收不通过*/
+		public static final String USE_NO_PASS = "66";
+		/** 90、关闭*/
+		public static final String CLOSE = "90";
+    }
 }

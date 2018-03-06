@@ -12,6 +12,7 @@ import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
 import javax.tools.FileObject;
 
 import org.apache.commons.codec.binary.Base64;
@@ -25,6 +26,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.servlet.ModelAndView;
+import org.springframework.web.servlet.view.RedirectView;
 
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
@@ -36,7 +39,13 @@ import com.phxl.core.base.util.FTPUtils;
 import com.phxl.core.base.util.JSONUtils;
 import com.phxl.core.base.util.LocalAssert;
 import com.phxl.core.base.util.SystemConfig;
+import com.phxl.ysy.constant.CustomConst;
+import com.phxl.ysy.constant.MySessionContext;
+import com.phxl.ysy.constant.CustomConst.LoginUser;
+import com.phxl.ysy.entity.AssetsRecord;
 import com.phxl.ysy.entity.CertInfoZc;
+import com.phxl.ysy.entity.Group;
+import com.phxl.ysy.entity.GroupUserKey;
 import com.phxl.ysy.entity.OrgDept;
 import com.phxl.ysy.entity.EqOperationInfo;
 import com.phxl.ysy.service.AssetsRecordService;
@@ -47,6 +56,8 @@ public class AssetsRecordController {
 	@Autowired
 	AssetsRecordService assetsRecordService;
 	
+	@Autowired
+	HttpSession session;
 	/**
 	 * 查询资产总量
 	 * @param request
@@ -78,6 +89,8 @@ public class AssetsRecordController {
 	 * @param page
 	 * @param request
 	 * @param response
+	 * @param sortField
+	 * @param sortOrder
 	 * @return
 	 * @author zhangyanli
 	 */
@@ -364,5 +377,79 @@ public class AssetsRecordController {
 			throw new ValidationException("附件ID不允许为空");
 		}
 		assetsRecordService.deleteAssetsFile(certId);
+	}
+	
+	/**
+	 * 判断维修单不同的状态，跳转到不同的页面
+	 * @param assetsRecordGuid
+	 * @param request
+	 * @param response
+	 * @return
+	 * @throws Exception
+	 */
+	@RequestMapping("/selectAssetsRecordFstate")
+	@ResponseBody
+	public ModelAndView selectAssetsRecordFstate(
+			@RequestParam(value="assetsRecordGuid",required = false) String assetsRecordGuid,
+			@RequestParam(value="sessionId",required = false) String sessionId,
+			HttpServletRequest request,HttpServletResponse response) throws Exception {
+		System.out.println(sessionId);
+		if (StringUtils.isNotBlank(sessionId)) {
+			if (session!=null ) {
+				if (!sessionId.equals(session.getId())) {
+					System.out.println("11111111");
+					session = MySessionContext.getSession(sessionId);
+				}
+			}
+		}
+		AssetsRecord assetsRecord = assetsRecordService.find(AssetsRecord.class, assetsRecordGuid);
+		String groupName = "";
+		GroupUserKey groupUserKey = new GroupUserKey();
+		groupUserKey.setUserId(session.getAttribute(LoginUser.SESSION_USERID).toString());
+		GroupUserKey group = assetsRecordService.searchEntity(groupUserKey);
+		if (group!=null) {
+			Group g = assetsRecordService.find(Group.class, group.getGroupId());
+			groupName = g.getGroupName();
+			session.setAttribute("getUserGroupName", g.getGroupName());
+		}
+		Map<String, Object> map = new HashMap<String, Object>();
+		map.put("assetsRecord", assetsRecord.getAssetsRecord());
+		map.put("orgId", session.getAttribute(LoginUser.SESSION_USER_ORGID));
+		List<Map<String, Object>> list = assetsRecordService.selectAssetsRecordFstate(map);
+		if (list==null || list.size()==0) {
+			System.out.println("http://192.168.0.244:3001/#/repair/repairReg?id="
+					+assetsRecordGuid+"&userId="+session.getAttribute(LoginUser.SESSION_USERID)
+					+"&sessionId="+sessionId);
+			ModelAndView mod = new ModelAndView(new RedirectView("http://192.168.0.244:3001/#/repair/repairReg?id="
+			+assetsRecordGuid+"&userId="+session.getAttribute(LoginUser.SESSION_USERID)
+			+"&sessionId="+sessionId));
+			return mod;
+//			response.sendRedirect("http://192.168.31.224:3001/#/repair/repairReg?id="+assetsRecordGuid+"&userId="+session.getAttribute(LoginUser.SESSION_USERID));
+		}else {
+			Map<String, Object> rrpairMap = list.get(0);
+			if (CustomConst.RrpairOrderFstate.AWAITING_REPAIR.equals(rrpairMap.get("orderFstate"))) {
+				System.out.println(new RedirectView("http://192.168.0.244:3001/#/waitForRepair/detail?groupName="
+						+groupName+"&id="+rrpairMap.get("rrpairOrderGuid").toString()
+						+"&userId="+session.getAttribute(LoginUser.SESSION_USERID)
+						+"&sessionId="+sessionId));
+				ModelAndView mod = new ModelAndView(new RedirectView("http://192.168.0.244:3001/#/waitForRepair/detail?groupName="
+				+groupName+"&id="+rrpairMap.get("rrpairOrderGuid").toString()
+				+"&userId="+session.getAttribute(LoginUser.SESSION_USERID)
+				+"&sessionId="+sessionId));
+				return mod;
+//				response.sendRedirect("http://192.168.31.224:3001/#/waitForRepair/detail?groupName="+groupName+"&id="+rrpairMap.get("rrpairOrderGuid").toString()+"&userId="+session.getAttribute(LoginUser.SESSION_USERID));
+			}else {
+				System.out.println("http://192.168.0.244:3001/#/check/detail?fstate="
+						+rrpairMap.get("orderFstate").toString()+"&id="+rrpairMap.get("rrpairOrderGuid").toString()
+						+"&groupName="+groupName+"&userId="+session.getAttribute(LoginUser.SESSION_USERID)
+						+"&sessionId="+sessionId);
+				ModelAndView mod = new ModelAndView(new RedirectView("http://192.168.0.244:3001/#/check/detail?fstate="
+						+rrpairMap.get("orderFstate").toString()+"&id="+rrpairMap.get("rrpairOrderGuid").toString()
+						+"&groupName="+groupName+"&userId="+session.getAttribute(LoginUser.SESSION_USERID)
+						+"&sessionId="+sessionId));
+				return mod;
+//				response.sendRedirect("http://192.168.31.224:3001/#/check/detail/fstate="+rrpairMap.get("orderFstate").toString()+"?id="+rrpairMap.get("rrpairOrderGuid").toString()+"&groupName="+groupName+"&userId="+session.getAttribute(LoginUser.SESSION_USERID));
+			}
+		}
 	}
 }

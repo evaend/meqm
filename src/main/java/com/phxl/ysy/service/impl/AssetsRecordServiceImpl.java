@@ -20,16 +20,19 @@ import com.phxl.core.base.util.FTPUtils;
 import com.phxl.core.base.util.IdentifieUtil;
 import com.phxl.core.base.util.LocalAssert;
 import com.phxl.core.base.util.SystemConfig;
+import com.phxl.ysy.constant.CustomConst;
 import com.phxl.ysy.constant.CustomConst.AssetsRecordInfoUpdate;
 import com.phxl.ysy.constant.CustomConst.LoginUser;
 import com.phxl.ysy.dao.AssetsExtendMapper;
 import com.phxl.ysy.dao.AssetsRecordMapper;
 import com.phxl.ysy.dao.CertInfoZcMapper;
 import com.phxl.ysy.dao.EqOperationInfoMapper;
+import com.phxl.ysy.dao.RrpairOrderMapper;
 import com.phxl.ysy.entity.AssetsRecord;
 import com.phxl.ysy.entity.CertInfoZc;
 import com.phxl.ysy.entity.EqOperationInfo;
 import com.phxl.ysy.entity.Equipment;
+import com.phxl.ysy.entity.RrpairOrder;
 import com.phxl.ysy.service.AssetsRecordService;
 
 @Service
@@ -48,6 +51,9 @@ public class AssetsRecordServiceImpl extends BaseService implements AssetsRecord
 	
 	@Autowired
 	HttpSession session;
+	
+	@Autowired
+	RrpairOrderMapper rrpairOrderMapper;
 
 	//查询资产总量
 	public Integer selectAssetsRecordCount() {
@@ -197,6 +203,21 @@ public class AssetsRecordServiceImpl extends BaseService implements AssetsRecord
 		}
 		FTPUtils.deleteFile(certInfo.getTfAccessory());
 		deleteInfo(certInfo);
+	}
+
+	@Override
+	public List<Map<String, Object>> selectAssetsRecordFstate(
+			Map<String, Object> map) {
+		return rrpairOrderMapper.selectAssetsIsUsable(map);
+	}
+
+	@Override
+	public String getUrl(String orderFstate , String rrpairOrderGuid , String groupName) {
+		if (CustomConst.RrpairOrderFstate.AWAITING_REPAIR.equals(orderFstate)) {
+			return ("http://192.168.31.224:3001/#/waitForRepair/detail?groupName="+groupName+"&id="+rrpairOrderGuid);
+		}else {
+			return ("http://192.168.31.224:3001/#/check/detail/fstate="+orderFstate+"?id="+rrpairOrderGuid+"&groupName="+groupName);
+		}
 	}
 
 }

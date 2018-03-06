@@ -3,6 +3,8 @@ package com.phxl.ysy.service;
 import java.util.List;
 import java.util.Map;
 
+import javax.servlet.http.HttpSession;
+
 import org.springframework.core.annotation.Order;
 
 import com.phxl.core.base.entity.Pager;
@@ -65,12 +67,12 @@ public interface RrpairOrderService extends IBaseService {
 	 * 添加维修记录
 	 * @param rrpairOrder
 	 */
-	void insertRrpairOrder(RrpairOrder rrpairOrder,AssetsRecord assetsRecord,List<String> assetsExtendGuid,List<Integer> acceNum) throws Exception;
+	void insertRrpairOrder(RrpairOrder rrpairOrder,AssetsRecord assetsRecord,List<String> assetsExtendGuid,List<Integer> acceNum,HttpSession session) throws Exception;
 	
 	//查询当前维修记录的维修配件使用列表
 	List<Map<String, Object>> selectRrpairFittingList(Pager pager);
 	
-	void insertRrpairOrderAcce(RrpairOrderAcce rrpairOrderAcce, RrpairOrder rrpairOrder);
+	void insertRrpairOrderAcce(RrpairOrderAcce rrpairOrderAcce, RrpairOrder rrpairOrder,AssetsRecord assetsRecord);
 	
 	void insertRrpairFitting(RrpairOrder rrpairOrder,String rrpairOrderGuid, List<String> assetsExtendGuid, List<Integer> acceNum)throws ValidationException ;
 }

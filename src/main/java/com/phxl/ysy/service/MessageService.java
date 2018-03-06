@@ -12,10 +12,12 @@ package com.phxl.ysy.service;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+
 import com.phxl.core.base.entity.Pager;
 import com.phxl.core.base.exception.ValidationException;
 import com.phxl.core.base.service.IBaseService;
 import com.phxl.ysy.entity.Message;
+import com.phxl.ysy.entity.RrpairOrder;
 
 /** 
  * ClassName:MessageService <br/> 
@@ -138,6 +140,5 @@ public interface MessageService extends IBaseService{
      * @throws
      */
     public void resendMessage();
-
 }
   

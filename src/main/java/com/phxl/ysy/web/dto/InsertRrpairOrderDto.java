@@ -32,6 +32,7 @@ public class InsertRrpairOrderDto {
 	private String outRrpairPhone;
 	private String completTime;
 	private String tfRemarkZp;
+	private String sessionId;
 	private List<Map<String, Object>> assetsExtendGuids;
 	public String getRrpairOrderGuid() {
 		return rrpairOrderGuid;
@@ -206,6 +207,12 @@ public class InsertRrpairOrderDto {
 	}
 	public void setAssetsExtendGuids(List<Map<String, Object>> assetsExtendGuids) {
 		this.assetsExtendGuids = assetsExtendGuids;
+	}
+	public String getSessionId() {
+		return sessionId;
+	}
+	public void setSessionId(String sessionId) {
+		this.sessionId = sessionId;
 	}
 	
 }

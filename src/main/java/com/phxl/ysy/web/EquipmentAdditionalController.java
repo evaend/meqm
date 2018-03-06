@@ -92,15 +92,19 @@ public class EquipmentAdditionalController {
 //						"出厂日期[productionDate]", "购买日期原始[aa]", "使用年限[useLimit]", "折旧年限[depreciationLimit]", 
 //						"折旧方法[depreciationType]", "残值[residualValue]", "质量等级[qaLevel]", 
 //						"保养周期[maintainDay]", "维修商[aaOrg]", "维修标志[repairFlag]","购买日期[buyDate]"}
-				new String[]{"资产名称[equipmentStandardName]", "资产编号[assetsRecord]", "通用名称[equipmentName]", 
-						"资产状态[useFstate]", "资产型号[fmodel]", "资产规格[spec]", "资产分类[productType]", 
+				new String[]{"资产名称[equipmentStandardName]", "通用名称[equipmentName]", 
+//						"资产状态[useFstate]", 
+						"资产型号[fmodel]", "资产规格[spec]",
+//						"资产分类[productType]", 
 						"使用科室[useDeptCode]", "保管员[custodian]", "存放地址[deposit]", "管理科室[bDeptCode]", 
 						"注册证号[certGuid]", "品牌[tfBrand]", "生产商[product]", "生产商国家[productCountry]", 
 						"出厂日期[productionDate]", "供应商[forgName]", "购买日期[buyDate]", "合同编号[contractNo]", 
 						"计量单位[meteringUnit]", "购买金额[buyPrice]", "安装费[installPrice]", "经费来源[sourceFunds]", 
-						"维修分类[rrpairType]", "保养分类[maintainType]", "计量分类[meteringType]", "保养周期[maintainDay]", 
-						"下次保养[nextMaintainDate]", "保修截止期[inDate]", "折旧方式[depreciationType]", "原值[originalValue]",
-						"净值[carryingAmount]", "残值[residualValue]", "残值率[residualValueV]", "预计使用年限[useLimit]"
+//						"维修分类[rrpairType]", "保养分类[maintainType]", "计量分类[meteringType]", 
+						"保养周期[maintainDay]", 
+						"下次保养[nextMaintainDate]", "保修截止期[inDate]", "折旧方式[depreciationType]",  "预计使用年限[useLimit]", 
+						"原值[originalValue]", "残值[residualValue]"
+//						"净值[carryingAmount]","残值率[residualValueV]",
 						}
 		);
 
