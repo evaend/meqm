@@ -20,6 +20,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.phxl.core.base.service.impl.BaseService;
 import com.phxl.core.base.util.JSONUtils;
 import com.phxl.ysy.constant.CustomConst;
+import com.phxl.ysy.constant.CustomConst.LoginUser;
 import com.phxl.ysy.dao.OrgDeptMapper;
 import com.phxl.ysy.entity.Messagewechat;
 import com.phxl.ysy.entity.RrpairOrder;
@@ -133,7 +134,7 @@ public class MessageServiceImp extends BaseService implements IMessageService{
 	
 	//执行推送
 	public void userListPush(List<Map<String, Object>> resultMaps,RrpairOrder rrpairOrder){
-		SimpleDateFormat sdf=new SimpleDateFormat("yyyy-MM-dd 24H:mm:ss");  
+		SimpleDateFormat sdf=new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");  
     	for (Map<String, Object> m : resultMaps) {
     		if (m.get("openId")==null || ("").equals(m.get("openId"))) {
 				continue;
@@ -159,7 +160,11 @@ public class MessageServiceImp extends BaseService implements IMessageService{
 		map.put("userId", user.getUserId());
 		map.put("userName", user.getUserName());
 		map.put("openId", user.getWechatOpenid());
-		map.put("url", "http://192.168.0.109:3001/#/check/detail/fstate="+rrpairOrder.getOrderFstate()+"?id="+rrpairOrder.getRrpairOrderGuid());
+		map.put("url", CustomConst.MeqmMobile+"/#/check/detail/"
+				+session.getAttribute(LoginUser.SESSION_USERID)+"/"
+				+rrpairOrder.getOrderFstate()+"/"
+				+rrpairOrder.getRrpairOrderGuid()+"/"
+				+groupName+"/"+session.getId());
 		//如果推送用户是内修组
 		if (groupName.equals("nxz")) {
 			if (rrpairOrder.getOrderFstate().equals(CustomConst.RrpairOrderFstate.FINISH)) {

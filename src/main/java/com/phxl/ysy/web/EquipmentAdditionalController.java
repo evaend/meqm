@@ -97,7 +97,7 @@ public class EquipmentAdditionalController {
 						"资产型号[fmodel]", "资产规格[spec]",
 //						"资产分类[productType]", 
 						"使用科室[useDeptCode]", "保管员[custodian]", "存放地址[deposit]", "管理科室[bDeptCode]", 
-						"注册证号[certGuid]", "品牌[tfBrand]", "生产商[product]", "生产商国家[productCountry]", 
+						"注册证号[registerNo]", "品牌[tfBrand]", "生产商[product]", "生产商国家[productCountry]", 
 						"出厂日期[productionDate]", "供应商[forgName]", "购买日期[buyDate]", "合同编号[contractNo]", 
 						"计量单位[meteringUnit]", "购买金额[buyPrice]", "安装费[installPrice]", "经费来源[sourceFunds]", 
 //						"维修分类[rrpairType]", "保养分类[maintainType]", "计量分类[meteringType]", 
@@ -139,7 +139,6 @@ public class EquipmentAdditionalController {
 		Assert.notEmpty(entityList, "没有发现资产信息，请检查文档中的资产");
 		String userId = (String) session.getAttribute(LoginUser.SESSION_USERID);
 		String orgId = String.valueOf(session.getAttribute(LoginUser.SESSION_USER_ORGID));
-		System.out.println("orgId+++++++++++++++++++++++"+orgId);
 		if(StringUtils.isBlank(orgId)){
 			orgId = "197";
 		}
@@ -163,7 +162,17 @@ public class EquipmentAdditionalController {
 		pager.addQueryParam("assetsRecordGuid", assetsRecordGuid);
 		
 		List<Map<String, Object>> listData = assetsRecordService.selectAssetsList(pager);
-
+		if (listData==null || listData.size()==0) {
+			throw new ValidationException("请传入正确的资产ID");
+		}
+		for (Map<String, Object> map : listData) {
+			if (map.get("fmodel")!=null) {
+				String str = map.get("fmodel").toString().replace("<", "(");
+				str = str.replace(">", ")");
+				map.put("fmodel",str);
+			}
+		}
+		
 		List<String> titleFileds = Arrays.asList("equipmentName");
 		List<String> tableFileds = Arrays.asList("qrcode", "fmodel","buyDate", "useDept");
 		String title = "${equipmentName}";

@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.phxl.ysy.dao.RegisterMapper">
+	<resultMap id="BaseResultMap" type="com.phxl.ysy.entity.Register">
+		<id column="CERT_GUID" property="certGuid" jdbcType="VARCHAR" />
+		<result column="REGISTER_NO" property="registerNo" jdbcType="VARCHAR" />
+		<result column="MATERIAL_NAME" property="materialName" jdbcType="VARCHAR" />
+		<result column="FLAG" property="flag" jdbcType="VARCHAR" />		<!-- 有无证件标识 -->
+		<result column="FQUN" property="fqun" jdbcType="VARCHAR" />
+		<result column="TYPE" property="type" jdbcType="VARCHAR" />
+		<result column="INSTRUMENT_CODE" property="instrumentCode" jdbcType="VARCHAR" />
+		<result column="FIRST_TIME" property="firstTime" jdbcType="TIMESTAMP" />
+		<result column="LAST_TIME" property="lastTime" jdbcType="TIMESTAMP" />
+		<result column="PRODUCE_NAME" property="produceName" jdbcType="VARCHAR" />
+		<result column="ENTERPRISE_REG_ADDR" property="enterpriseRegAddr" jdbcType="VARCHAR" />
+		<result column="PRODUCE_ADDR" property="produceAddr" jdbcType="VARCHAR" />
+		<result column="AGENT_NAME" property="agentName" jdbcType="VARCHAR" />
+		<result column="AGENT_ADDR" property="agentAddr" jdbcType="VARCHAR" />
+		<result column="PRODUCT_STRUCTURE" property="productStructure" jdbcType="VARCHAR" />
+		<result column="PRODUCT_SCOPE" property="productScope" jdbcType="VARCHAR" />
+		<result column="PRODUCT_STANDARD" property="productStandard" jdbcType="VARCHAR" />
+		<result column="TF_BRAND" property="tfBrand" jdbcType="VARCHAR" />
+		<result column="R_CERT_GUID" property="rCertGuid" jdbcType="VARCHAR" />
+		<result column="TF_ACCESSORY_FILE" property="tfAccessoryFile" jdbcType="VARCHAR" />
+		<result column="TF_ACCESSORY" property="tfAccessory" jdbcType="VARCHAR" />
+		<result column="CREATE_USERID" property="createUserid" jdbcType="VARCHAR" />
+		<result column="CREATE_TIME" property="createTime" jdbcType="TIMESTAMP" />
+		<result column="MODIFY_USERID" property="modifyUserid" jdbcType="VARCHAR" />
+		<result column="MODIFY_TIME" property="modifyTime" jdbcType="TIMESTAMP" />
+		<result column="TABOO" property="taboo" jdbcType="VARCHAR" />
+		<result column="AFTER_SERVICE" property="afterService" jdbcType="VARCHAR" />
+		<result column="TF_REMARK" property="tfRemark" jdbcType="VARCHAR" />
+		<result column="IS_IMPORT" property="isImport" jdbcType="VARCHAR" />
+	</resultMap>
+	
+	<resultMap id="BaseExtResultMap" type="com.phxl.ysy.entity.Register" extends="BaseResultMap">
+		<result column="INSTRUMENT_NAME" property="instrumentName" jdbcType="VARCHAR" />
+		<result column="TF_BRAND_NAME" property="tfBrandName" jdbcType="VARCHAR" />
+	</resultMap>
+
+	<sql id="Base_Column_List_With_Prefix">
+		r.CERT_GUID, r.REGISTER_NO, r.MATERIAL_NAME, r.FLAG, r.FQUN, r.TYPE, r.INSTRUMENT_CODE, r.FIRST_TIME, r.LAST_TIME,
+		r.PRODUCE_NAME, r.ENTERPRISE_REG_ADDR, r.PRODUCE_ADDR, r.AGENT_NAME, r.AGENT_ADDR, r.PRODUCT_STRUCTURE,
+		r.PRODUCT_SCOPE, r.PRODUCT_STANDARD, r.TF_BRAND, r.R_CERT_GUID, r.TF_ACCESSORY_FILE, r.TF_ACCESSORY,
+		r.CREATE_USERID, r.CREATE_TIME, r.MODIFY_USERID, r.MODIFY_TIME, r.TABOO, r.AFTER_SERVICE, r.TF_REMARK, r.IS_IMPORT
+	</sql>
+	
+</mapper>

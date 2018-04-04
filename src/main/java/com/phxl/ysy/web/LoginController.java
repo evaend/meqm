@@ -29,6 +29,7 @@ import com.phxl.core.base.util.MD5Util;
 import com.phxl.core.base.util.SHAUtil;
 import com.phxl.core.base.util.SystemConfig;
 import com.phxl.ysy.constant.CustomConst;
+import com.phxl.ysy.constant.MySessionContext;
 import com.phxl.ysy.entity.Group;
 import com.phxl.ysy.entity.GroupUserKey;
 import com.phxl.ysy.entity.Message;
@@ -147,18 +148,41 @@ public class LoginController {
 		return userService.selectUserMenu(userId);
 		// return result;
 	}
+	
 	/**
 	 * @author 获取微信用户模块和权限json
 	 * @param userId
 	 */
 	@ResponseBody
 	@RequestMapping(value = "/getWeiXinUserM", produces = { "application/json;charset=UTF-8" })
-	public List<Map<String, Object>> getWeiXinUserM(@RequestParam(value = "userId", required = false) String userId,
+	public List<Map<String, Object>> getWeiXinUserM(
+			@RequestParam(value = "userId", required = false) String userId,
+//			@RequestParam(value = "sessionId", required = false) String sessionId,
 			HttpServletRequest request, HttpServletResponse response)
 			throws ValidationException {
+		System.out.println("111111111111"+request.getSession().getId());
 		if (StringUtils.isBlank(userId)) {
 			userId = (String)session.getAttribute(LoginUser.SESSION_USERID);
 		}
+//		if (StringUtils.isBlank(userId)) {
+//			userId = (String)session.getAttribute(LoginUser.SESSION_USERID);
+//		}
+//		if (StringUtils.isNotBlank(sessionId)) {
+//			if (session!=null ) {
+//				if (!sessionId.equals(session.getId())) {
+//					session = MySessionContext.getSession(sessionId);
+//					if (!userId.equals(session.getAttribute(LoginUser.SESSION_USERID))) {
+//						userId = session.getAttribute(LoginUser.SESSION_USERID).toString();
+//					}
+//				}
+//			}else{
+//				session = MySessionContext.getSession(sessionId);
+//				if (!userId.equals(session.getAttribute(LoginUser.SESSION_USERID))) {
+//					userId = session.getAttribute(LoginUser.SESSION_USERID).toString();
+//				}
+//			}
+//		}
+//		
 		if (StringUtils.isBlank(userId)) {
 			throw new ValidationException("无登录信息");
 		}
@@ -170,13 +194,30 @@ public class LoginController {
 	 */
 	@ResponseBody
 	@RequestMapping(value = "/getWeiXinUserInfo", produces = {"application/json;charset=UTF-8" })
-	public UserInfo getWeiXinUserInfo(@RequestParam(value = "userId", required = false) String userId,
+	public UserInfo getWeiXinUserInfo(
+			@RequestParam(value = "userId", required = false) String userId,
+//			@RequestParam(value = "sessionId", required = false) String sessionId,
 			HttpServletRequest request, HttpServletResponse response) throws ValidationException {
+		System.out.println("111111111111"+request.getSession().getId());
 		UserInfo result = null;
-		System.out.println("session=++++++"+request.getSession().getId());
 		if (StringUtils.isBlank(userId)) {
 			userId = (String)session.getAttribute(LoginUser.SESSION_USERID);
 		}
+//		if (StringUtils.isNotBlank(sessionId)) {
+//			if (session!=null ) {
+//				if (!sessionId.equals(session.getId())) {
+//					session = MySessionContext.getSession(sessionId);
+//					if (!userId.equals(session.getAttribute(LoginUser.SESSION_USERID))) {
+//						userId = session.getAttribute(LoginUser.SESSION_USERID).toString();
+//					}
+//				}
+//			}else{
+//				session = MySessionContext.getSession(sessionId);
+//				if (!userId.equals(session.getAttribute(LoginUser.SESSION_USERID))) {
+//					userId = session.getAttribute(LoginUser.SESSION_USERID).toString();
+//				}
+//			}
+//		}
 		if (StringUtils.isBlank(userId)) {
 			throw new ValidationException("无登录信息");
 		}

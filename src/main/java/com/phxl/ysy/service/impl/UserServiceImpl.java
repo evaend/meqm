@@ -424,7 +424,7 @@ public class UserServiceImpl extends BaseService implements UserService {
 	 * 扫码自动注册--添加用户信息
 	 */
 	@Override
-	public void insertWxUser(WecatRegister wecatRegister,
+	public String insertWxUser(WecatRegister wecatRegister,
 			WeixinOpenUser wxUser) throws Exception {
 		String userId = IdentifieUtil.getGuId();
 		UserInfo newU = new UserInfo();
@@ -437,6 +437,7 @@ public class UserServiceImpl extends BaseService implements UserService {
 		newU.setCreateTime(new Date());
 		newU.setModifyTime(new Date());
 		newU.setUserLevel(CustomConst.UserLevel.ORG_USER);
+		//如果权限不为空，则绑定用户权限
 		if (wecatRegister!=null) {
 			newU.setOrgId(wecatRegister.getOrgId());
 			OrgInfo orgInfo = find(OrgInfo.class, wecatRegister.getOrgId());
@@ -444,6 +445,11 @@ public class UserServiceImpl extends BaseService implements UserService {
 			groupUserKey.setGroupId(wecatRegister.getGroupId());
 			groupUserKey.setUserId(userId);
 			insertInfo(groupUserKey);
+			//如果当前用户组存在，则保存用户组信息
+			Group group = find(Group.class,wecatRegister.getGroupId());
+			if (group!=null) {
+				session.setAttribute("getUserGroupName", group.getGroupName());
+			}
 		}
 		insertInfo(newU);
 		//查询当前用户的菜单权限
@@ -456,6 +462,7 @@ public class UserServiceImpl extends BaseService implements UserService {
 		session.setAttribute(LoginUser.SESSION_USERID, newU.getUserId());
 		session.setAttribute(LoginUser.SESSION_USERNO, newU.getUserNo());
 		session.setAttribute(LoginUser.SESSION_USER_ORGNAME, newU.getOrgName());
+		return userId;
 	}
 	
 }

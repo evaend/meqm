@@ -261,13 +261,13 @@ public class RrpairOrderServiceImpl extends BaseService implements RrpairOrderSe
         if (session.getAttribute("userId") != null) {
         	String message = imessageService.getMessageJsonContent(argument,
             		"A6C68D5EFF5E4D55B5D8396CB3232DE0",
-            		"http://mobile.medqcc.com/#/equipment/equipmentDetail?rrpairOrder="+rrpairOrder,
+            		CustomConst.MeqmMobile+"/#/equipment/equipmentDetail?rrpairOrder="+rrpairOrder,
             		session.getAttribute("userId").toString());
             imessageService.pushMessages(message);
 		}else{
 			String message = imessageService.getMessageJsonContent(argument,
 	        		"A6C68D5EFF5E4D55B5D8396CB3232DE0",
-	        		"http://mobile.medqcc.com/#/equipment/equipmentDetail?rrpairOrder="+rrpairOrder,"1");
+	        		CustomConst.MeqmMobile+"/#/equipment/equipmentDetail?rrpairOrder="+rrpairOrder,"1");
 	        imessageService.pushMessages(message);
 		}
         
@@ -301,7 +301,6 @@ public class RrpairOrderServiceImpl extends BaseService implements RrpairOrderSe
 			if (assetsRecord!=null) {
 				Map<String, Object> map = new HashMap<String, Object>();
 				map.put("assetsRecord", assetsRecord.getAssetsRecord());
-				System.out.println("orgid+++++++++++++++++"+session.getAttribute(LoginUser.SESSION_USER_ORGID));
 				map.put("orgId", session.getAttribute(LoginUser.SESSION_USER_ORGID));
 				List<Map<String, Object>> list = rrpairOrderMapper.selectAssetsIsUsable(map);
 				if (list!=null && list.size()!=0) {
@@ -321,7 +320,10 @@ public class RrpairOrderServiceImpl extends BaseService implements RrpairOrderSe
 			for (Map<String, Object> map : list) {
 				if (rrpairOrder.getOrderFstate().equals(CustomConst.RrpairOrderFstate.AWAITING_REPAIR)) {
 					map.put("groupName", "nxz");
-					map.put("url", "http://192.168.31.224:3001/#/waitForRepair/detail?groupName="+session.getAttribute("getUserGroupName")+"&id="+rrpairOrder.getRrpairOrderGuid());
+					map.put("url", CustomConst.MeqmMobile+"/#/waitForRepair/detail/"
+							+session.getAttribute(LoginUser.SESSION_USERID)+"/"
+							+rrpairOrder.getRrpairOrderGuid()+"/"
+							+session.getAttribute("getUserGroupName")+"/"+session.getId());
 					map.put("remark","有新的报修单，请注意接修");
 				}
 			}

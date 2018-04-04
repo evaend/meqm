@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.phxl.ysy.dao.MaintainTypeMapper" >
+  <resultMap id="BaseResultMap" type="com.phxl.ysy.entity.MaintainType" >
+    <id column="MAINTAIN_TYPE_ID" property="maintainTypeId" jdbcType="VARCHAR" />
+    <result column="MAINTAIN_TYPE_NAME" property="maintainTypeName" jdbcType="VARCHAR" />
+    <result column="FQUN" property="fqun" jdbcType="VARCHAR" />
+    <result column="PARENT_ID" property="parentId" jdbcType="VARCHAR" />
+    <result column="FEVEL" property="fevel" jdbcType="DECIMAL" />
+    <result column="DIGIT" property="digit" jdbcType="DECIMAL" />
+    <result column="CREATE_USERID" property="createUserid" jdbcType="VARCHAR" />
+    <result column="CREATE_TIME" property="createTime" jdbcType="DATE" />
+    <result column="MODIFY_TIME" property="modifyTime" jdbcType="DATE" />
+    <result column="STYLE_FLAG" property="styleFlag" jdbcType="DECIMAL" />
+    <result column="GU_ID" property="guId" jdbcType="VARCHAR" />
+    <result column="ORG_ID" property="orgId" jdbcType="DECIMAL" />
+  </resultMap>
+  <sql id="Base_Column_List" >
+    GU_ID, MAINTAIN_TYPE_ID, MAINTAIN_TYPE_NAME, FQUN, PARENT_ID, FEVEL, DIGIT, CREATE_USERID, 
+    CREATE_TIME, MODIFY_TIME, STYLE_FLAG, ORG_ID
+  </sql>
+  
+  <!-- 查询保养项目 -->
+  <select id="searchMaintainType" resultType="java.util.HashMap" parameterType="com.phxl.core.base.entity.Pager">
+	select maintain_type_id "id" , --保养项目id
+		maintain_type_name "name" 	--保养项目名称
+		from td_maintain_type 
+		where org_id = #{conditiions.orgId} 
+		<if test="conditiions.maintainTypeName != null and conditiions.maintainTypeName != ''">
+			and regexp_like( maintain_type_name ,  #{conditiions.maintainTypeName}) 
+		</if>
+  </select>
+  
+</mapper>

@@ -33,6 +33,8 @@ public class Equipment {
     private String spec;
     
     private String fmodel;
+    
+    private String maintainTemplateId;
 
     public String getEquipmentCode() {
         return equipmentCode;
@@ -152,5 +154,13 @@ public class Equipment {
 
 	public void setFmodel(String fmodel) {
 		this.fmodel = fmodel;
+	}
+
+	public String getMaintainTemplateId() {
+		return maintainTemplateId;
+	}
+
+	public void setMaintainTemplateId(String maintainTemplateId) {
+		this.maintainTemplateId = maintainTemplateId;
 	}
 }

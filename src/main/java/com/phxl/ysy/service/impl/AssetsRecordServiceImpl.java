@@ -211,13 +211,4 @@ public class AssetsRecordServiceImpl extends BaseService implements AssetsRecord
 		return rrpairOrderMapper.selectAssetsIsUsable(map);
 	}
 
-	@Override
-	public String getUrl(String orderFstate , String rrpairOrderGuid , String groupName) {
-		if (CustomConst.RrpairOrderFstate.AWAITING_REPAIR.equals(orderFstate)) {
-			return ("http://192.168.31.224:3001/#/waitForRepair/detail?groupName="+groupName+"&id="+rrpairOrderGuid);
-		}else {
-			return ("http://192.168.31.224:3001/#/check/detail/fstate="+orderFstate+"?id="+rrpairOrderGuid+"&groupName="+groupName);
-		}
-	}
-
 }

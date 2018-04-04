@@ -74,10 +74,4 @@ public interface AssetsRecordService extends IBaseService {
 	
 	List<Map<String, Object>> selectAssetsRecordFstate(Map<String, Object> map);
 	
-	/**
-	 * 判断用户扫码之后进入哪个页面
-	 * @param rrpairOrder
-	 * @return
-	 */
-	String getUrl(String orderFstate , String rrpairOrderGuid , String groupName);
 }

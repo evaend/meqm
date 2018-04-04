@@ -154,7 +154,7 @@ public class MessageHandlerUtil {
     private static String buildWelcomeTextMessage(Map<String, String> map) {
         String responseMessageXml;
         String fromUserName = map.get("FromUserName");
-		String domainName = SystemConfig.getProperty("wechat.config.domainName");// domainName
+//		String domainName = SystemConfig.getProperty("wechat.config.domainName");// domainName
         // 开发者微信号
         String toUserName = map.get("ToUserName");
         String EventKey = map.get("EventKey");
@@ -177,7 +177,7 @@ public class MessageHandlerUtil {
                                 "<Content><![CDATA[%s]]></Content>" +
                                 "</xml>",
                         fromUserName, toUserName, getMessageCreateTime(),
-                        "感谢您关注我的个人公众号，请点击链接绑定微信：https://open.weixin.qq.com/connect/oauth2/authorize?appid=wxe1ba6ec9765d99ac&redirect_uri=http%3A%2F%2F"+domainName+"%2Fhome%2FwechatBinding&response_type=code&scope=snsapi_userinfo&state="+EventKey+"#wechat_redirect");
+                        "感谢您关注我的个人公众号，请点击链接绑定微信：https://open.weixin.qq.com/connect/oauth2/authorize?appid=wxa0d673d35aab0631&redirect_uri=http%3A%2F%2Fhsms.com.cn%2Fmeqm%2Fhome%2FwechatBinding&response_type=code&scope=snsapi_userinfo&state="+EventKey+"#wechat_redirect");
         return responseMessageXml;
     }
 

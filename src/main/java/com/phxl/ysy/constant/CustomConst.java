@@ -224,6 +224,30 @@ public class CustomConst {
         put("05", "专业设备");
         put("06", "其他");
     }};
+
+    /**
+     * 经费来源
+     */
+    public final static Map<String,String> sourceFundsMap = new HashMap<String, String>() {{
+        put("01", "通用设备"); 
+        put("02", "自建");
+        put("03", "融资租入");
+        put("04", "接受捐赠");
+        put("05", "盘盈");
+        put("06", "其他");
+    }};
+
+    /**
+     * Excel经费来源
+     */
+    public final static Map<String,String> sourceFundsExcelMap = new HashMap<String, String>() {{
+        put("通用设备","01"); 
+        put("自建","02");
+        put("融资租入","03");
+        put("接受捐赠","04");
+        put("盘盈","05");
+        put("其他","06");
+    }};
     
     /**
      * 资产信息字段修改
@@ -523,5 +547,45 @@ public class CustomConst {
 		public static final String USE_NO_PASS = "66";
 		/** 90、关闭*/
 		public static final String CLOSE = "90";
+    }
+    
+    /**
+     * 设备前端项目域名+端口
+     */
+    public final static String MeqmMobile = "http://hsms.com.cn/meqm/index.jsp";
+    
+    /**
+     * 保养状态
+     */
+    public final static class MaintainFstate{
+    	/** 00、待完成*/
+		public static final String NO_FINISH = "00";
+    	/** 01、已完成*/
+		public static final String FINISH = "01";
+    	/** 02、关闭*/
+		public static final String CLOSE = "02";
+    }
+    
+    /**
+     * 设备是否正常（保养）
+     */
+    public final static class EquipmentFstate{
+		/**01、正常*/
+		public static final String USEFUL = "01";
+		/**00、不正常*/
+		public static final String NO_USEFUL= "00";
+    }
+    
+    public final static class MaintainPlanFstate{
+		/**00、草稿*/
+		public static final String DRAFT = "00";
+		/**20、待执行*/
+		public static final String EXECUTORY = "20";
+		/**30、执行中*/
+		public static final String IN_EXECUTORY = "30";
+		/**40、已执行*/
+		public static final String EXECUTED = "40";
+		/**80、已关闭*/
+		public static final String COLSE = "80";
     }
 }

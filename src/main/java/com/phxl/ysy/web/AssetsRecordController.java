@@ -74,21 +74,9 @@ public class AssetsRecordController {
 	
 	/**
 	 * 查询资产档案列表（包含资产详情基本信息）
-	 * @param assetsRecord 资产编号
-	 * @param equipmetStandarName 资产名称
-	 * @param useFstate 状态
-	 * @param productType 设备分类
-	 * @param spec 设备型号
-	 * @param product 厂商
-	 * @param useDeptCode 使用科室
-	 * @param bDept 管理科室
-	 * @param custodian 责任人
 	 * @param mobile 资产名称/编号
-	 * @param assetsRecordOne 资产编号（查询详情传值）
 	 * @param pagesize
 	 * @param page
-	 * @param request
-	 * @param response
 	 * @param sortField
 	 * @param sortOrder
 	 * @return
@@ -97,17 +85,9 @@ public class AssetsRecordController {
 	@RequestMapping("/selectAssetsList")
 	@ResponseBody
 	public Pager<Map<String, Object>> selectAssetsList(
-//			@RequestParam(value="assetsRecord",required = false) String assetsRecord,
-//			@RequestParam(value="equipmetStandarName",required = false) String equipmetStandarName,
-//			@RequestParam(value="useFstate",required = false) String useFstate,
-//			@RequestParam(value="productType",required = false) String productType,
-//			@RequestParam(value="spec",required = false) String spec,
-//			@RequestParam(value="product",required = false) String product,
-//			@RequestParam(value="useDeptCode",required = false) String useDeptCode,
-//			@RequestParam(value="bDept",required = false) String bDept,
-//			@RequestParam(value="custodian",required = false) String custodian,
-//			@RequestParam(value="assetsRecordOne",required = false) String assetsRecordOne,
 			@RequestParam(value="mobile",required = false) String mobile,
+			@RequestParam(value="productType",required = false) String productType,
+			@RequestParam(value="useDeptGuid",required = false) String useDeptGuid,
 			@RequestParam(value="pagesize",required = false) Integer pagesize,
 			@RequestParam(value="page",required = false) Integer page,
 			@RequestParam(value="sortField",required = false) String sortField,
@@ -119,22 +99,13 @@ public class AssetsRecordController {
 		pager.setPageNum(page == null ? 1 : page);
 		pager.setPageSize(pagesize == null ? 15 : pagesize);
 		if(StringUtils.isNotBlank(sortField) && StringUtils.isNotBlank(sortOrder)){
-//			pager.addQueryParam("resultMapName", "com.phxl.ysy.systemModule.dao.GroupMapper.BaseResultMap");//设置ResultMap映射关系
 			pager.addQueryParam("orderField", sortField);
 			pager.addQueryParam("orderMark", "ascend".equalsIgnoreCase(sortOrder)?"asc":"desc");
 		}
 		
-//		pager.addQueryParam("assetsRecord", assetsRecord);
-//		pager.addQueryParam("equipmetStandarName", equipmetStandarName);
-//		pager.addQueryParam("useFstate", useFstate);
-//		pager.addQueryParam("productType", productType);
-//		pager.addQueryParam("spec", spec);
-//		pager.addQueryParam("product", product);
-//		pager.addQueryParam("useDeptCode", useDeptCode);
-//		pager.addQueryParam("bDept", bDept);
-//		pager.addQueryParam("custodian", custodian);
-//		pager.addQueryParam("assetsRecordOne", assetsRecordOne);
 		pager.addQueryParam("mobile", mobile);
+		pager.addQueryParam("productType", productType);
+		pager.addQueryParam("useDeptGuid", useDeptGuid);
 		
 		List<Map<String, Object>> list = assetsRecordService.selectAssetsList(pager);
 		pager.setRows(list);
@@ -390,19 +361,43 @@ public class AssetsRecordController {
 	@RequestMapping("/selectAssetsRecordFstate")
 	@ResponseBody
 	public ModelAndView selectAssetsRecordFstate(
-			@RequestParam(value="assetsRecordGuid",required = false) String assetsRecordGuid,
-			@RequestParam(value="sessionId",required = false) String sessionId,
+			@RequestParam(value="qrcode",required = false) String qrcode,
+//			@RequestParam(value="sessionId",required = false) String sessionId,
 			HttpServletRequest request,HttpServletResponse response) throws Exception {
-		System.out.println(sessionId);
-		if (StringUtils.isNotBlank(sessionId)) {
-			if (session!=null ) {
-				if (!sessionId.equals(session.getId())) {
-					System.out.println("11111111");
-					session = MySessionContext.getSession(sessionId);
-				}
-			}
+		System.out.println("aaaaaaaaaaaaaaa+"+request.getSession().getId());
+		if (StringUtils.isBlank(qrcode)) {
+			ModelAndView mod = new ModelAndView(
+					new RedirectView(CustomConst.MeqmMobile+"/#/error?errorValue=请扫描资产二维码"));
+			return mod;
+//			response.sendRedirect(CustomConst.MeqmMobile+"/#/error?errorValue=请扫描资产二维码");
+//			throw new ValidationException("请扫描资产二维码");
 		}
-		AssetsRecord assetsRecord = assetsRecordService.find(AssetsRecord.class, assetsRecordGuid);
+//		if (StringUtils.isNotBlank(sessionId)) {
+//			if (session!=null ) {
+//				if (!sessionId.equals(session.getId())) {
+//					session = MySessionContext.getSession(sessionId);
+//				}
+//			}else{
+//				session = MySessionContext.getSession(sessionId);
+//			}
+//		}
+		AssetsRecord aRecord = new AssetsRecord();
+		aRecord.setQrcode(qrcode);
+		AssetsRecord assetsRecord = assetsRecordService.searchEntity(aRecord);
+		if (assetsRecord==null) {
+			ModelAndView mod = new ModelAndView(
+					new RedirectView(CustomConst.MeqmMobile+"#/error?errorValue=当前资产信息不存在"));
+			return mod;
+//			response.sendRedirect(CustomConst.MeqmMobile+"/#/error?errorValue=当前资产信息不存在");
+//			throw new ValidationException("当前资产信息不存在");
+		}
+		if (session.getAttribute(LoginUser.SESSION_USERID)==null) {
+			ModelAndView mod = new ModelAndView(
+					new RedirectView(CustomConst.MeqmMobile+"#/error?errorValue=当前session失效，请重新登录"));
+			return mod;
+//			response.sendRedirect(CustomConst.MeqmMobile+"/#/error?errorValue=当前session失效，请重新登录");
+//			throw new ValidationException("当前session失效，请重新登录");
+		}
 		String groupName = "";
 		GroupUserKey groupUserKey = new GroupUserKey();
 		groupUserKey.setUserId(session.getAttribute(LoginUser.SESSION_USERID).toString());
@@ -417,39 +412,48 @@ public class AssetsRecordController {
 		map.put("orgId", session.getAttribute(LoginUser.SESSION_USER_ORGID));
 		List<Map<String, Object>> list = assetsRecordService.selectAssetsRecordFstate(map);
 		if (list==null || list.size()==0) {
-			System.out.println("http://192.168.0.244:3001/#/repair/repairReg?id="
-					+assetsRecordGuid+"&userId="+session.getAttribute(LoginUser.SESSION_USERID)
-					+"&sessionId="+sessionId);
-			ModelAndView mod = new ModelAndView(new RedirectView("http://192.168.0.244:3001/#/repair/repairReg?id="
-			+assetsRecordGuid+"&userId="+session.getAttribute(LoginUser.SESSION_USERID)
-			+"&sessionId="+sessionId));
+			ModelAndView mod = new ModelAndView(
+					new RedirectView(CustomConst.MeqmMobile+"#/repair/repairReg/"
+						+session.getAttribute(LoginUser.SESSION_USERID)+"/"+ assetsRecord.getAssetsRecordGuid()+"/"
+						+groupName+"/1"));
 			return mod;
-//			response.sendRedirect("http://192.168.31.224:3001/#/repair/repairReg?id="+assetsRecordGuid+"&userId="+session.getAttribute(LoginUser.SESSION_USERID));
 		}else {
 			Map<String, Object> rrpairMap = list.get(0);
 			if (CustomConst.RrpairOrderFstate.AWAITING_REPAIR.equals(rrpairMap.get("orderFstate"))) {
-				System.out.println(new RedirectView("http://192.168.0.244:3001/#/waitForRepair/detail?groupName="
-						+groupName+"&id="+rrpairMap.get("rrpairOrderGuid").toString()
-						+"&userId="+session.getAttribute(LoginUser.SESSION_USERID)
-						+"&sessionId="+sessionId));
-				ModelAndView mod = new ModelAndView(new RedirectView("http://192.168.0.244:3001/#/waitForRepair/detail?groupName="
-				+groupName+"&id="+rrpairMap.get("rrpairOrderGuid").toString()
-				+"&userId="+session.getAttribute(LoginUser.SESSION_USERID)
-				+"&sessionId="+sessionId));
+				ModelAndView mod = new ModelAndView(
+						new RedirectView(CustomConst.MeqmMobile+"#/waitForRepair/detail/"
+							+session.getAttribute(LoginUser.SESSION_USERID)+"/"
+							+rrpairMap.get("rrpairOrderGuid").toString()+"/"
+							+groupName+"/1"));
 				return mod;
-//				response.sendRedirect("http://192.168.31.224:3001/#/waitForRepair/detail?groupName="+groupName+"&id="+rrpairMap.get("rrpairOrderGuid").toString()+"&userId="+session.getAttribute(LoginUser.SESSION_USERID));
 			}else {
-				System.out.println("http://192.168.0.244:3001/#/check/detail?fstate="
-						+rrpairMap.get("orderFstate").toString()+"&id="+rrpairMap.get("rrpairOrderGuid").toString()
-						+"&groupName="+groupName+"&userId="+session.getAttribute(LoginUser.SESSION_USERID)
-						+"&sessionId="+sessionId);
-				ModelAndView mod = new ModelAndView(new RedirectView("http://192.168.0.244:3001/#/check/detail?fstate="
-						+rrpairMap.get("orderFstate").toString()+"&id="+rrpairMap.get("rrpairOrderGuid").toString()
-						+"&groupName="+groupName+"&userId="+session.getAttribute(LoginUser.SESSION_USERID)
-						+"&sessionId="+sessionId));
+				ModelAndView mod = new ModelAndView(
+						new RedirectView(CustomConst.MeqmMobile+"#/check/detail/"
+							+session.getAttribute(LoginUser.SESSION_USERID)+"/"
+							+rrpairMap.get("orderFstate").toString()+"/"
+							+rrpairMap.get("rrpairOrderGuid").toString()+"/"
+							+groupName+"/1"));
 				return mod;
-//				response.sendRedirect("http://192.168.31.224:3001/#/check/detail/fstate="+rrpairMap.get("orderFstate").toString()+"?id="+rrpairMap.get("rrpairOrderGuid").toString()+"&groupName="+groupName+"&userId="+session.getAttribute(LoginUser.SESSION_USERID));
 			}
 		}
 	}
+	
+//	@RequestMapping("/selectEquipmentList")
+//	@ResponseBody
+//	public Pager<Map<String, Object>> selectEquipmentList(
+//			@RequestParam(value="productType",required = false) String productType,
+//			@RequestParam(value="deptGuid",required = false) String deptGuid,
+//			@RequestParam(value="equipmentStandardName",required = false) String equipmentStandardName,
+//			@RequestParam(value="page",required = false) Integer page,
+//			@RequestParam(value="pagesize",required = false) Integer pagesize,
+//			HttpServletRequest request,HttpServletResponse response) {
+//		Pager<Map<String, Object>> pager = new Pager(true);
+//		pager.setPageNum(page == null ? 1 : page);
+//		pager.setPageSize(pagesize == null ? 15 : pagesize);
+//		pager.addQueryParam("productType", productType);
+//		pager.addQueryParam("deptGuid", deptGuid);
+//		pager.addQueryParam("equipmentStandardName", equipmentStandardName);
+//		return pager;
+//	}
+	
 }

@@ -61,7 +61,7 @@ public class CheckLoginServlet implements Filter {
 		String contextPath = request.getContextPath();
 		String serviceName = request.getServerName();
 
-		if(request.getParameter("currentUserid")!=null){filterChain.doFilter(request, response);return;}
+//		if(request.getParameter("currentUserid")!=null){filterChain.doFilter(request, response);return;}
 
 		 String JSESSIONID = request.getSession().getId();
 		 Cookie cookie = new Cookie("JSESSIONID",
@@ -83,7 +83,6 @@ public class CheckLoginServlet implements Filter {
 					}
 				}
 			}
-		 
 		filterChain.doFilter(request, response);
 	}
 

@@ -54,40 +54,54 @@ public class EquipmentAdditionalServiceImpl  extends BaseService implements Equi
 			if (StringUtils.isNotBlank(orgId) ) {
 				equipmentDto.setOrgId(Long.valueOf(orgId));
 			}
-			
+//			//资产型号
+//			if (equipmentDto.getFmodel()!=null) {
+//				equipmentDto.getFmodel().replace("<", "(");
+//				equipmentDto.getFmodel().replace(">", ")");
+//			}
+			//资产分类
 			if(equipmentDto.getProductType() != null){
 				String productType = CustomConst.ProductTypeMap.get(equipmentDto.getProductType());//获取资产分类的转化值
 				equipmentDto.setProductType(productType);
 			}
-			if(equipmentDto.getDepreciationType() != null){
-				String depreciationType = CustomConst.DepreciationTypeMap.get(equipmentDto.getDepreciationType());//获取折旧算法的转化值
-				equipmentDto.setDepreciationType(depreciationType);
+//			if(equipmentDto.getDepreciationType() != null){	//折旧方式
+//				String depreciationType = CustomConst.DepreciationTypeMap.get(equipmentDto.getDepreciationType());//获取折旧算法的转化值
+//				equipmentDto.setDepreciationType(depreciationType);
+//			}
+			equipmentDto.setDepreciationType(CustomConst.DepreciationType.AVERAGE_LIFE_OF);
+			//经费来源
+			if (equipmentDto.getSourceFunds() != null) {
+				String sourceFunds = CustomConst.sourceFundsExcelMap.get(equipmentDto.getSourceFunds());
+				if (sourceFunds==null) {
+					equipmentDto.setSourceFunds(CustomConst.SourceFunds.OTHER);
+				}
 			}
 //			if(equipmentDto.getRepairFlag() != null){
 //				String repairFlag = CustomConst.RepairFlagMap.get(equipmentDto.getRepairFlag());//获取维修标志的转化值
 //				equipmentDto.setRepairFlag(repairFlag);
 //			}
-			if(equipmentDto.getUseDeptCode() != null){
+			//科室
+			if(StringUtils.isNotBlank(equipmentDto.getUseDeptCode())){
 				OrgDept deptnew = new OrgDept();
 				deptnew.setDeptName(equipmentDto.getUseDeptCode());
 				OrgDept deptInfo = this.searchEntity(deptnew);
 				if (deptInfo!=null) {
-					equipmentDto.setUseDeptCode(deptInfo.getDeptCode());
+					equipmentDto.setUseDeptCode(deptInfo.getDeptGuid());
 				}else{
 					equipmentDto.setUseDeptCode(null);
 				}
 			}
-			if(equipmentDto.getbDeptCode() != null){
+			if(StringUtils.isNotBlank(equipmentDto.getbDeptCode())){
 				OrgDept deptnew = new OrgDept();
 				deptnew.setDeptName(equipmentDto.getbDeptCode());
 				OrgDept deptInfo = this.searchEntity(deptnew);
 				if (deptInfo!=null) {
-					equipmentDto.setbDeptCode(deptInfo.getDeptCode());
+					equipmentDto.setbDeptCode(deptInfo.getDeptGuid());
 				}else{
 					equipmentDto.setbDeptCode(null);
 				}
 			}
-			if(equipmentDto.getForgName() != null){
+			if(StringUtils.isNotBlank(equipmentDto.getForgName())){
 				OrgInfo orgInfo = new OrgInfo();
 				orgInfo.setOrgName(equipmentDto.getForgName().toString());
 				OrgInfo org = this.searchEntity(orgInfo);
@@ -95,6 +109,17 @@ public class EquipmentAdditionalServiceImpl  extends BaseService implements Equi
 					equipmentDto.setfOrgId(org.getOrgId());
 				}else{
 					equipmentDto.setfOrgId(null);
+				}
+			}
+			if (StringUtils.isNotBlank(equipmentDto.getRegisterNo())) {
+				Register register = new Register();
+				register.setRegisterNo(equipmentDto.getRegisterNo());
+				Register register2 = searchEntity(register);
+				if (register2!=null) {
+					equipmentDto.setCertGuid(register2.getCertGuid());
+				}else {
+					equipmentDto.setRegisterNo(null);
+					equipmentDto.setCertGuid(null);
 				}
 			}
 			//生成资产编号

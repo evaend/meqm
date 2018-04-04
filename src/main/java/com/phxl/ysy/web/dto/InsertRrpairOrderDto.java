@@ -23,6 +23,7 @@ public class InsertRrpairOrderDto {
 	private String repairContentType;
 	private String repairContentTyp;
 	private String repairResult;
+	private String quotedPrice;
 	private String actualPrice;
 	private String tfRemarkWx;
 	private String offCause;
@@ -147,6 +148,12 @@ public class InsertRrpairOrderDto {
 	}
 	public void setRepairResult(String repairResult) {
 		this.repairResult = repairResult;
+	}
+	public String getQuotedPrice() {
+		return quotedPrice;
+	}
+	public void setQuotedPrice(String quotedPrice) {
+		this.quotedPrice = quotedPrice;
 	}
 	public String getActualPrice() {
 		return actualPrice;

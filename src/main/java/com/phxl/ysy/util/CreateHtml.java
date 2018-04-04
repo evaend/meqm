@@ -150,7 +150,7 @@ public class CreateHtml{
                 XMLWorker worker = new XMLWorker(css, true);
                 XMLParser p = new XMLParser(worker);
                 //第一页
-                String qrcode = data.get("assetsRecordGuid").toString();
+                String qrcode = data.get("qrcode").toString();
                 String str_1 = htmlFileContent.replace("${qrImage}", "<img src=\"data:image/png;base64,"+createQRCode(qrcode)+"\" style=\"width:87px;height: 87px;\" />");
                 System.out.println("STR_1:"+str_1);               
                 p.parse(new ByteArrayInputStream(str_1.getBytes()));

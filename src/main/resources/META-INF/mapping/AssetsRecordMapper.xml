@@ -89,7 +89,10 @@
     	a.qrcode "qrcode" , 
 		e.fmodel "fmodel" , 
 		to_char(a.buy_date,'yyyy-MM-dd') "buyDate" , 
-		(select dept_name from td_org_dept where dept_guid = a.b_dept_guid) "bDept" 
+		(select dept_name from td_org_dept where dept_guid = a.b_dept_guid) "bDept" , 
+		(select count(*) from td_maintain_plan_detail 
+			where assets_record_m = a.assets_record_m 
+			and (execute_date is null or execute_date = '' )) "planNum"
 		from td_assets_record a left join td_equipment e
 		on (a.equipment_code = e.equipment_code)
   		where 1 = 1 
@@ -101,63 +104,59 @@
   		<if test="conditiions.assetsRecordGuid != null and conditiions.assetsRecordGuid != ''">
   			and a.assets_record_m = #{conditiions.assetsRecordGuid}
   		</if>
+  		<if test="conditiions.productType != null and conditiions.productType != ''">
+  			and a.product_Type = #{conditiions.productType}
+  		</if>
+  		<if test="conditiions.useDeptGuid != null and conditiions.useDeptGuid != ''">
+  			and a.use_dept_GUID = #{conditiions.useDeptGuid}
+  		</if>
   		<if test="conditiions != null and conditiions.orderMark != null and conditiions.orderField != null and conditiions.orderField!=''">
-<!--   			<if test="conditiions.orderField == 'useDept'"> -->
-<!-- 	  			order by (select dept_name from td_org_dept where dept_code = a.use_dept_code) ${conditiions.orderMark} -->
-<!--   			</if> -->
-<!--   			<if test="conditiions.orderField == 'bDept'"> -->
-<!-- 	  			order by (select dept_name from td_org_dept where dept_code = a.b_dept_code) ${conditiions.orderMark} -->
-<!--   			</if> -->
-<!--   			<if test="conditiions.orderField == 'equipmentStandardName or conditiions.orderField == 'spec''"> -->
-<!-- 	  			order by e.[orderField] ${conditiions.orderMark} -->
-<!--   			</if> -->
-<!--   			<if test="conditiions.orderField != 'useDept' and conditiions.orderField != 'bDept' and conditiions.orderField != 'equipmentStandardName' and conditiions.orderField != 'spec'">  -->
-<!--   				order by a.[orderField] ${conditiions.orderMark} -->
-<!--   			</if> -->
   			order by "${conditiions.orderField}" ${conditiions.orderMark}
   		</if>
+  		
   </select>
 
   <!-- 查询资产档案详情 -->
   <select id="selectAssetsRecordDetail" parameterType="com.phxl.core.base.entity.Pager" resultType="java.util.Map">
   	select 
-		a.assets_record "assetsRecord" ,
-		e.equipment_standard_name "equipmentStandardName" ,
+		a.assets_record "assetsRecord" , 
+		e.equipment_standard_name "equipmentStandardName" , 
 		a.product_country "productCountry" , 
-		e.spec "spec" ,
+		e.spec "spec" , 
 		e.fmodel "fmodel" , 
 		a.use_fstate "useFstate" , 
-		a.product_type "productType" ,
-		e.register_no "certGuid" ,
-		a.product "product" ,
+		a.product_type "productType" , 
+		e.cert_Guid "certGuid" , 
+		e.register_no "registerNo" , 
+		a.product "product" , 
 		a.use_dept_guid "useDeptCode" , 
 		(select dept_name from td_org_dept where dept_guid = a.use_dept_guid) "useDept" , 
-		a.deposit "deposit" ,
+		a.deposit "deposit" , 
 		a.b_dept_guid "bDeptCode" , 
 		(select dept_name from td_org_dept where dept_guid = a.b_dept_guid) "bDept" , 
-		a.custodian "custodian" ,
-		a.buy_price "buyPrice" ,
-		a.install_price "installPrice" ,
+		a.custodian "custodian" , 
+		a.buy_price "buyPrice" , 
+		a.install_price "installPrice" , 
 		a.source_funds "sourceFunds" , 
-		a.production_date "productionDate" ,
+		a.production_date "productionDate" , 
 <!-- 		a.enable_date "enableDate" , -->
-		a.recodr_date "recodrDate" ,
-		a.acct_date "acctDate" ,
-		a.use_limit "useLimit" ,
-		a.depreciation_limit "depreciationLimit" ,
-		a.depreciation_type "depreciationType" ,
-		a.residual_value "residualValue" ,
-		a.qa_level "qalevel" ,
-		a.maintain_day "maintainDay" ,
+		a.recodr_date "recodrDate" , 
+		a.acct_date "acctDate" , 
+		a.use_limit "useLimit" , 
+		a.depreciation_limit "depreciationLimit" , 
+		a.depreciation_type "depreciationType" , 
+		a.residual_value "residualValue" , 
+		a.qa_level "qalevel" , 
+		a.maintain_day "maintainDay" , 
 <!-- 		a.out_aa_org "outAaOrg" , -->
 <!-- 		a.repair_flag "repairFlag" , -->
-		a.OUT_RRPAIR_USERNAME "outRrpairUserName" ,
+		a.OUT_RRPAIR_USERNAME "outRrpairUserName" , 
 		a.out_rrpair_phone "outRrpairPhone" , 
-		a.equipment_code "equipmentCode" ,
-		e.equipment_name "equipmentName" ,
-		a.deposit "address" ,
+		a.equipment_code "equipmentCode" , 
+		e.equipment_name "equipmentName" , 
+		a.deposit "address" , 
 		(select add_months(a.production_date,(12*a.use_limit) ) from dual) "validity" , 
-		a.tf_accessory "tfAccessory",
+		a.tf_accessory "tfAccessory" , 
 		to_char(a.buy_date,'yyyy-MM-dd') "buyDate" , 
 		a.rrpair_type "rrpairType" , 
 	    a.maintain_type "maintainType" , 
@@ -258,7 +257,7 @@
       #{list[${index}].deposit,jdbcType=VARCHAR}, #{list[${index}].bDeptCode,jdbcType=VARCHAR}, 
       #{list[${index}].certGuid,jdbcType=VARCHAR}, #{list[${index}].tfBrand,jdbcType=VARCHAR}, 
       #{list[${index}].product,jdbcType=VARCHAR}, #{list[${index}].productCountry,jdbcType=VARCHAR}, 
-      #{list[${index}].productionDate,jdbcType=TIMESTAMP}, #{list[${index}].fOrgId,jdbcType=TIMESTAMP}, 
+      #{list[${index}].productionDate,jdbcType=TIMESTAMP}, #{list[${index}].fOrgId,jdbcType=DECIMAL}, 
       #{list[${index}].buyDate,jdbcType=TIMESTAMP}, #{list[${index}].contractNo,jdbcType=TIMESTAMP}, 
       #{list[${index}].buyPrice,jdbcType=VARCHAR}, #{list[${index}].qrCode,jdbcType=VARCHAR} , 
       #{list[${index}].installPrice,jdbcType=VARCHAR}, #{list[${index}].sourceFunds,jdbcType=VARCHAR}, 
@@ -286,13 +285,14 @@
   
   <insert id="importEquipments">
   insert into td_equipment (EQUIPMENT_CODE,EQUIPMENT_NAME,METERING_UNIT, 
-  	 EQUIPMENT_STANDARD_NAME,FMODEL,SPEC)
+  	 EQUIPMENT_STANDARD_NAME,FMODEL,SPEC,REGISTER_NO,CERT_GUID)
   select * from 
     <foreach collection="list" index="index" open="(" close=")" separator="union all"> 
     select #{list[${index}].equipmentCode,jdbcType=VARCHAR} , 
     	#{list[${index}].equipmentName,jdbcType=VARCHAR} , #{list[${index}].meteringUnit,jdbcType=TIMESTAMP}, 
         #{list[${index}].equipmentStandardName,jdbcType=VARCHAR}, 
-        #{list[${index}].fmodel,jdbcType=VARCHAR}, #{list[${index}].spec,jdbcType=VARCHAR}
+        #{list[${index}].fmodel,jdbcType=VARCHAR}, #{list[${index}].spec,jdbcType=VARCHAR},
+        #{list[${index}].registerNo,jdbcType=VARCHAR} , #{list[${index}].certGuid,jdbcType=VARCHAR}
      from dual
      </foreach> 
   </insert>

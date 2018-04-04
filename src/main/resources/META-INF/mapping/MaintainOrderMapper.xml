@@ -2,11 +2,12 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
 <mapper namespace="com.phxl.ysy.dao.MaintainOrderMapper" >
   <resultMap id="BaseResultMap" type="com.phxl.ysy.entity.MaintainOrder" >
+    <id column="MAINTAIN_GUID" property="maintainGuid" jdbcType="VARCHAR" />
     <result column="RRPAIR_ORDER" property="rrpairOrder" jdbcType="VARCHAR" />
-    <result column="ASSETS_RECORD" property="assetsRecord" jdbcType="VARCHAR" />
+    <result column="ASSETS_RECORD_M" property="assetsRecordGuid" jdbcType="VARCHAR" />
     <result column="EQUIPMENT_CODE" property="equipmentCode" jdbcType="VARCHAR" />
     <result column="U_ORG" property="uOrg" jdbcType="VARCHAR" />
-    <result column="USE_DEPT_CODE" property="useDeptCode" jdbcType="VARCHAR" />
+    <result column="USE_DEPT_GUID" property="useDeptGuid" jdbcType="VARCHAR" />
     <result column="LAST_MAINTAIN_DATE" property="lastMaintainDate" jdbcType="DATE" />
     <result column="MAINTAIN_DATE" property="maintainDate" jdbcType="DATE" />
     <result column="ENGINEER_USERID" property="engineerUserid" jdbcType="VARCHAR" />
@@ -18,122 +19,77 @@
     <result column="MAINTAIN_CYCLE" property="maintainCycle" jdbcType="VARCHAR" />
     <result column="REMARK" property="remark" jdbcType="VARCHAR" />
     <result column="TF_ACCESSORY" property="tfAccessory" jdbcType="VARCHAR" />
+    <result column="MAINTAIN_TYPE" property="maintainType" jdbcType="VARCHAR" />
+    <result column="CLINICAL_RISK" property="clinicalRisk" jdbcType="VARCHAR" />
+    <result column="NEXT_MAINTAIN_DATE" property="nextMaintainDate" jdbcType="DATE" />
+    <result column="END_MAINTAIN_DATE" property="endMaintainDate" jdbcType="DATE" />
+    <result column="FSTATE" property="fstate" jdbcType="VARCHAR" />
+    <result column="MAINTAIN_NO" property="maintainNo" jdbcType="VARCHAR" />
+    <result column="CREATE_USERID" property="createUserid" jdbcType="VARCHAR" />
+    <result column="CREATE_TIME" property="createTime" jdbcType="DATE" />
+    <result column="MODIFY_USERID" property="modifyUserid" jdbcType="VARCHAR" />
+    <result column="MODIFIY_TIME" property="modifiyTime" jdbcType="DATE" />
   </resultMap>
-  <insert id="insert" parameterType="com.phxl.ysy.entity.MaintainOrder" >
-    insert into GDZC.TD_MAINTAIN_ORDER (RRPAIR_ORDER, ASSETS_RECORD, EQUIPMENT_CODE, 
-      U_ORG, USE_DEPT_CODE, LAST_MAINTAIN_DATE, 
-      MAINTAIN_DATE, ENGINEER_USERID, ENGINEER_NAME, 
-      MAINTAIN_PRICE, MAINTAIN_METHOD, EQUIPMENT_FSTATE, 
-      MAINTAIN_REASON, MAINTAIN_CYCLE, REMARK, 
-      TF_ACCESSORY)
-    values (#{rrpairOrder,jdbcType=VARCHAR}, #{assetsRecord,jdbcType=VARCHAR}, #{equipmentCode,jdbcType=VARCHAR}, 
-      #{uOrg,jdbcType=VARCHAR}, #{useDeptCode,jdbcType=VARCHAR}, #{lastMaintainDate,jdbcType=DATE}, 
-      #{maintainDate,jdbcType=DATE}, #{engineerUserid,jdbcType=VARCHAR}, #{engineerName,jdbcType=VARCHAR}, 
-      #{maintainPrice,jdbcType=DECIMAL}, #{maintainMethod,jdbcType=VARCHAR}, #{equipmentFstate,jdbcType=VARCHAR}, 
-      #{maintainReason,jdbcType=VARCHAR}, #{maintainCycle,jdbcType=VARCHAR}, #{remark,jdbcType=VARCHAR}, 
-      #{tfAccessory,jdbcType=VARCHAR})
-  </insert>
-  <insert id="insertSelective" parameterType="com.phxl.ysy.entity.MaintainOrder" >
-    insert into GDZC.TD_MAINTAIN_ORDER
-    <trim prefix="(" suffix=")" suffixOverrides="," >
-      <if test="rrpairOrder != null" >
-        RRPAIR_ORDER,
-      </if>
-      <if test="assetsRecord != null" >
-        ASSETS_RECORD,
-      </if>
-      <if test="equipmentCode != null" >
-        EQUIPMENT_CODE,
-      </if>
-      <if test="uOrg != null" >
-        U_ORG,
-      </if>
-      <if test="useDeptCode != null" >
-        USE_DEPT_CODE,
-      </if>
-      <if test="lastMaintainDate != null" >
-        LAST_MAINTAIN_DATE,
-      </if>
-      <if test="maintainDate != null" >
-        MAINTAIN_DATE,
-      </if>
-      <if test="engineerUserid != null" >
-        ENGINEER_USERID,
-      </if>
-      <if test="engineerName != null" >
-        ENGINEER_NAME,
-      </if>
-      <if test="maintainPrice != null" >
-        MAINTAIN_PRICE,
-      </if>
-      <if test="maintainMethod != null" >
-        MAINTAIN_METHOD,
-      </if>
-      <if test="equipmentFstate != null" >
-        EQUIPMENT_FSTATE,
-      </if>
-      <if test="maintainReason != null" >
-        MAINTAIN_REASON,
-      </if>
-      <if test="maintainCycle != null" >
-        MAINTAIN_CYCLE,
-      </if>
-      <if test="remark != null" >
-        REMARK,
-      </if>
-      <if test="tfAccessory != null" >
-        TF_ACCESSORY,
-      </if>
-    </trim>
-    <trim prefix="values (" suffix=")" suffixOverrides="," >
-      <if test="rrpairOrder != null" >
-        #{rrpairOrder,jdbcType=VARCHAR},
-      </if>
-      <if test="assetsRecord != null" >
-        #{assetsRecord,jdbcType=VARCHAR},
-      </if>
-      <if test="equipmentCode != null" >
-        #{equipmentCode,jdbcType=VARCHAR},
-      </if>
-      <if test="uOrg != null" >
-        #{uOrg,jdbcType=VARCHAR},
-      </if>
-      <if test="useDeptCode != null" >
-        #{useDeptCode,jdbcType=VARCHAR},
-      </if>
-      <if test="lastMaintainDate != null" >
-        #{lastMaintainDate,jdbcType=DATE},
-      </if>
-      <if test="maintainDate != null" >
-        #{maintainDate,jdbcType=DATE},
-      </if>
-      <if test="engineerUserid != null" >
-        #{engineerUserid,jdbcType=VARCHAR},
-      </if>
-      <if test="engineerName != null" >
-        #{engineerName,jdbcType=VARCHAR},
-      </if>
-      <if test="maintainPrice != null" >
-        #{maintainPrice,jdbcType=DECIMAL},
-      </if>
-      <if test="maintainMethod != null" >
-        #{maintainMethod,jdbcType=VARCHAR},
-      </if>
-      <if test="equipmentFstate != null" >
-        #{equipmentFstate,jdbcType=VARCHAR},
-      </if>
-      <if test="maintainReason != null" >
-        #{maintainReason,jdbcType=VARCHAR},
-      </if>
-      <if test="maintainCycle != null" >
-        #{maintainCycle,jdbcType=VARCHAR},
-      </if>
-      <if test="remark != null" >
-        #{remark,jdbcType=VARCHAR},
-      </if>
-      <if test="tfAccessory != null" >
-        #{tfAccessory,jdbcType=VARCHAR},
-      </if>
-    </trim>
-  </insert>
+
+	<select id="selectMaintainOrderList" resultType="java.util.HashMap" parameterType="com.phxl.core.base.entity.Pager" >
+	select tmo.maintain_guid "maintainGuid" ,	--保养单guid
+		tmo.maintain_no "maintainNo",	--保养单编号
+		tmo.fstate "fstate",	--保养单状态
+		(select equipment_name from td_equipment where equipment_code = tmo.equipment_code) "equipmentName",	--设备名称
+		tmo.maintain_type "maintainType",	--保养类型
+		tmo.maintain_date "maintainDate",	--保养开始时间
+		tmo.end_maintain_date "endMaintainDate",	--保养结束时间
+	    tmo.next_maintain_date "nextMaintainDate",	--下次保养时间
+		(select user_name from ts_user_info where user_id = tmo.modify_userid ) "modifyUserName"	--操作员
+		from td_maintain_order tmo 
+		left join td_equipment e on (tmo.equipment_code = e.equipment_code )
+		left join td_assets_record tar on (tmo.assets_record_m = tar.assets_record_m )
+		where tmo.u_org = #{conditiions.orgId} 
+		<if test="conditiions.maintainNo != null and conditiions.maintainNo != ''">
+			and ( regexp_like(tmo.maintain_no , #{conditiions.maintainNo}) 
+				or regexp_like(e.equipment_standard_name , #{conditiions.maintainNo}) 
+				or regexp_like(tar.assets_record , #{conditiions.maintainNo}) 
+				)
+		</if>
+		order by modifiy_time desc
+	</select>
+	
+	<!-- 查询保养详情 -->
+	<select id="selectMaintainOrderDetail" resultType="java.util.HashMap" parameterType="com.phxl.core.base.entity.Pager" >
+	select tmo.maintain_guid "maintainGuid" ,	--保养单guid
+    	tmo.assets_record_m "assetsRecordGuid",	--资产档案guid
+    	tar.assets_record "assetsRecord",	--资产编号
+    	tar.use_fstate "useFstate",	--设备状态
+		tmo.maintain_no "maintainNo",	--保养单编号
+		tmo.fstate "fstate",	--保养单状态
+	    tmo.engineer_name "engineerName",	--保养人
+	    tmo.maintain_type "maintainType",	--保养单类型
+	    tmo.clinical_risk "clinicalRisk",	--临床风险等级
+		tmo.maintain_date "maintainDate",	--保养开始时间
+		tmo.end_maintain_date "endMaintainDate",	--保养结束时间
+	    tmo.next_maintain_date "nextMaintainDate",	--下次保养时间
+	    tmo.remark "remark",	--备注
+	    tmo.tf_accessory "tfAccessory"	--附件（以;分隔）
+		from td_maintain_order tmo 
+		left join td_equipment e on (tmo.equipment_code = e.equipment_code )
+		left join td_assets_record tar on (tmo.assets_record_m = tar.assets_record_m )
+		where 1 = 1 
+		<if test="conditiions.maintainGuid != null and conditiions.maintainGuid != ''">
+			and tmo.maintain_guid = #{conditiions.maintainGuid}
+		</if>
+	</select>
+	
+	<!-- 查询保养工单的保养项目列表 -->
+	<select id="selectMaintainDetailList" resultType="java.util.HashMap" parameterType="com.phxl.core.base.entity.Pager" >
+	select tmod.maintain_order_detail_guid "maintainOrderDetailGuid" , --保养明细id
+	  	tmod.maintain_guid "maintainGuid" ,  --保养工单id
+	  	tmod.maintain_type_id "maintainTypeId" , --保养项目id
+		(select maintain_type_name from td_maintain_type where maintain_type_id = tmod.maintain_type_id ) "templateTypeName" , --保养项目名称
+		tmod.maintain_result "maintainResult" , --结果
+  		tmod.tf_remark "tfRemark" --备注
+		FROM td_maintain_order_detail tmod 
+		left join td_maintain_order tmo on (tmod.maintain_guid = tmo.maintain_guid) 
+		where tmo.maintain_guid = #{conditiions.maintainGuid} 
+	</select>
+	
 </mapper>

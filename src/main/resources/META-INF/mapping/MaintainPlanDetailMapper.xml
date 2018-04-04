@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.phxl.ysy.dao.MaintainPlanDetailMapper" >
+  <resultMap id="BaseResultMap" type="com.phxl.ysy.entity.MaintainPlanDetail" >
+    <id column="MAINTAIN_PLAN_DETAIL_ID" property="maintainPlanDetailId" jdbcType="VARCHAR" />
+    <result column="MAINTAIN_PLAN_ID" property="maintainPlanId" jdbcType="VARCHAR" />
+    <result column="MAINTAIN_PLAN_NO" property="maintainPlanNo" jdbcType="VARCHAR" />
+    <result column="ASSETS_RECORD_M" property="assetsRecordGuid" jdbcType="VARCHAR" />
+    <result column="FSTATE" property="fstate" jdbcType="VARCHAR" />
+    <result column="EQUIPMENT_CODE" property="equipmentCode" jdbcType="VARCHAR" />
+    <result column="MAINTAIN_DATE" property="maintainDate" jdbcType="DATE" />
+    <result column="EXECUTE_DATE" property="executeDate" jdbcType="DATE" />
+    <result column="EXECUTE_USERID" property="executeUserid" jdbcType="VARCHAR" />
+    <result column="EXECUTE_USERNAME" property="executeUsername" jdbcType="VARCHAR" />
+    <result column="CREATE_TIME" property="createTime" jdbcType="DATE" />
+  </resultMap>
+  <sql id="Base_Column_List" >
+    MAINTAIN_PLAN_DETAIL_ID, MAINTAIN_PLAN_ID, ASSETS_RECORD_M, EQUIPMENT_CODE, MAINTAIN_DATE, 
+    EXECUTE_DATE
+  </sql>
+</mapper>

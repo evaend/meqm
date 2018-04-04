@@ -47,6 +47,9 @@
 		<if test="conditiions.orderMark != null and conditiions.orderMark != '' and conditiions.orderField != null and conditiions.orderField!=''">
   			order by "${conditiions.orderField}" ${conditiions.orderMark}
   		</if>
+		<if test="(conditiions.orderMark == null or conditiions.orderMark == '') and (conditiions.orderField == null or conditiions.orderField == '')">
+  			order by op_time desc
+  		</if>
   </select>
   
 </mapper>

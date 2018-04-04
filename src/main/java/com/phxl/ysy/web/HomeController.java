@@ -10,6 +10,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
+import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -22,6 +23,7 @@ import com.phxl.core.base.util.BaseUtils;
 import com.phxl.core.base.util.LocalAssert;
 import com.phxl.core.base.util.SHAUtil;
 import com.phxl.core.base.util.SystemConfig;
+import com.phxl.ysy.constant.CustomConst;
 import com.phxl.ysy.constant.CustomConst.LoginUser;
 import com.phxl.ysy.service.weixin.WeixinAPIInterface;
 import com.phxl.ysy.entity.Group;
@@ -35,7 +37,6 @@ import com.phxl.ysy.service.UserService;
 
 /**
  * ysynet门户网站跳转Controller
- * 
  * @author Administrator
  * @Create Date	2016-1-11
  * @Modified By
@@ -65,7 +66,10 @@ public class HomeController {
 			throws Exception{
 		String code = request.getParameter("code");
 		String EventKey = request.getParameter("state");
-		EventKey = EventKey.substring(EventKey.length()-1, EventKey.length());
+		//如果用户权限code不为空，则获取code的值
+		if (StringUtils.isNotBlank(EventKey)) {
+			EventKey = EventKey.substring(EventKey.length()-1, EventKey.length());
+		}
 		String appid = SystemConfig.getProperty("wechat.config.appid");// appid
 		String secret = SystemConfig.getProperty("wechat.config.secret");// secret
 		//获取用户的openid
@@ -91,13 +95,13 @@ public class HomeController {
 			//跨域session同步 begin
 			String JSESSIONID = request.getSession().getId();	
 			Cookie cookie = new Cookie("JSESSIONID", JSESSIONID);
-			cookie.setPath("/");
+//			cookie.setPath("/");
 			response.addCookie(cookie);
 			String[] strArray = { String.valueOf(System.currentTimeMillis()), String.valueOf(Math.random()) };
 			String shastr = BaseUtils.sort(strArray);// 将待加密的字符组排序并组成一个字符串
 			String newToken = SHAUtil.shaEncode(shastr);// 字符串加密
 			Cookie cookieToken = new Cookie("token", newToken);// 新的token返回到token
-			cookieToken.setPath("/");
+//			cookieToken.setPath("/");
 			response.addCookie(cookieToken);
 			Queue<String> tokenQueue = new LinkedList<String>();
 		    tokenQueue.offer(newToken);
@@ -137,27 +141,28 @@ public class HomeController {
 				}
 				resultMap.put("userInfo", userInfo);
 			}
-//			ModelAndView mod = new ModelAndView(new RedirectView("http://192.168.0.109:3001/#/workplace?userId="+session.getAttribute(LoginUser.SESSION_USERID))+"&sessionId="+session.getId());
-//			return mod;
-			response.sendRedirect("http://192.168.0.244:3001/#/workplace?userId="+session.getAttribute(LoginUser.SESSION_USERID)+"&sessionId="+session.getId());
+			response.sendRedirect(CustomConst.MeqmMobile+"#/workplace/"+session.getAttribute(LoginUser.SESSION_USERID)+"/"+session.getId());
 		}
 		//如果当前微信用户不是项目中的用户，则自动注册
 		else {
-			if (EventKey==null) {
-				throw new ValidationException("你当前没有权限，不能成为我们的用户");
+			if (StringUtils.isBlank(EventKey) || ("null").equals(EventKey) || ("l").equals(EventKey) ) {
+				throw new ValidationException("没有权限");
+			}else{
+				//根据用户的openid获取用户的基本信息
+				WeixinOpenUser wxUser = weixinAPIInterface.getUserInfo(openid);
+				if (wxUser == null || wxUser.getOpenUserId() == null ) {
+					throw new ValidationException("网络异常");
+				}else {
+					//根据扫码传过来的用户角色的key值，查询对应的角色权限
+					WecatRegister wecatRegister = imessageService.find(WecatRegister.class, EventKey);
+					if (wecatRegister == null) {
+						throw new ValidationException("角色权限异常");
+					}
+					//微信自动注册用户，并将用户信息存在session中
+					String userId = userService.insertWxUser(wecatRegister, wxUser);
+					response.sendRedirect(CustomConst.MeqmMobile+"#/workplace/"+userId+"/"+session.getId());
+				}
 			}
-			//根据用户的openid获取用户的基本信息
-			WeixinOpenUser wxUser = weixinAPIInterface.getUserInfo(openid);
-			//根据扫码传过来的用户角色的key值，查询对应的角色权限
-			WecatRegister wecatRegister = imessageService.find(WecatRegister.class, EventKey);
-			if (wecatRegister==null) {
-				throw new ValidationException("当前机构或者组信息有误");
-			}
-			//微信自动注册用户，并将用户信息存在session中
-			userService.insertWxUser(wecatRegister, wxUser);
-//			ModelAndView mod = new ModelAndView(new RedirectView("http://192.168.0.109:3001/#/workplace?userId="+session.getAttribute(LoginUser.SESSION_USERID)));
-//			return mod;
-			response.sendRedirect("http://192.168.0.244:3001/#/workplace?userId="+session.getAttribute(LoginUser.SESSION_USERID)+"&sessionId="+session.getId());
 		}	
 	}
 }

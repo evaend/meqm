@@ -96,14 +96,16 @@
 			tar.product_type "productType",--资产分类id(资产类别 )  
 			tdi.dept_name "deptName",	--（使用科室）
 			tar.custodian "custodian",	--管理员，保管员
-			tar.m_dept_guid "mDeptCode",	--管理科室id
+			tar.b_dept_guid "mDeptCode",	--管理科室id
+        	(select dept_name from td_org_dept t
+            where t.dept_guid=tar.b_dept_guid) "mDeptName", --管理科室
 			tar.deposit "deposit",	--放地点-a区b楼c层d房间(存放地点)
 			ro.guarantee_flag "guaranteeFlag"  --保修：在保，出保(在保)
 		from td_rrpair_order ro
         left join tb_rrpair_order_acce roa on ro.rrpair_order_no=roa.rrpair_order
         left join td_equipment te on ro.equipment_code=te.equipment_code
         left join td_assets_record tar on ro.assets_record=tar.assets_record
-        left join td_org_dept tdi on tar.b_dept_guid=tdi.dept_guid
+        left join td_org_dept tdi on tar.use_dept_guid = tdi.dept_guid
         where ro.rrpair_order_guid = #{conditiions.rrpairOrderGuid, jdbcType=VARCHAR}
   </select>
   
@@ -156,6 +158,7 @@
 		  		ro.in_rrpair_phone "inRrpairPhone",	--内修负责人电话
 		  		ro.repair_result "repairResult",	--维修结果
         		ro.actual_price "actualPrice", -- 实际费用(维修费用)
+				ro.quoted_price "quoredPrice",	--预估费用
         		ro.repair_content_type "repairContentType",	--故障类型
         		ro.repair_content_typ "repairContentTyp",	--故障原因
         		ro.tf_remark_wx "tfRemarkWx",	--维修备注
@@ -178,7 +181,7 @@
 		        where t.dept_guid=roa.dept_guid) "checkDeptName", --验收科室
 		        roa.rr_acce_userid "rrAcceUserid",  --报修后验收人id
 		        roa.rr_acce_username "rrAcceUsername",  --报修后验收人姓名
-		        roa.rr_acce_fstate "rrAcceFstate",  --报修后验收人验收 60已验收 90验收不通过（验收结果）
+		        roa.rr_acce_fstate "rrAcceFstate",  --报修后验收人验收 65已验收 66验收不通过（验收结果）
 		        roa.rr_acce_date "rrAcceAate",  --报修后验收日期 （验收日期）
 		        roa.not_cause "notCause",	--理由说明
 		        roa.evaluate "evaluate",	--评价
@@ -228,7 +231,7 @@
         tar.product_type "productType",--资产分类id(资产类别 )
         tar.custodian "custodian",--保管员
         (select dept_name from td_org_dept t
-            where t.dept_guid=tar.m_dept_guid) "mDeptName", --管理科室
+            where t.dept_guid=tar.b_dept_guid) "mDeptName", --管理科室
         tar.deposit "deposit"--放地点-a区b楼c层d房间(存放地点)
         from td_rrpair_order ro
         left join tb_rrpair_order_acce roa on ro.rrpair_order_no=roa.rrpair_order
@@ -371,6 +374,7 @@
         ro.rrpair_userid "rrpairUserid",  --报修人id
         ro.rrpair_username "rrpairUsername", --报修人姓名
         ro.create_date "createDate",  --创建时间-报修时间（报修时间，维修时间）
+        ro.call_time "callTime",  --指派时间、维修时间、预计开始时间
         ro.rrpair_type "rrpairType",  --维修方式:内修，外修
         ro.in_rrpair_userid "inRrpairUserid",  --内修负责人id
         ro.in_rrpair_username "inRrpairUsername",  --内修负责人姓名
@@ -381,16 +385,16 @@
         from td_rrpair_order ro
         left join td_equipment te on ro.equipment_code=te.equipment_code
         left join td_assets_record tar on ro.assets_record=tar.assets_record
-        left join td_org_dept tdi on tar.b_dept_guid=tdi.dept_guid
+        left join td_org_dept tdi on tar.use_dept_guid=tdi.dept_guid
         where 1=1
         <!-- 如果当前用户是使用科室，则只能看见本科室的报修信息 -->
-        <if test="conditiions.groupName == 'syks'">
-            and (  (tar.b_dept_guid in (
-	                select tdu.dept_guid from td_dept_user tdu
-	                where tdu.user_id=#{conditiions.userId, jdbcType=VARCHAR} ) )
-	                or (ro.rrpair_userid = #{conditiions.userId, jdbcType=VARCHAR} )
-                ) 
-        </if>
+<!--         <if test="conditiions.groupName == 'syks'"> -->
+<!--             and (  (tar.b_dept_guid in ( -->
+<!-- 	                select tdu.dept_guid from td_dept_user tdu -->
+<!-- 	                where tdu.user_id=#{conditiions.userId, jdbcType=VARCHAR} ) ) -->
+<!-- 	                or (ro.rrpair_userid = #{conditiions.userId, jdbcType=VARCHAR} ) -->
+<!--                 )  -->
+<!--         </if> -->
         <!-- 查询对应维修状态 -->
         <if test="conditiions.params != null and conditiions.params != ''">
             and regexp_like(ro.rrpair_order_no, #{conditiions.params, jdbcType=VARCHAR}) OR
@@ -408,7 +412,7 @@
         <if test="conditiions.orderMark != null and conditiions.orderMark != '' and conditiions.orderField != null and conditiions.orderField!=''">
             order by "${conditiions.orderField}" ${conditiions.orderMark}
         </if>
-        <if test="conditiions.orderMark == null or conditiions.orderMark == '' and conditiions.orderField == null or conditiions.orderField==''">
+        <if test="(conditiions.orderMark == null or conditiions.orderMark == '') and (conditiions.orderField == null or conditiions.orderField=='')">
             order by ro.create_date desc
         </if>
     </select>

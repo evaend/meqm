@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.phxl.ysy.dao.MaintainPlanMapper" >
+  <resultMap id="BaseResultMap" type="com.phxl.ysy.entity.MaintainPlan" >
+    <id column="MAINTAIN_PLAN_ID" property="maintainPlanId" jdbcType="VARCHAR" />
+    <result column="MAINTAIN_PLAN_NAME" property="maintainPlanName" jdbcType="VARCHAR" />
+    <result column="USE_DEPT_GUID" property="useDeptGuid" jdbcType="VARCHAR" />
+    <result column="PLAN_TIME" property="planTime" jdbcType="DATE" />
+    <result column="PLAN_USERID" property="planUserid" jdbcType="VARCHAR" />
+    <result column="PLAN_USERNAME" property="planUsername" jdbcType="VARCHAR" />
+    <result column="TF_REMARK" property="tfRemark" jdbcType="VARCHAR" />
+    <result column="LXR" property="lxr" jdbcType="VARCHAR" />
+    <result column="LXR_ID" property="lxrId" jdbcType="VARCHAR" />
+    <result column="LXDH" property="lxdh" jdbcType="VARCHAR" />
+    <result column="TOTAL_PRICE" property="totalPrice" jdbcType="DECIMAL" />
+    <result column="ORG_ID" property="orgId" jdbcType="DECIMAL" />
+    <result column="LOOP_FLAG" property="loopFlag" jdbcType="VARCHAR" />
+    <result column="TF_CYCLE" property="tfCycle" jdbcType="VARCHAR" />
+    <result column="MAINTAIN_DATE" property="maintainDate" jdbcType="DATE" />
+    <result column="END_MAINTAIN_DATE" property="endMaintainDate" jdbcType="DATE" />
+    <result column="MAINTAIN_TYPE" property="maintainType" jdbcType="VARCHAR" />
+    <result column="CLINICAL_RISK" property="clinicalRisk" jdbcType="VARCHAR" />
+    <result column="ADVANCE_PLAN" property="advancePlan" jdbcType="DECIMAL" />
+    <result column="MAINTAIN_TYPE_ID" property="maintainTypeId" jdbcType="VARCHAR" />
+    <result column="ASSETS_RECORD_M" property="assetsRecordGuid" jdbcType="VARCHAR" />
+    <result column="EQUIPMENT_CODE" property="equipmentCode" jdbcType="VARCHAR" />
+  </resultMap>
+  
+  <!-- 查询保养计划列表 -->
+  <select id="selectMaintainPlanList" resultType="java.util.HashMap" parameterType="com.phxl.core.base.entity.Pager">
+  	select tmpd.maintain_plan_detail_id  "maintainPlanDetailId" , --计划明细id
+       tmp.maintain_plan_id "maintainPlanId" , --计划id
+	   tmpd.maintain_plan_no "maintainPlanNo" , --计划编号
+       tmpd.fstate "fstate" , --计划状态 （ 00草稿,20待执行,30执行中,40已执行,80已关闭 ）
+       tmp.assets_record_m "assetsRecordGuid" , --资产档案id
+       te.equipment_standard_name "equipmentStandardName" , --资产档案名称
+       (select dept_name from td_org_dept where dept_guid = tar.use_dept_guid) "useDept" , --使用科室 
+       tmp.maintain_type "maintainType" , --保养类型 （00内保 01外保 ） 
+       (select max(maintain_date) from td_maintain_plan_detail tmpd 
+          where tmpd.maintain_plan_id = tmp.maintain_plan_id 
+          and tmpd.maintain_date != tmp.maintain_date ) "lastMaintainDate", --上次保养时间
+       tmpd.maintain_date  "maintainDate" , --计划保养时间
+       tmp.loop_flag "loopFlag" , --循环方式（ 00单次 01循环）
+       tmp.tf_cycle "tfCycle" , --循环周期
+       tmpd.execute_username "executeUsername" , --操作员
+       tmpd.create_time "createTime" --创建时间
+		from td_maintain_plan_detail tmpd 
+    left join td_maintain_plan tmp on (tmpd.maintain_plan_id = tmp.maintain_plan_id)
+    left join td_assets_record tar on (tmp.assets_record_m = tar.assets_record_m)
+    left join td_equipment te on (tar.equipment_code = te.equipment_code)
+    where tmd.org_id = #{conditiions.orgId} 
+    <if test="conditiions.maintainPlanNo != null and conditiions.maintainPlanNo != ''">
+    	and (
+    		( regexp_like (tmpd.maintain_plan_no , #{conditiions.maintainPlanNo}) ) 
+    		or ( regexp_like (tar.assets_record , #{conditiions.maintainPlanNo}) ) 
+    		or ( regexp_like (te.equipment_standard_name , #{conditiions.maintainPlanNo}) ) 
+    	)
+    </if>
+  </select>
+  
+  <!-- 查询保养计划明细 -->
+  <select id="selectMaintainPlanDetail" resultType="java.util.HashMap" parameterType="com.phxl.core.base.entity.Pager">
+  	select tmpd.maintain_plan_detail_id  "maintainPlanDetailId" , --计划明细id
+       tmp.maintain_plan_id "maintainPlanId" , --计划id
+	   tmpd.maintain_plan_no "maintainPlanNo" , --计划编号
+       tmpd.fstate "fstate" ,  --计划状态 （ 00草稿,20待执行,30执行中,40已执行,80已关闭 ）
+       tmp.assets_record_m "assetsRecordGuid" ,  --资产档案id
+       te.equipment_standard_name "equipmentStandardName" ,  --资产档案名称
+       tmp.maintain_type "maintainType" ,  --保养类型 （00内保 01外保 ） 
+       tmp.clinical_risk "clinicalRisk" , -- 临床风险等级 （00低 01中 02高）
+       tmp.loop_flag "loopFlag" , --循环方式（ 00单次 01循环）
+       tmp.tf_cycle "tfCycle" , --循环周期
+       tmp.advance_plan "advancePlan" , --提前生成计划  
+       tmp.end_maintain_date "endMaintainDate" , --保养结束时间
+       tmpd.maintain_date "maintainDate" --保养开始时间
+		from td_maintain_plan_detail tmpd 
+    left join td_maintain_plan tmp on (tmpd.maintain_plan_id = tmp.maintain_plan_id)
+    left join td_assets_record tar on (tmp.assets_record_m = tar.assets_record_m)
+    left join td_equipment te on (tar.equipment_code = te.equipment_code) 
+    where tmpd.maintain_plan_detail_id = #{conditiions.maintainPlanDetailId}
+  </select>
+  
+  <!-- 查询保养计划明细的保养项目 -->
+  <select id="selectPlanMaintainType" parameterType="java.lang.String" resultType="java.util.HashMap">
+  	select tec.checkbox_detail_guid "checkboxDetailGuid" , --计划明细id
+           tmt.maintain_type_id "maintainTypeId" , --保养项目id
+           tmt.maintain_type_name "maintainTypeName" --保养项目名称
+        from tb_eq_checkbox tec 
+        left join td_maintain_type tmt on (tec.tf_code = tmt.maintain_type_id )
+        where tec.order_detail_guid = #{maintainPlanId}
+  </select>
+</mapper>

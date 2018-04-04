@@ -17,6 +17,9 @@
     <result column="REGISTER_NO" property="registerNo" jdbcType="VARCHAR" />
     <result column="SPEC" property="spec" jdbcType="VARCHAR" />
     <result column="FMODEL" property="fmodel" jdbcType="VARCHAR" />
+    <result column="MAINTAIN_TEMPLATE_ID" property="maintainTemplateId" jdbcType="VARCHAR" /> 
   </resultMap>
-  
+  <update id="updateEquipmentMaintainTemplate" parameterType="java.lang.String">
+  	update td_equipment set maintain_template_id = '' where equipment_code = #{equipmentCode}
+  </update>
 </mapper>

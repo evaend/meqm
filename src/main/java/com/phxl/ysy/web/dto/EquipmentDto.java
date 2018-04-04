@@ -27,8 +27,6 @@ public class EquipmentDto extends AssetsRecord{
 
     private String typeCode;
 
-    private String certGuid;
-
     private String registerNo;
     
     private String spec;
@@ -121,14 +119,6 @@ public class EquipmentDto extends AssetsRecord{
 
     public void setTypeCode(String typeCode) {
         this.typeCode = typeCode == null ? null : typeCode.trim();
-    }
-
-    public String getCertGuid() {
-        return certGuid;
-    }
-
-    public void setCertGuid(String certGuid) {
-        this.certGuid = certGuid == null ? null : certGuid.trim();
     }
 
     public String getRegisterNo() {

@@ -54,10 +54,14 @@ public class WeixinAPIImpl implements WeixinAPIInterface
     //private String sendMsgUrl = "https://api.weixin.qq.com/cgi-bin/message/mass/sendall?access_token={0}";
     private String templateMsgUrl = "https://api.weixin.qq.com/cgi-bin/message/template/send?access_token={0}";
     
-    // 获取临时二维码的ticket
+    /**
+     * 获取临时二维码的ticket
+     */
     private String getTicket = "https://api.weixin.qq.com/cgi-bin/qrcode/create?access_token={0}";
  
-    //微信生成临时二维码
+    /**
+     * 微信生成临时二维码
+     */
     private String getAsCode = "https://mp.weixin.qq.com/cgi-bin/showqrcode?ticket={0}";
     
     private Log log = LogFactory.getLog(getClass());   
@@ -127,13 +131,13 @@ public class WeixinAPIImpl implements WeixinAPIInterface
                 WeixinOpenUser user = new WeixinOpenUser();
                 user.setOpenUserId(json.get("openid").asText());
                 user.setState(json.get("subscribe").asText());
-                if ("1".equals(user.getState())) {
+//                if ("1".equals(user.getState())) {
                     user.setUserName(json.get("nickname").asText());
                     user.setSex(json.get("sex").asText());
                     user.setCity(json.get("city").asText());
                     user.setLanguage(json.get("language").asText());
                     user.setHeadimgurl(json.get("headimgurl").asText());
-                }
+//                }
                 return user;
             }
         } catch (Exception e) {
@@ -153,14 +157,15 @@ public class WeixinAPIImpl implements WeixinAPIInterface
 		WebConnect webConnect = new WebConnect();//发起http请求的对象 
 		webConnect.initWebClient();
             //log.info("getOpenId start.{appid=" + appid + ",secret:" + secret + ",code:" + code + "}");
-            String url = MessageFormat.format(this.getUserOpenIdUrl, appid, secret,code);
-            String response = webConnect.executeHttpGet(url);
-            JSONObject obj = JSONObject.fromObject(response); 
-            System.out.println("obj+++++++++++++++"+obj);
-            if (obj == null) {
-				throw new ValidationException("当前网络较弱，请退出重新进入");
-			}
-            userOpenId = obj.getString("openid"); 
+        String url = MessageFormat.format(this.getUserOpenIdUrl, appid, secret,code);
+        String response = webConnect.executeHttpGet(url);
+        JSONObject obj = JSONObject.fromObject(response); 
+        System.out.println("obj+++++++++++++++"+obj);
+        if (obj == null) {
+			throw new ValidationException("当前网络较弱，请退出重新进入");
+		}
+        System.out.println(obj);
+        userOpenId = obj.getString("openid"); 
         return userOpenId;
 	}
     

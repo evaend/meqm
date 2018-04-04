@@ -5,6 +5,7 @@ import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
+import java.io.IOException;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
@@ -18,6 +19,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 
+import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
@@ -92,9 +94,8 @@ public class TestController {
 	@ResponseBody
     public void testPage(@RequestParam(value="sessionId",required = false) String sessionId,
     		Model model,HttpServletRequest request,HttpServletResponse response) throws Exception {
-		System.out.println("1111111111111111");
 		System.out.println(sessionId);
-        String url = "http://cd7if2.natappfree.cc/test/test.html?sessionId="+sessionId;
+        String url = "http://hsms.com.cn/meqm/test/test.html?sessionId="+sessionId;
         WxJsUtils jsUtils = new WxJsUtils();
 		final String appId = SystemConfig.getProperty("wechat.config.appid");
         Map<String, String> ret = jsUtils.sign(url);
@@ -110,9 +111,11 @@ public class TestController {
 				}else {
 					request.setAttribute("sessionId", session.getId());
 				}
+			}else{
+				session = MySessionContext.getSession(sessionId);
 			}
 		}
-        request.getRequestDispatcher("/index.jsp").forward(request, response);
+        request.getRequestDispatcher("/scan.jsp").forward(request, response);
     }
 	
 	/**
@@ -332,7 +335,7 @@ public class TestController {
 	@ResponseBody
 	public String permission(HttpServletRequest request ,HttpServletResponse response) throws Exception{
 		Long EventKey = 1L;
-		return "https://open.weixin.qq.com/connect/oauth2/authorize?appid=wxe1ba6ec9765d99ac&redirect_uri=http%3A%2F%2Fcd7if2.natappfree.cc%2Ftest%2FgetPermission&response_type=code&scope=snsapi_base&state="+EventKey+"#wechat_redirect";
+		return "https://open.weixin.qq.com/connect/oauth2/authorize?appid=wxa0d673d35aab0631&redirect_uri=http%3A%2F%2Fhsms.com.cn%2Fmeqm%2Ftest%2FgetPermission&response_type=code&scope=snsapi_base&state="+EventKey+"#wechat_redirect";
 	}
 
 	/**
@@ -344,9 +347,8 @@ public class TestController {
 	 */
 	@RequestMapping("/getPermission")
 	@ResponseBody
-	public ModelAndView getPermission(HttpServletRequest request ,HttpServletResponse response) throws Exception{
+	public void getPermission(HttpServletRequest request ,HttpServletResponse response) throws Exception{
 		String code = request.getParameter("code");
-		System.out.println("code"+code);
 		String EventKey = request.getParameter("state");
 		String appid = SystemConfig.getProperty("wechat.config.appid");// appid
 		String secret = SystemConfig.getProperty("wechat.config.secret");// secret
@@ -355,40 +357,21 @@ public class TestController {
 		session.setAttribute("openid", openid);
 		request.setCharacterEncoding("UTF-8");
 		response.setCharacterEncoding("UTF-8");
+		//如果当前session中已经有了微信用户信息
 		if (request.getSession().getAttribute("wxUser")==null) {
 			WeixinOpenUser wxUser = weixinAPIInterface.getUserInfo(openid);
-			
-			System.out.println("getOpenUserId"+wxUser.getOpenUserId());
-			System.out.println(wxUser.getUserName());
-			System.out.println(wxUser.getHeadimgurl());
 			UserInfo u = new UserInfo();
 			u.setWechatOpenid(wxUser.getOpenUserId());
 			UserInfo userInfo = imessageService.searchEntity(u);
 			if(userInfo != null){
-				userInfo.setUserName(wxUser.getUserName());
-				userInfo.setWechatNo(wxUser.getUserName());
-				userInfo.setHeadImgUrl(wxUser.getHeadimgurl());
-				imessageService.updateInfo(userInfo);
+				response.sendRedirect(CustomConst.MeqmMobile+"/#/workplace/"+userInfo.getUserId()+"/"+session.getId());
 			}else{
-				WecatRegister wecatRegister = imessageService.find(WecatRegister.class, EventKey);
-				if (wecatRegister==null) {
-					throw new ValidationException("当前机构或者组信息有误");
-				}
-				userService.insertWxUser(wecatRegister, wxUser);
+				throw new ValidationException("当前未注册");
+				//自动注册
+//				userService.insertWxUser(wecatRegister, wxUser);
 			}
-//			request.getSession().setAttribute("wxUser", wxUser);
-			ModelAndView m = new ModelAndView(new RedirectView("http://mobile.medqcc.com/#/equipment?openid="+wxUser.getOpenUserId()
-//					+ "?userName="+wxUser.getUserName()+
-//					"&headimgurl="+wxUser.getHeadimgurl()
-					));
-			return m;
 		}else{
-			WeixinOpenUser wxUser = (WeixinOpenUser)request.getSession().getAttribute("wxUser");
-			ModelAndView m = new ModelAndView(new RedirectView("http://mobile.medqcc.com/#/equipment?openid="+wxUser.getOpenUserId()
-//					+ "?userName="+wxUser.getUserName()+
-//					"&headimgurl="+wxUser.getHeadimgurl()
-					));
-			return m;
+			response.sendRedirect(CustomConst.MeqmMobile+"/#/workplace/"+session.getAttribute(LoginUser.SESSION_USERID)+"/"+session.getId());
 		}
 	}
 	
@@ -474,9 +457,18 @@ public class TestController {
 	
 	@RequestMapping("/getSession")
 	@ResponseBody
-	public void getSession(HttpServletRequest request,HttpServletResponse response){
+	public void getSession(HttpServletRequest request,HttpServletResponse response) throws IOException{
+		System.out.println("11111111111111111111118888");
 		String id = request.getSession().getId();
-		System.out.println("session=++--------"+request.getSession().getId());
-		System.out.println(id);
+		System.out.println(id+"+++++++++++++++++++");
+//		 Cookie[] cookies = request.getCookies();
+//			String token = null;// cookie中的token
+//			HttpSession session = null;
+//			if (cookies != null) {
+//				for (Cookie tmpCookie : cookies) {
+//					System.out.println(tmpCookie.getName());
+//				}
+//			}
+//		 
 	}
 }

@@ -473,6 +473,9 @@ public class RrpairOrderController {
 
 		Map<String, Object> result = new HashMap<String, Object>();
 		Map<String, Object> selectRrpairDetailIsOrder = rrpairOrderService.selectRrpairDetailIsOrder(pager);
+		if (selectRrpairDetailIsOrder==null) {
+			throw new ValidationException("当前维修记录不存在");
+		}
 		if (selectRrpairDetailIsOrder.get("faultDescribe")!=null) {
 			String [] faultDescribe = StringUtils.split(selectRrpairDetailIsOrder.get("faultDescribe").toString(), ',');
 			selectRrpairDetailIsOrder.put("faultDescribe",faultDescribe);
@@ -499,6 +502,7 @@ public class RrpairOrderController {
 	 * @param request
 	 * @param response
 	 * @return
+	 * @throws ValidationException 
 	 */
 	@RequestMapping("/selectRrpairList")
 	@ResponseBody
@@ -510,16 +514,22 @@ public class RrpairOrderController {
 			@RequestParam(value="sortField",required = false) String sortField,
 			@RequestParam(value="sortOrder",required = false) String sortOrder,
 			@RequestParam(value="sessionId",required = false) String sessionId,
-			HttpServletRequest request,HttpServletResponse response) {
+			HttpServletRequest request,HttpServletResponse response) throws ValidationException {
 		Pager<Map<String, Object>> pager = new Pager<Map<String,Object>>(true);
-		System.out.println(sessionId);
-		if (StringUtils.isNotBlank(sessionId)) {
-			if (session!=null ) {
-				if (!sessionId.equals(session.getId())) {
-					session = MySessionContext.getSession(sessionId);
-				}
-			}
-		}
+		System.out.println("111111111111"+request.getSession().getId());
+//		System.out.println(sessionId);
+//		if (StringUtils.isNotBlank(sessionId)) {
+//			if (session!=null ) {
+//				if (!sessionId.equals(session.getId())) {
+//					session = MySessionContext.getSession(sessionId);
+//				}
+//			}else{
+//				session = MySessionContext.getSession(sessionId);
+//			}
+//		}
+//		if (session == null) {
+//			throw new ValidationException("当前session失效，请退出重新登录");
+//		}
 		//如果没有设置当前页和每页数量，则默认第一页，每页十五条数据
 		pager.setPageSize(pagesize == null ? 15 : pagesize);
 		pager.setPageNum(page == null ? 1 : page);
@@ -528,13 +538,10 @@ public class RrpairOrderController {
 			pager.addQueryParam("orderMark", "ascend".equalsIgnoreCase(sortOrder)?"asc":"desc");
 		}
 		pager.addQueryParam("params", params); 
-
-//		orderFstates = new String[]{"20","50"};
 		pager.addQueryParam("orderFstates", orderFstates);
-		System.out.println("1111111111111111111111"+session.getAttribute(LoginUser.SESSION_USERID));
-		pager.addQueryParam("userId", session.getAttribute(LoginUser.SESSION_USERID));
-		pager.addQueryParam("orgId", session.getAttribute(LoginUser.SESSION_USER_ORGID));
-		pager.addQueryParam("groupName", session.getAttribute("getUserGroupName"));
+		pager.addQueryParam("userId", session.getAttribute(LoginUser.SESSION_USERID).toString());
+//		pager.addQueryParam("orgId", session.getAttribute(LoginUser.SESSION_USER_ORGID));
+//		pager.addQueryParam("groupName", session.getAttribute("getUserGroupName"));
 
 		List<Map<String, Object>> list = rrpairOrderService.selectRrpairList(pager);
 		for (Map<String, Object> map : list) {
@@ -606,6 +613,7 @@ public class RrpairOrderController {
 	 * @param repairContentType 故障类型
 	 * @param repairContentTyp 故障原因
 	 * @param repairResult 维修结果
+	 * @param quoredPrice 预估费用
 	 * @param actualPrice 维修费用（总计）
 	 * @param tfRemarkWx 维修备注（内修）
 	 * @param offCause 关闭原因
@@ -656,9 +664,9 @@ public class RrpairOrderController {
 		objectMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);//配置项:忽略未知属性
 		//获取当前要添加或修改的维修工单信息
 		InsertRrpairOrderDto dto = objectMapper.readValue(request.getReader(), InsertRrpairOrderDto.class);
-		if (dto.getSessionId()!=null) {
-			session = MySessionContext.getSession(dto.getSessionId());
-		}
+//		if (StringUtils.isNotBlank(dto.getSessionId())) {
+//			session = MySessionContext.getSession(dto.getSessionId());
+//		}
 		if (session.getAttribute(LoginUser.SESSION_USERID)==null) {
 			throw new ValidationException("无登录信息");
 		}
@@ -795,12 +803,18 @@ public class RrpairOrderController {
 				if (StringUtils.isNotBlank(dto.getActualPrice())) {
 					rrpair.setActualPrice(BigDecimal.valueOf(Long.valueOf(dto.getActualPrice())));
 				}
+				if (StringUtils.isNotBlank(dto.getQuotedPrice())) {
+					rrpair.setQuotedPrice(BigDecimal.valueOf(Long.valueOf(dto.getQuotedPrice())));
+				}
 				rrpair.setTfRemarkWx(dto.getTfRemarkWx()==null ? rrpair.getTfRemarkWx() : dto.getTfRemarkWx());
 				rrpair.setRrpairDate(new Date()); 	//修复日期
 				rrpair.setOffCause(dto.getOffCause()==null ? rrpair.getOffCause() : dto.getOffCause());
 				rrpair.setFollowupTreatment(dto.getFollowupTreatment()==null ? rrpair.getFollowupTreatment() : dto.getFollowupTreatment());
 				rrpair.setTfRemarkGb(dto.getTfRemarkGb()==null ? rrpair.getTfRemarkGb() : dto.getTfRemarkGb());
 			}else if (dto.getRrpairType().equals(CustomConst.RrpairType.OUT_REPAIR)){
+				if (StringUtils.isNotBlank(dto.getQuotedPrice())) {
+					rrpair.setQuotedPrice(BigDecimal.valueOf(Long.valueOf(dto.getQuotedPrice())));
+				}
 				rrpair.setOutOrg(dto.getOutOrg()==null ? rrpair.getOutOrg() : dto.getOutOrg());
 				rrpair.setOutRrpairPhone(dto.getOutRrpairPhone()==null ? rrpair.getOutRrpairPhone() : dto.getOutRrpairPhone());
 				rrpair.setCompletTime(dto.getCompletTime()=="" ? rrpair.getCompletTime() : format.parse(dto.getCompletTime()));
@@ -1037,20 +1051,22 @@ public class RrpairOrderController {
 			@RequestParam(value="rrAcceFstate",required = false) String rrAcceFstate,
 			@RequestParam(value="tfRemark",required = false) String tfRemark,
 			@RequestParam(value="notCause",required = false) String notCause,
-			@RequestParam(value="evaluate",required = false) String evaluate,
-			@RequestParam(value="sessionId",required = false) String sessionId
+			@RequestParam(value="evaluate",required = false) String evaluate
+//			@RequestParam(value="sessionId",required = false) String sessionId
 			) throws ValidationException{
 		RrpairOrder rrpairOrder = rrpairOrderService.find(RrpairOrder.class, rrpairOrderGuid);
 		if (rrpairOrder==null) {
 			throw new ValidationException("当前维修记录不存在");
 		}
-		if (StringUtils.isNotBlank(sessionId)) {
-			if (session!=null ) {
-				if (!sessionId.equals(session.getId())) {
-					session = MySessionContext.getSession(sessionId);
-				}
-			}
-		}
+//		if (StringUtils.isNotBlank(sessionId)) {
+//			if (session!=null ) {
+//				if (!sessionId.equals(session.getId())) {
+//					session = MySessionContext.getSession(sessionId);
+//				}
+//			}else{
+//				session = MySessionContext.getSession(sessionId);
+//			}
+//		}
 		RrpairOrderAcce rracce = new RrpairOrderAcce();
 		rracce.setRrpairOrder(rrpairOrderGuid);
 		RrpairOrderAcce acce = rrpairOrderService.searchEntity(rracce);
@@ -1187,19 +1203,21 @@ public class RrpairOrderController {
 			@RequestParam(value="orderFstate",required = false) String orderFstate,
 			@RequestParam(value="refuseCause",required = false) String refuseCause,
 			@RequestParam(value="otherCause",required = false) String otherCause,
-			@RequestParam(value="tfRemarkJj",required = false) String tfRemarkJj,
-			@RequestParam(value="sessionId",required = false) String sessionId
+			@RequestParam(value="tfRemarkJj",required = false) String tfRemarkJj
+//			@RequestParam(value="sessionId",required = false) String sessionId
 			) throws ValidationException{
 		if (StringUtils.isBlank(rrpairOrderGuid)) {
 			throw new ValidationException("维修工单GUID不允许为空");
 		}
-		if (StringUtils.isNotBlank(sessionId)) {
-			if (session!=null ) {
-				if (!sessionId.equals(session.getId())) {
-					session = MySessionContext.getSession(sessionId);
-				}
-			}
-		}
+//		if (StringUtils.isNotBlank(sessionId)) {
+//			if (session!=null ) {
+//				if (!sessionId.equals(session.getId())) {
+//					session = MySessionContext.getSession(sessionId);
+//				}
+//			}else{
+//				session = MySessionContext.getSession(sessionId);
+//			}
+//		}
 		RrpairOrder rrpair = rrpairOrderService.find(RrpairOrder.class, rrpairOrderGuid);
 		if (rrpair==null) {
 			throw new ValidationException("当前维修记录不存在");
@@ -1215,8 +1233,14 @@ public class RrpairOrderController {
 		//如果是内修人主动接修，则自动填写内修人信息
 		if (orderFstate.equals(CustomConst.RrpairOrderFstate.MAINTENANCE)) {
 			if ((CustomConst.RrpairOrderFstate.AWAITING_REPAIR).equals(rrpair.getOrderFstate())) {
-				rrpair.setInRrpairUserid(session.getAttribute(LoginUser.SESSION_USERID).toString());
-				rrpair.setInRrpairUsername(session.getAttribute(LoginUser.SESSION_USERNAME).toString());
+				if (("nxz").equals(session.getAttribute("getUserGroupName"))) {
+					rrpair.setInRrpairUserid(session.getAttribute(LoginUser.SESSION_USERID).toString());
+					rrpair.setInRrpairUsername(session.getAttribute(LoginUser.SESSION_USERNAME).toString());
+					rrpair.setOrderType(CustomConst.RrpairType.IN_REPAIR);
+				}else if (("wxs").equals(session.getAttribute("getUserGroupName"))) {
+					rrpair.setOutRrpairUsername(session.getAttribute(LoginUser.SESSION_USERNAME).toString());
+					rrpair.setOrderType(CustomConst.RrpairType.OUT_REPAIR);
+				}
 			}
 		}
 		

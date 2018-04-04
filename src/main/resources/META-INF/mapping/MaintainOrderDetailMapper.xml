@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.phxl.ysy.dao.MaintainOrderDetailMapper" >
+  <resultMap id="BaseResultMap" type="com.phxl.ysy.entity.MaintainOrderDetail" >
+    <id column="MAINTAIN_ORDER_DETAIL_GUID" property="maintainOrderDetailGuid" jdbcType="VARCHAR" />
+    <result column="MAINTAIN_GUID" property="maintainGuid" jdbcType="VARCHAR" />
+    <result column="MAINTAIN_TYPE_ID" property="maintainTypeId" jdbcType="VARCHAR" />
+    <result column="MAINTAIN_RESULT" property="maintainResult" jdbcType="VARCHAR" />
+    <result column="TF_REMARK" property="tfRemark" jdbcType="VARCHAR" />
+  </resultMap>
+  
+</mapper>

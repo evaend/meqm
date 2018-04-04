@@ -9,6 +9,12 @@ import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 
 import org.apache.http.client.ClientProtocolException;
+import org.apache.http.client.ResponseHandler;
+import org.apache.http.client.methods.HttpPost;
+import org.apache.http.entity.StringEntity;
+import org.apache.http.impl.client.BasicResponseHandler;
+import org.apache.http.message.BasicHeader;
+import org.apache.http.protocol.HTTP;
 
 import net.sf.json.JSON;
 import net.sf.json.JSONObject;
@@ -46,6 +52,11 @@ public class AccessTokenServlet extends HttpServlet {
 
         private String getTicketUrl = "https://api.weixin.qq.com/cgi-bin/ticket/getticket?access_token={0}&type=jsapi";
 
+        /**
+         * 微信自定义菜单
+         */
+        private String setMenu = "https://api.weixin.qq.com/cgi-bin/menu/create?access_token={0}";
+        
 	    @Override
 	    public void init() throws ServletException {
 	        log.info("启动WebServlet");
@@ -69,13 +80,30 @@ public class AccessTokenServlet extends HttpServlet {
 	                            
 	                            System.out.println(AccessTokenInfo.accessToken.getAccessToken()+"---------------accessToken");
 	                            System.out.println(JsapiTicketInfo.jsapiTicket.getTicket()+"+++++++++++++++ticket");
-
+	                            String url = MessageFormat.format(setMenu,AccessTokenInfo.accessToken.getAccessToken());
+	                            WebConnect webConnect = new WebConnect();//发起http请求的对象 
+	                        	webConnect.initWebClient();
+	                            HttpPost post = new HttpPost(url);
+	                            ResponseHandler<?> responseHandler = new BasicResponseHandler();
+	                            //生成临时二维码需要的json数据
+	                            JSONObject json = new JSONObject();
+	                            json.put("button", "[ {'type': 'view', 'name': '单据查询', 'url': 'http://admin.ysynet.com/webApp/login'}, "+
+        "{'type': 'view', 'name': '设备管理', 'url': 'https://open.weixin.qq.com/connect/oauth2/authorize?appid=wxa0d673d35aab0631&redirect_uri=http%3A%2F%2Fhsms.com.cn%2Fmeqm%2Fhome%2FwechatBinding&response_type=code&scope=snsapi_userinfo&state=null#wechat_redirect'}]");
+	                            post.setHeader("Content-Type", "application/json");
+	                            //将json数据封装
+	                            StringEntity s = new StringEntity(json.toString(), "utf-8");
+	                            s.setContentEncoding(new BasicHeader(HTTP.CONTENT_TYPE,"application/json"));
+	                            post.setEntity(s);
+	                            //响应数据
+	                            JSONObject j = JSONObject.fromObject(webConnect.getWebClient().execute(post, responseHandler));
+	                            System.out.println(j);
+	                            
 	                            if (JsapiTicketInfo.jsapiTicket != null) {
 		                            //获取到access_token 休眠7000秒,大约2个小时左右
 		                            Thread.sleep(7000 * 1000);
 		                            //Thread.sleep(10 * 1000);//10秒钟获取一次
 								}
-	                            
+	                           
 	                        } else {
 	                            //获取失败
 	                            Thread.sleep(1000 * 7000); //获取的access_token为空 休眠3秒

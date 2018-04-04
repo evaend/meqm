@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.phxl.ysy.dao.MaintainTemplateMapper" >
+  <resultMap id="BaseResultMap" type="com.phxl.ysy.entity.MaintainTemplate" >
+    <id column="MAINTAIN_TEMPLATE_ID" property="maintainTemplateId" jdbcType="VARCHAR" />
+    <result column="MAINTAIN_TEMPLATE_NAME" property="maintainTemplateName" jdbcType="VARCHAR" />
+    <result column="ORG_ID" property="orgId" jdbcType="DECIMAL" />
+    <result column="USE_DEPT_GUID" property="useDeptGuid" jdbcType="VARCHAR" />
+    <result column="CREATE_USERID" property="createUserid" jdbcType="VARCHAR" />
+    <result column="CREATE_TIME" property="createTime" jdbcType="DATE" />
+    <result column="MODIFY_USERID" property="modifyUserid" jdbcType="VARCHAR" />
+    <result column="MODIFIY_TIME" property="modifiyTime" jdbcType="DATE" />
+    <result column="FSORT" property="fsort" jdbcType="DECIMAL" />
+  </resultMap>
+  
+  <!-- 查询保养模板 -->
+  <select id="selectMaintainTemplate" resultType="java.util.HashMap" parameterType="com.phxl.core.base.entity.Pager">
+  	select 
+		tmt.maintain_template_id "maintainTemplateId" ,	--模板id
+		tmt.maintain_template_name "maintainTemplateName" , 	--模板名称
+		(select count(*) from td_maintain_template_detail where maintain_template_id = tmt.maintain_template_id) "detailNum" --模板项目数量
+		from td_maintain_template tmt
+		where tmt.org_id = #{conditiions.orgId}
+		<if test="conditiions.maintainTemplateName != null and conditiions.maintainTemplateName != ''">
+			and regexp_like (tmt.maintain_template_name , #{conditiions.maintainTemplateName}) 
+		</if>
+  </select>
+  
+  <!-- 查询保养模板里的保养项目 -->
+  <select id="selectMaintainTemplateDetail" resultType="java.util.HashMap" parameterType="com.phxl.core.base.entity.Pager">
+	select 
+		tmtd.maintain_template_detail_guid "templateDetailGuid" , --模板明细id
+		tmtd.maintain_template_id "maintainTemplateId" , --模板id
+		tmtd.maintain_type_id "maintainTypeId" , --保养项目id
+		1 "levelr" , --阶级
+		(select maintain_type_name from td_maintain_type where maintain_type_id = tmtd.maintain_type_id ) "templateTypeName" --保养项目名称
+		from td_maintain_template_detail tmtd
+		where tmtd.maintain_template_id = #{conditiions.maintainTemplateId}
+  </select>
+  
+  <!-- 查询某个设备的保养模板 -->
+  <select id="selectMaintainTemplateEquipment" resultType="java.util.HashMap" parameterType="com.phxl.core.base.entity.Pager">
+  	select 
+  		maintain_template_id "maintainTemplateId" , 
+  		maintain_template_name "maintainTemplateName" 
+  		from td_maintain_template 
+  		where org_id = #{conditiions.orgId} 
+  		<if test="conditiions.maintainTemplateId != null and conditiions.maintainTemplateId != ''">
+  			and maintain_template_id = #{conditiions.maintainTemplateId} 
+  		</if>
+  		<if test="conditiions.maintainTemplateId == null or conditiions.maintainTemplateId == ''">
+  			and (maintain_template_id is null) or (maintain_template_id = '') 
+  		</if>
+  </select>
+  
+  <!-- 查询模板下面的设备 -->
+  <select id="selectEquipmentInTemplate" resultType="java.util.HashMap" parameterType="com.phxl.core.base.entity.Pager">
+  	select equipment_code "equipmentCode" , 	--设备code
+       equipment_name "equipmentName" , 	--设备名称
+       spec "spec" , 	--设备规格
+       fmodel "fmodel" , 	--设备型号
+       register_no "registerNo" 	--注册证号
+    from td_equipment 
+    where 1 = 1 
+    	<if test="conditiions.maintainTemplateId != null and conditiions.maintainTemplateId != ''">
+  			and maintain_template_id = #{conditiions.maintainTemplateId} 
+  		</if>
+  		<if test="conditiions.maintainTemplateId == ''">
+  			and ( (maintain_template_id is null) or (maintain_template_id = '') )  
+  		</if>
+  		<if test="conditiions.equipmentName != null and conditiions.equipmentName != ''">
+  			and regexp_like(equipment_name , #{conditiions.equipmentName})
+  		</if>
+  </select>
+  
+  <select id="selectTempDetailIsRepetition" resultType="java.util.HashMap" parameterType="java.util.HashMap">
+  	select count(*) from td_maintain_template_detail 
+  		where maintain_template_id = #{maintainTemplateId} 
+		and maintain_type_id = #{maintainTypeId} 
+  </select>
+</mapper>
